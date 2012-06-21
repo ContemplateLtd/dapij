@@ -40,5 +40,5 @@ public class Dapij implements ClassFileTransformer {
 	
 	public static void premain(String arglist, Instrumentation inst) {
 		inst.addTransformer(new Dapij());
-	} 
+	}
 }
