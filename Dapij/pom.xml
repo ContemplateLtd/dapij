@@ -21,9 +21,6 @@
   </dependencies>
 
   <build>
-
-    <sourceDirectory>src</sourceDirectory>
-
     <plugins>
 
       <plugin>
@@ -63,25 +60,6 @@
         </executions>
       </plugin>
 
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>1.7</version>
-        <executions>
-          <execution>
-            <id>add-test-source</id>
-            <phase>validate</phase>
-            <goals>
-              <goal>add-test-source</goal>
-            </goals>
-            <configuration>
-              <sources>
-                <source>res</source>
-              </sources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
 
   </build>
