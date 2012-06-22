@@ -1,6 +1,5 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * TODO: enter sensible info 
  */
 package dapij;
 
@@ -31,27 +30,10 @@ public class ReturnVisitor extends MethodVisitor {
         }
         mv.visitTypeInsn(opcode, type);
     }
-    
+
     @Override
     public void visitLineNumber(int line, Label start) {
         mv.visitLineNumber(line, start);
         currentLine = line;
     }
-
-    /*
-    @Override
-    public void visitInsn(int opcode) {
-        if (opcode == Opcodes.RETURN
-                || opcode == Opcodes.IRETURN
-                || opcode == Opcodes.ARETURN
-                || opcode == Opcodes.DRETURN
-                || opcode == Opcodes.FRETURN) {
-            mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-            mv.visitLdcInsn("Exiting method " + name);
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V");
-        }
-        mv.visitInsn(opcode);
-    }
-    * 
-    */
 }
