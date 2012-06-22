@@ -12,23 +12,31 @@ import org.objectweb.asm.Opcodes;
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
 public class StatsCollector extends ClassVisitor {
+    
+    private String sourceFile;
 
     @Override
     public void visit(int version, int access, String name, String signature,
             String superName, String[] interfaces) {
-        super.visit(version, access, name, signature, superName, interfaces);
+        cv.visit(version, access, name, signature, superName, interfaces);
     }
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc,
             String signature, String[] exceptions) {
         MethodVisitor mv;
-        mv = super.visitMethod(access, name, desc, signature, exceptions);
+        mv = cv.visitMethod(access, name, desc, signature, exceptions);
         if (mv != null) {
-            mv = new ReturnVisitor(mv, name);
+            mv = new ReturnVisitor(mv, name, sourceFile);
         }
 
         return mv;
+    }
+    
+    @Override
+    public void visitSource(String source, String debug) {
+        sourceFile = source;
+        cv.visitSource(source, debug);
     }
 
     public StatsCollector(ClassVisitor cv) {
