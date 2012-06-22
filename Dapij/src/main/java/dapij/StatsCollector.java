@@ -23,13 +23,13 @@ public class StatsCollector extends ClassVisitor {
 
 	@Override
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-		System.err.println(superName);
+		//System.err.println(superName);
 		super.visit(version, access, name, signature, superName, interfaces);
 	}
 	
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-		System.out.println("Method " + name);
+		//System.out.println("Method " + name);
 		MethodVisitor mv;
 		mv = super.visitMethod(access, name, desc, signature, exceptions);
 		if(mv != null) mv = new ReturnVisitor(mv, name);

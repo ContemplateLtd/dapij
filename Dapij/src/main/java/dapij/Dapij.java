@@ -23,12 +23,12 @@ public class Dapij implements ClassFileTransformer {
 		System.out.println("Processing class " + className);
 		
 		try {
-			System.out.println("Obtaining Stats from " + classfileBuffer);
+			//System.out.println("Obtaining Stats from " + classfileBuffer);
 			// scan class binary format to find fields for toString() method
 			ClassReader creader = new ClassReader(classfileBuffer);
 			ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 			ClassVisitor sc_visitor = new StatsCollector(writer);
-			creader.accept(sc_visitor, ClassReader.SKIP_DEBUG);
+			creader.accept(sc_visitor, 0);
 			
 			return writer.toByteArray();
 			
