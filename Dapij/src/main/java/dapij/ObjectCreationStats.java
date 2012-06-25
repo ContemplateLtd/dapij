@@ -8,7 +8,7 @@ package dapij;
  *
  * @author Marcin Szymczak <mpszymczak@gmail.com>
  */
-public class ObjectCreation {
+public class ObjectCreationStats {
     
     private Class clazz;
     private String method;

@@ -24,7 +24,6 @@ public class Dapij implements ClassFileTransformer {
         System.out.println("Processing class " + className);
 
         try {
-            
             /* scan class binary format to find fields for toString() method */
             ClassReader creader = new ClassReader(classfileBuffer);
             ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);

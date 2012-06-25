@@ -43,11 +43,12 @@ public class StatsCollector extends ClassVisitor {
     
     @Override
     public void visitEnd() {
-        //add an instance of ObjectCreation
-        String objectCreationDescriptor = Type.getDescriptor(ObjectCreation.class);
-        FieldNode fieldToAdd = new FieldNode(Opcodes.ACC_PUBLIC, "_info",objectCreationDescriptor ,"ObjectCreation" , null);
+        /* add an instance of ObjectCreation */
+        FieldNode fieldToAdd = new FieldNode(Opcodes.ACC_PUBLIC, "_info",
+                Type.getDescriptor(ObjectCreationStats.class),
+                "ObjectCreationStats", null);
         fieldToAdd.accept(cv);
-        super.visitEnd();
+        cv.visitEnd();
     }
 
     public StatsCollector(ClassVisitor cv) {
