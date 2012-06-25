@@ -6,6 +6,8 @@ package dapij;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.FieldNode;
 
 /**
  *
@@ -37,6 +39,15 @@ public class StatsCollector extends ClassVisitor {
     public void visitSource(String source, String debug) {
         sourceFile = source;
         cv.visitSource(source, debug);
+    }
+    
+    @Override
+    public void visitEnd() {
+        //add an instance of ObjectCreation
+        String objectCreationDescriptor = Type.getDescriptor(ObjectCreation.class);
+        FieldNode fieldToAdd = new FieldNode(Opcodes.ACC_PUBLIC, "_info",objectCreationDescriptor ,"ObjectCreation" , null);
+        fieldToAdd.accept(cv);
+        super.visitEnd();
     }
 
     public StatsCollector(ClassVisitor cv) {
