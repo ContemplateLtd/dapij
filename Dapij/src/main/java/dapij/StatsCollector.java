@@ -29,7 +29,7 @@ public class StatsCollector extends ClassVisitor {
         MethodVisitor mv;
         mv = cv.visitMethod(access, name, desc, signature, exceptions);
         if (mv != null) {
-            mv = new ReturnVisitor(mv, name, sourceFile);
+            mv = new ObjectCreationVisitor(mv, name, sourceFile);
         }
 
         return mv;
