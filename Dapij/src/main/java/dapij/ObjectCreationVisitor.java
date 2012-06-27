@@ -20,7 +20,6 @@ public class ObjectCreationVisitor extends MethodVisitor {
     private String type;        /* type of object created */
     private int line = -1;      /* line where created */
     private String sourceFile;  /* source file where created */
-    private int opcode = 1-Opcodes.NEW;
 
     public ObjectCreationVisitor(MethodVisitor mv, String name,
             String sourceFile) {
@@ -31,10 +30,32 @@ public class ObjectCreationVisitor extends MethodVisitor {
 
     @Override
     public void visitTypeInsn(int opcode, String type) {
-        this.opcode = 1-Opcodes.NEW;
+        //mv.visitTypeInsn(opcode, type);
         if (opcode == Opcodes.NEW) {
-            this.opcode = opcode;
             this.type = type;
+            
+           /* 
+            mv.visitLdcInsn(Type.getType(LineNumTracker.class));
+                    
+            mv.visitMethodInsn(Opcodes.INVOKESTATIC, "dapij/LineNumTracker",
+                    "getLineNum", Type.getMethodDescriptor(Type.getType(Integer.class)));
+            mv.visitInsn(Opcodes.POP2);
+            * 
+            */
+            mv.visitLdcInsn(Type.getType(LineNumTracker.class));
+            //mv.visitLdcInsn(new Integer(line));
+            
+            mv.visitTypeInsn(Opcodes.NEW, "java/lang/Integer");
+            mv.visitInsn(Opcodes.DUP);
+            //mv.visitLdcInsn(new Integer(line));
+            mv.visitIntInsn(Opcodes.SIPUSH, line);
+            mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Integer", "<init>", "(I)V");
+
+            
+            mv.visitMethodInsn(Opcodes.INVOKESTATIC, "dapij/LineNumTracker",
+                    "push", Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(Integer.class)));//"(Ljava/lang/Integer;)V");
+            
+            
             
             /*
             mv.visitVarInsn(Opcodes.ALOAD, 0);
@@ -72,5 +93,11 @@ public class ObjectCreationVisitor extends MethodVisitor {
           */
         }
         mv.visitTypeInsn(opcode, type);
+    }
+    
+    @Override
+    public void visitLineNumber(int line, Label start) {
+        mv.visitLineNumber(line, start);
+        this.line = line;
     }
 }

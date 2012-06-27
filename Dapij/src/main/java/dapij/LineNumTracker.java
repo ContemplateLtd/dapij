@@ -36,7 +36,10 @@ public class LineNumTracker {
      * @return Integer The line number of caller of 'new'
      */
     public static Integer getLineNum() {
-        return new Integer(
-                Thread.currentThread().getStackTrace()[2].getLineNumber());
+        Integer i = new Integer(Thread.currentThread().getStackTrace()[2]
+                .getLineNumber());
+        System.out.println("The line is: " + i);
+        return i ;// new Integer(
+              //  Thread.currentThread().getStackTrace()[2].getLineNumber());
     }
 }
