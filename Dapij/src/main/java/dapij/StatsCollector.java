@@ -3,10 +3,7 @@
  */
 package dapij;
 
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.*;
 import org.objectweb.asm.tree.FieldNode;
 
 /**
@@ -16,6 +13,8 @@ import org.objectweb.asm.tree.FieldNode;
 public class StatsCollector extends ClassVisitor {
     
     private String sourceFile;
+    private boolean isFieldPresent;
+    private static final String insrtFldName = "_info";
 
     @Override
     public void visit(int version, int access, String name, String signature,
@@ -36,18 +35,30 @@ public class StatsCollector extends ClassVisitor {
     }
     
     @Override
+    public FieldVisitor visitField(int access, String name, String desc,
+            String signature, Object value) {
+        if (name.equals(insrtFldName)) {
+            isFieldPresent = true;
+        }
+        return cv.visitField(access, name, desc, signature, value);
+    }
+    
+    @Override
     public void visitSource(String source, String debug) {
-        sourceFile = source;
+        sourceFile = source;    /* Obtain name of source file */
         cv.visitSource(source, debug);
     }
     
     @Override
     public void visitEnd() {
-        /* add an instance of ObjectCreation */
-        FieldNode fieldToAdd = new FieldNode(Opcodes.ACC_PUBLIC, "_info",
-                Type.getDescriptor(ObjectCreationStats.class),
-                "ObjectCreationStats", null);
-        fieldToAdd.accept(cv);
+        if (!isFieldPresent) {
+            /* add a field of type ObjectCreation to current class */
+            FieldVisitor fv = cv.visitField(Opcodes.ACC_PRIVATE, insrtFldName,
+                    Type.getDescriptor(ObjectCreationStats.class), null, null);
+            if (fv != null) {
+                fv.visitEnd();
+            }
+        }
         cv.visitEnd();
     }
 

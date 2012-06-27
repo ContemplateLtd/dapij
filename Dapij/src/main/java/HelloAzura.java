@@ -11,28 +11,19 @@ import dapij.ObjectCreationStats;
  */
 public class HelloAzura {
 
-    ObjectCreationStats s = null;
+    private int i = 1;
     
     public static int square(int input) {
         return input * input;
     }
 
-    public HelloAzura(Class c, String m, int off, long id) {
-       // this.s = new ObjectCreationStats(c, m, off, id);
- 
-    }
-
     public static void azura() {
-        System.out.println("Hello Azura"); /* Azura is the name of my dog */
+        System.out.println("Hello Azura");  /* Azura is the name of my dog */
     }
     
     public static void main(String args[]) {
-        Class c = HelloAzura.class;
-        String m = "main";
-        int off = 5;
-        long id = 30;
-        HelloAzura ha = new HelloAzura(c, m, off, id);
-        System.out.println("The square of 5 is " + square(5));
+        HelloAzura ha = new HelloAzura();   /* create object to test agent */
+        // System.out.println("The square of 5 is " + square(5));
         azura();
     }
 }

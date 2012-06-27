@@ -1,7 +1,8 @@
 /*
- * TODO: enter sensible info 
+ * TODO: enter meningful info 
  */
 package dapij;
+
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -35,44 +36,41 @@ public class ObjectCreationVisitor extends MethodVisitor {
             this.opcode = opcode;
             this.type = type;
             
-            
-            visitVarInsn(Opcodes.ALOAD, 0);
-            visitTypeInsn(Opcodes.NEW, Type.getInternalName(ObjectCreationStats.class));
-            visitInsn(Opcodes.DUP);
-            mv.visitLdcInsn(this.getClass());      /* object type */ // TODO:
-            mv.visitLdcInsn(creator);   /* creator method */
-            mv.visitLdcInsn(line);      /* TODO: offset */
-            mv.visitLdcInsn(5);         /* TODO: threadId */
-            mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(ObjectCreationStats.class),
-                    "ObjectCreationStats",
-                    "(Ljava/lang/Class;Ljava/lang/String;IJ)V");
-
-            mv.visitFieldInsn(Opcodes.PUTFIELD, Type.getInternalName(ObjectCreationStats.class),
-                    "_info", "Ldapij/ObjectCreationStats;");
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(ObjectCreationStats.class), "toString", "()Ljava/lang/Sting;");
             /*
+            mv.visitVarInsn(Opcodes.ALOAD, 0);
+            mv.visitTypeInsn(Opcodes.NEW,
+                    Type.getInternalName(ObjectCreationStats.class));
+    
+            // Create The object
+            mv.visitInsn(Opcodes.DUP);
+            mv.visitLdcInsn(Type.getObjectType(type));  // object class
+            mv.visitLdcInsn(creator);                   // creator method
+            mv.visitLdcInsn(new Integer(line));         // TODO: offset
+            mv.visitLdcInsn(new Long(5));               // TODO: threadId
+            mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
+                    Type.getInternalName(ObjectCreationStats.class), "<init>",
+                    "(Ljava/lang/Class;Ljava/lang/String;IJ)V");
+            */
+            
+            /*
+             * set the _info field with the newly created ObjectCreationStats
+             * object that's put on the stack by the above code
+             */
+            /*
+            mv.visitFieldInsn(Opcodes.PUTFIELD,
+                    Type.getInternalName(ObjectCreationStats.class), "_info",
+                    "Ldapij/ObjectCreationStats;");
+            */
+            
+          /*
             mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out",
                     "Ljava/io/PrintStream;");
             mv.visitLdcInsn("Created '" + type + "' in " + creator + ", "
                     + sourceFile + ":"+ line);
             mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream",
                     "println", "(Ljava/lang/String;)V");
-                    */
+          */
         }
         mv.visitTypeInsn(opcode, type);
-    }
-/*
-    @Override
-    public void visitEnd() {
-        if (this.opcode == Opcodes.NEW) {
-  
-        }
-        mv.visitEnd();
-    }
-*/    
-    @Override
-    public void visitLineNumber(int line, Label start) {
-        mv.visitLineNumber(line, start);
-        this.line = line;
     }
 }
