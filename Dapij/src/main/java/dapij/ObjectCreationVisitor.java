@@ -42,18 +42,12 @@ public class ObjectCreationVisitor extends MethodVisitor {
             mv.visitInsn(Opcodes.POP2);
             * 
             */
-            mv.visitLdcInsn(Type.getType(LineNumTracker.class));
+            //mv.visitLdcInsn(Type.getType(LineNumTracker.class));
             //mv.visitLdcInsn(new Integer(line));
             
-            mv.visitTypeInsn(Opcodes.NEW, "java/lang/Integer");
-            mv.visitInsn(Opcodes.DUP);
-            //mv.visitLdcInsn(new Integer(line));
-            mv.visitIntInsn(Opcodes.SIPUSH, line);
-            mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Integer", "<init>", "(I)V");
-
-            
+            mv.visitLdcInsn(line);
             mv.visitMethodInsn(Opcodes.INVOKESTATIC, "dapij/LineNumTracker",
-                    "push", Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(Integer.class)));//"(Ljava/lang/Integer;)V");
+                    "push", Type.getMethodDescriptor(Type.VOID_TYPE, Type.INT_TYPE));
             
             
             

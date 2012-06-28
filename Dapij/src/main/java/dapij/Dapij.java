@@ -23,6 +23,10 @@ public class Dapij implements ClassFileTransformer {
     public byte[] transform(ClassLoader loader, String className,
             Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
             byte[] classfileBuffer) throws IllegalClassFormatException {
+        
+        if(className.startsWith("dapij"))
+            return classfileBuffer;
+        
         System.out.println("Instrumenting " + className + " ...");
 
         try {
