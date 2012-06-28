@@ -4,6 +4,7 @@
 package dapij;
 
 
+import java.util.Stack;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -20,12 +21,32 @@ public class ObjectCreationVisitor extends MethodVisitor {
     private String type;        /* type of object created */
     private int line = -1;      /* line where created */
     private String sourceFile;  /* source file where created */
+    private Stack<StackElement> objectCreationStack;
+ 
+    /* A simple data structure used for storing object creation iformation
+         on the stack */
+    private class StackElement {
+        public Type type;
+        public String method;
+        public int offset;
+        public long threadId;
+        
+        
+        public StackElement(Type type, String method, int offset, long threadId) {
+            this.type = type;
+            this.method = method;
+            this.offset = offset;
+            this.threadId = threadId;
+        }
+        
+    }
 
     public ObjectCreationVisitor(MethodVisitor mv, String name,
             String sourceFile) {
         super(Opcodes.ASM4, mv);
         this.creator = name;
         this.sourceFile = sourceFile;
+        objectCreationStack = new Stack<StackElement>();
     }
 
     @Override
@@ -33,6 +54,11 @@ public class ObjectCreationVisitor extends MethodVisitor {
         //mv.visitTypeInsn(opcode, type);
         if (opcode == Opcodes.NEW) {
             this.type = type;
+            /* push the object creation data onto the stack and leave it there
+             * until object initialization has completed
+             */
+            objectCreationStack.push(new StackElement(Type.getType(type), creator, line, 73110));
+            
             
            /* 
             mv.visitLdcInsn(Type.getType(LineNumTracker.class));
@@ -45,9 +71,9 @@ public class ObjectCreationVisitor extends MethodVisitor {
             //mv.visitLdcInsn(Type.getType(LineNumTracker.class));
             //mv.visitLdcInsn(new Integer(line));
             
-            mv.visitLdcInsn(line);
-            mv.visitMethodInsn(Opcodes.INVOKESTATIC, "dapij/LineNumTracker",
-                    "push", Type.getMethodDescriptor(Type.VOID_TYPE, Type.INT_TYPE));
+            //mv.visitLdcInsn(line);
+            //mv.visitMethodInsn(Opcodes.INVOKESTATIC, "dapij/LineNumTracker",
+            //        "push", Type.getMethodDescriptor(Type.VOID_TYPE, Type.INT_TYPE));
             
             
             
@@ -87,6 +113,15 @@ public class ObjectCreationVisitor extends MethodVisitor {
           */
         }
         mv.visitTypeInsn(opcode, type);
+    }
+    
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name, String desc) {
+        mv.visitMethodInsn(opcode, owner, name, desc);
+        if(name.equals("<init>")) {
+            StackElement currentElem = objectCreationStack.pop();
+            /* do something sensible with it! */
+        }
     }
     
     @Override

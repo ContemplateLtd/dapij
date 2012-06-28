@@ -24,6 +24,8 @@ public class HelloAzura {
     public static void main(String args[]) {
         HelloAzura ha = new HelloAzura();   /* create object to test agent */
         // System.out.println("The square of 5 is " + square(5));
+        Object ob = new Object();
+        System.out.println(ob.toString());
         azura();
     }
 }

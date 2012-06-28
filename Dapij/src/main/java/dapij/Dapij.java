@@ -38,15 +38,15 @@ public class Dapij implements ClassFileTransformer {
              * Uncomment the lines below and pass tcv to the constructor of
              * sc_visitor to print the instrumented bytecode on System.out.
              */
-            TraceClassVisitor tcv = new TraceClassVisitor(writer,
-                    new PrintWriter(System.out));
+            //TraceClassVisitor tcv = new TraceClassVisitor(writer,
+            //        new PrintWriter(System.out));
             
-            ClassVisitor sc_visitor = new StatsCollector(tcv);
+            ClassVisitor sc_visitor = new StatsCollector(writer);
             creader.accept(sc_visitor, 0);
             byte[] bts = writer.toByteArray();
             
             return bts;
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException e)                 {
             throw new IllegalClassFormatException("Error: " + e.getMessage()
                     + " on class " + classfileBuffer);
         }
