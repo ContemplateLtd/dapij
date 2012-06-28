@@ -12,6 +12,7 @@ import org.objectweb.asm.tree.FieldNode;
  */
 public class StatsCollector extends ClassVisitor {
     
+    private String visitedClassName;
     private String sourceFile;
     private boolean isFieldPresent;
     private static final String insrtFldName = "_info";
@@ -19,6 +20,7 @@ public class StatsCollector extends ClassVisitor {
     @Override
     public void visit(int version, int access, String name, String signature,
             String superName, String[] interfaces) {
+        this.visitedClassName = name;
         cv.visit(version, access, name, signature, superName, interfaces);
     }
 
@@ -28,7 +30,13 @@ public class StatsCollector extends ClassVisitor {
         MethodVisitor mv;
         mv = cv.visitMethod(access, name, desc, signature, exceptions);
         if (mv != null) {
-            mv = new ObjectCreationVisitor(mv, name, sourceFile);
+            /* Insert bytecode to detect every created object */
+            mv = new InstanceCreationVisitor(mv, name, sourceFile);
+            if (visitedClassName.equals("java/lang/Object") &&
+                    name.equals("<init>")) {
+                /* Insert bytecode in the constructor of java.lang.Object */
+                mv = new ObjectConstructorVisitor(mv, name, insrtFldName);
+            }
         }
 
         return mv;
@@ -39,6 +47,9 @@ public class StatsCollector extends ClassVisitor {
             String signature, Object value) {
         if (name.equals(insrtFldName)) {
             isFieldPresent = true;
+        } else {
+            System.out.println("Could not insert " + insrtFldName + " in class"
+                    + visitedClassName);
         }
         return cv.visitField(access, name, desc, signature, value);
     }
@@ -54,7 +65,8 @@ public class StatsCollector extends ClassVisitor {
         if (!isFieldPresent) {
             /* add a field of type ObjectCreation to current class */
             FieldVisitor fv = cv.visitField(Opcodes.ACC_PRIVATE, insrtFldName,
-                    Type.getDescriptor(ObjectCreationStats.class), null, null);
+                    Type.getDescriptor(InstanceCreationStats.class), null,
+                    null);
             if (fv != null) {
                 fv.visitEnd();
             }

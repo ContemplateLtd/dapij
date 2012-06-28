@@ -13,7 +13,7 @@ import org.objectweb.asm.Type;
  *
  * @author emszy
  */
-public class ObjectCreationVisitor extends MethodVisitor {
+public class InstanceCreationVisitor extends MethodVisitor {
 
     /* Stats for the object creation currently detected */
     private String creator;     /* name of creator method */
@@ -22,7 +22,7 @@ public class ObjectCreationVisitor extends MethodVisitor {
     private String sourceFile;  /* source file where created */
     private int opcode = 1-Opcodes.NEW;
 
-    public ObjectCreationVisitor(MethodVisitor mv, String name,
+    public InstanceCreationVisitor(MethodVisitor mv, String name,
             String sourceFile) {
         super(Opcodes.ASM4, mv);
         this.creator = name;
@@ -33,8 +33,10 @@ public class ObjectCreationVisitor extends MethodVisitor {
     public void visitTypeInsn(int opcode, String type) {
         this.opcode = 1-Opcodes.NEW;
         if (opcode == Opcodes.NEW) {
-            this.opcode = opcode;
-            this.type = type;
+            this.opcode = opcode;   // TODO: push on stack
+            this.type = type;       // TODO: push on stack
+            // this.creator         // TODO: push on stack
+            // this.sourceFile      // TODO: push on stack
             
             /*
             mv.visitVarInsn(Opcodes.ALOAD, 0);

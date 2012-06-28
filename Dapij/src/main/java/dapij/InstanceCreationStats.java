@@ -8,19 +8,20 @@ package dapij;
  *
  * @author Marcin Szymczak <mpszymczak@gmail.com>
  */
-public class ObjectCreationStats {
+public class InstanceCreationStats {
     
     private Class clazz;
     private String method;
     private int offset;
     private long threadId;
     
-    public ObjectCreationStats(Class clazz, String method, int offset,
-            long threadId) {
-        this.setClazz(clazz);
-        this.setMethod(method);
+    //public ObjectCreationStats(Class clazz, String method, int offset,
+    //        long threadId) {
+    public InstanceCreationStats(int offset) {
+        //this.setClazz(clazz);
+        //this.setMethod(method);
         this.setOffset(offset);
-        this.setThreadId(threadId);
+        //this.setThreadId(threadId);
     }
     
     @Override

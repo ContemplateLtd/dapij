@@ -3,7 +3,7 @@
  */
 // package xxx;
 
-import dapij.ObjectCreationStats;
+import dapij.InstanceCreationStats;
 
 /**
  *
