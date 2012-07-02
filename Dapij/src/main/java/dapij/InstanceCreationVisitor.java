@@ -54,6 +54,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
 
     @Override
     public void visitTypeInsn(int opcode, String type) {
+        
         if (opcode == Opcodes.NEW) {
             this.type = type;       // TODO: push on stack
             // this.line            // TODO: push on stack
@@ -65,8 +66,22 @@ public class InstanceCreationVisitor extends MethodVisitor {
              */
             objectCreationStack.push(new StackElement(Type.getType(type),
                     creator, line, 73110));
+            
+            /* 
+             * we will need another reference to the object
+             * to put the info on the map
+             */
+            mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(
+                    InstanceCreationTracker.class), "INSTANCE", 
+                    Type.getType(InstanceCreationTracker.class).
+                    getDescriptor());
+            
+            mv.visitTypeInsn(opcode, type);
+            mv.visitInsn(Opcodes.DUP);
         }
-        mv.visitTypeInsn(opcode, type);
+        else {
+            mv.visitTypeInsn(opcode, type);
+        }
     }
     
     @Override
@@ -77,6 +92,18 @@ public class InstanceCreationVisitor extends MethodVisitor {
         /* POP & insert into map */
         if(name.equals("<init>")) {
             StackElement currentElem = objectCreationStack.pop();
+            
+            mv.visitLdcInsn(currentElem.type);
+            mv.visitLdcInsn(currentElem.method);
+            mv.visitLdcInsn(currentElem.offset);
+            mv.visitLdcInsn(currentElem.threadId);
+            
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                    Type.getInternalName(InstanceCreationTracker.class),
+                    "put", Type.getMethodDescriptor(Type.getType(void.class),
+                    Type.getType(Object.class), Type.getType(Class.class),
+                    Type.getType(String.class), Type.getType(int.class),
+                    Type.getType(long.class)));
   
             /*
             mv.visitLdcInsn(Type.getType(LineNumTracker.class));

@@ -12,7 +12,8 @@ import java.util.concurrent.ConcurrentMap;
  * @author Marcin Szymczak <mpszymczak@gmail.com>
  */
 public class InstanceCreationTracker {
-    public final static InstanceCreationTracker INSTANCE = new InstanceCreationTracker();
+    public final static InstanceCreationTracker INSTANCE = 
+            new InstanceCreationTracker();
     
     private ConcurrentMap<Object, InstanceCreationStats> instanceMap;
     
@@ -22,6 +23,22 @@ public class InstanceCreationTracker {
     
     public void put(Object key, Class clazz, String method, int offset,
             long threadId) {
+        instanceMap.putIfAbsent(key, new InstanceCreationStats(offset));
     }
     
+    public Class getClazz(Object key) {
+        return instanceMap.get(key).getClazz();
+    }
+    
+    public String getMethod(Object key) {
+        return instanceMap.get(key).getMethod();
+    }
+    
+    public int getOffset(Object key) {
+        return instanceMap.get(key).getOffset();
+    }
+    
+    public long getThreadId(Object key) {
+        return instanceMap.get(key).getThreadId();
+    }
 }
