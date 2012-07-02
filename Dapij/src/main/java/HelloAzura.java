@@ -28,15 +28,15 @@ public class HelloAzura {
     }
 
     public void azura() {
-        
         System.out.println("Hello Azura");  /* Azura is the name of my dog */
     }
     
     public static void main(String args[]) {
+        System.out.println("BEGIN MAIN");
         HelloAzura ha = new HelloAzura(2);  /* create object to test agent */
         ha.azura();
 
-        Object ob = new Object();
-        System.out.println(ob.toString());
+        //Object ob = new Object();
+        //System.out.println(ob.toString());
     }
 }

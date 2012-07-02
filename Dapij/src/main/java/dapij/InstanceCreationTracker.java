@@ -21,9 +21,11 @@ public class InstanceCreationTracker {
         instanceMap = new MapMaker().weakKeys().makeMap();
     }
     
-    public void put(Object key, Class clazz, String method, int offset,
-            long threadId) {
-        instanceMap.putIfAbsent(key, new InstanceCreationStats(offset));
+    //public void put(Object key, Class clazz, String method, int offset,
+    //        long threadId) {
+    public void put(int offset) {
+        //instanceMap.putIfAbsent(key, new InstanceCreationStats(offset));
+        System.out.println("CREATION ON LINE: " + offset);
     }
     
     public Class getClazz(Object key) {

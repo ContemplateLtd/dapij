@@ -17,29 +17,30 @@ import org.objectweb.asm.Type;
 public class InstanceCreationVisitor extends MethodVisitor {
 
     /* Stats for the object creation currently detected */
-    private int line = -1;      /* line where created */
-    private String creator;     /* name of creator method */
+    private int line = -1;      /* line of instance creation */
+    private String creator;     /* name of method where creation occured */
     private String type;        /* type of object created */
-    private String sourceFile;  /* source file where created */
+    private String sourceFile;  /* source file */
     
+    /*
+     * A stack for handling nested NEW-INVOKEVIRTUAL instruction patterns met
+     * while visiting methods.
+     */
     private Stack<StackElement> objectCreationStack;
  
     /**
-     * A simple data structure used for storing object creation information
-     * on the stack (during premain execution).
+     * A wrapper of object creation information. Used to compose the
+     * entries of objectCreationStack.
      */
     private class StackElement {
         public Type type;
         public String method;
         public int offset;
-        public long threadId;
         
-        public StackElement(Type type, String method, int offset,
-                long threadId) {
+        public StackElement(Type type, String method, int offset) {
             this.type = type;
             this.method = method;
             this.offset = offset;
-            this.threadId = threadId;
         }
     }
 
@@ -54,119 +55,85 @@ public class InstanceCreationVisitor extends MethodVisitor {
 
     @Override
     public void visitTypeInsn(int opcode, String type) {
+        if (opcode != Opcodes.NEW) {
+            mv.visitTypeInsn(opcode, type);
+            return;
+        }
+        /* 
+         * push the object creation data onto the stack and leave it there
+         * until object initialization (construction) has completed
+         */
+        Type t = Type.getType(type);
+        objectCreationStack.push(new StackElement(t,
+                creator, line));
+
+        /* 
+         * Push a reference to the InstanceCreationTracker singleton object
+         * to allow for calling it's put instance method (just after visiting
+         * the INVOKESPECIAL that corresponds to this NEW).
+        THIS DOES NOT WORK, moved the load to visitMethodInsn
+        mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(
+                InstanceCreationTracker.class), "INSTANCE", 
+                Type.getDescriptor(InstanceCreationTracker.
+                        INSTANCE.getClass()));
+        */
+        /* create reference of object being created */
+        mv.visitTypeInsn(opcode, type);
         
-        if (opcode == Opcodes.NEW) {
-            this.type = type;       // TODO: push on stack
-            // this.line            // TODO: push on stack
-            // this.creator         // TODO: push on stack
-            // this.sourceFile      // TODO: push on stack
-            /* 
-             * push the object creation data onto the stack and leave it there
-             * until object initialization has completed
-             */
-            objectCreationStack.push(new StackElement(Type.getType(type),
-                    creator, line, 73110));
-            
-            /* 
-             * we will need another reference to the object
-             * to put the info on the map
-             */
-            mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(
-                    InstanceCreationTracker.class), "INSTANCE", 
-                    Type.getType(InstanceCreationTracker.class).
-                    getDescriptor());
-            
-            mv.visitTypeInsn(opcode, type);
-            mv.visitInsn(Opcodes.DUP);
-        }
-        else {
-            mv.visitTypeInsn(opcode, type);
-        }
+        /* duplicate on stack to supply the map key for the put method call */
+        //mv.visitInsn(Opcodes.DUP);
     }
     
     @Override
     public void visitMethodInsn(int opcode, String owner, String name,
             String desc) {
         mv.visitMethodInsn(opcode, owner, name, desc);
-
-        /* POP & insert into map */
-        if(name.equals("<init>")) {
+        
+        /* Do not transform if not a constructor or if stack empty */
+        if(!name.equals("<init>") || objectCreationStack.empty()) {
+            return;
+        }
+        
+        /*
+         * Pop if this method same as creator and type of object being
+         * created equals type of stack entry to be popped.
+         */
+        StackElement top = objectCreationStack.lastElement();
+        if (top.method.equals(this.creator) &&
+                top.type.getInternalName().equals(owner)) {
             StackElement currentElem = objectCreationStack.pop();
             
-            mv.visitLdcInsn(currentElem.type);
-            mv.visitLdcInsn(currentElem.method);
+            /*
+             * MOVED THE LOADING OF THE SINGLETON REFERENCE HERE TO TEST AND
+             * IT WORKS, BUT THIS NEEDS TO HAPPEN IN visitTypeInsn
+             */ 
+            mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(
+                InstanceCreationTracker.class), "INSTANCE", 
+                Type.getDescriptor(InstanceCreationTracker.
+                        INSTANCE.getClass()));
+            
+            //mv.visitLdcInsn(currentElem.type);
+            //mv.visitLdcInsn(currentElem.method);
             mv.visitLdcInsn(currentElem.offset);
-            mv.visitLdcInsn(currentElem.threadId);
+            // TODO: Insert bytecode to obtain threadId dynamically.
+            //mv.visitLdcInsn(73110);
+            
+            /*
+             * Put and entry into the (singleton) identity map containing
+             * the created instances to record the instance created.
+             * 
+             * TODO: Could the following be a problem - what if the constructor
+             * passes a reference to the created object to another thread and
+             * that thread deletes the object?
+             */
+            String descriptor = Type.getMethodDescriptor(
+                    Type.getType(void.class), //Type.getType(Object.class),
+                    //Type.getType(Class.class), Type.getType(String.class),
+                    Type.getType(int.class));//, Type.getType(long.class));
             
             mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                     Type.getInternalName(InstanceCreationTracker.class),
-                    "put", Type.getMethodDescriptor(Type.getType(void.class),
-                    Type.getType(Object.class), Type.getType(Class.class),
-                    Type.getType(String.class), Type.getType(int.class),
-                    Type.getType(long.class)));
-  
-            /*
-            mv.visitLdcInsn(Type.getType(LineNumTracker.class));
-                    
-            mv.visitMethodInsn(Opcodes.INVOKESTATIC, "dapij/LineNumTracker",
-                    "getLineNum", Type.getMethodDescriptor(Type.getType(Integer.class)));
-            mv.visitInsn(Opcodes.POP2);
-            */
-            //mv.visitLdcInsn(Type.getType(LineNumTracker.class));
-            //mv.visitLdcInsn(line);
-            //mv.visitMethodInsn(Opcodes.INVOKESTATIC, "dapij/LineNumTracker",
-            //        "push", Type.getMethodDescriptor(Type.VOID_TYPE, Type.INT_TYPE));
-            
-           /* 
-            mv.visitLdcInsn(Type.getType(LineNumTracker.class));
-                    
-            mv.visitMethodInsn(Opcodes.INVOKESTATIC, "dapij/LineNumTracker",
-                    "getLineNum",
-                    Type.getMethodDescriptor(Type.getType(Integer.class)));
-            mv.visitInsn(Opcodes.POP2);
-            * 
-            */
-            //mv.visitLdcInsn(Type.getType(LineNumTracker.class));
-            //mv.visitLdcInsn(new Integer(line));
-            /* ++++++++++++++
-            mv.visitLdcInsn(line);
-            mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-                    Type.getInternalName(LineNumTracker.class), "push",
-                    Type.getMethodDescriptor(Type.VOID_TYPE, Type.INT_TYPE));
-            */
-            /*
-            mv.visitVarInsn(Opcodes.ALOAD, 0);
-            mv.visitTypeInsn(Opcodes.NEW,
-                    Type.getInternalName(ObjectCreationStats.class));
-    
-            // Create The object
-            mv.visitInsn(Opcodes.DUP);
-            mv.visitLdcInsn(Type.getObjectType(type));  // object class
-            mv.visitLdcInsn(creator);                   // creator method
-            mv.visitLdcInsn(new Integer(line));         // TODO: offset
-            mv.visitLdcInsn(new Long(5));               // TODO: threadId
-            mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
-                    Type.getInternalName(ObjectCreationStats.class), "<init>",
-                    "(Ljava/lang/Class;Ljava/lang/String;IJ)V");
-            */
-            /*
-             * set the _info field with the newly created ObjectCreationStats
-             * object that's put on the stack by the above code
-             */
-            /*
-            mv.visitFieldInsn(Opcodes.PUTFIELD,
-                    Type.getInternalName(ObjectCreationStats.class), "_info",
-                    "Ldapij/ObjectCreationStats;");
-            */
-            
-          /*
-            mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out",
-                    "Ljava/io/PrintStream;");
-            mv.visitLdcInsn("Created '" + type + "' in " + creator + ", "
-                    + sourceFile + ":"+ line);
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream",
-                    "println", "(Ljava/lang/String;)V");
-          */
+                    "put", descriptor);
         }
     }
     
