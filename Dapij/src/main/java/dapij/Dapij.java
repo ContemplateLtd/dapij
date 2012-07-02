@@ -4,6 +4,7 @@
 package dapij;
 
 import java.io.PrintWriter;
+import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
@@ -11,6 +12,7 @@ import java.security.ProtectionDomain;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 /**
@@ -23,8 +25,14 @@ public class Dapij implements ClassFileTransformer {
     public byte[] transform(ClassLoader loader, String className,
             Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
             byte[] classfileBuffer) throws IllegalClassFormatException {
+        
+        /* Do not instrument agent classes */
+        if(className.startsWith("dapij")) {
+            System.out.println("Did not instument " + className + "!");
+            return classfileBuffer;
+        }
+        
         System.out.println("Instrumenting " + className + " ...");
-
         try {
             /* read and instrument class bytecode */
             ClassReader creader = new ClassReader(classfileBuffer);
@@ -42,7 +50,7 @@ public class Dapij implements ClassFileTransformer {
             byte[] bts = writer.toByteArray();
             
             return bts;
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException e)                 {
             throw new IllegalClassFormatException("Error: " + e.getMessage()
                     + " on class " + classfileBuffer);
         }

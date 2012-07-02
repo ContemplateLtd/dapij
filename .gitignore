@@ -2,6 +2,7 @@
 .project
 .settings
 target
+hs_err*.log
 *.class
 *.jar
 *.war

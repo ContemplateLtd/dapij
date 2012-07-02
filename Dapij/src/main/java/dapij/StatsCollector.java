@@ -32,13 +32,14 @@ public class StatsCollector extends ClassVisitor {
         if (mv != null) {
             /* Insert bytecode to detect every created object */
             mv = new InstanceCreationVisitor(mv, name, sourceFile);
-            if (visitedClassName.equals("java/lang/Object") &&
+
+            if (visitedClassName.equals(Type.getInternalName(Object.class)) &&
                     name.equals("<init>")) {
+                System.out.println("Visiting Object's <init> method.");
                 /* Insert bytecode in the constructor of java.lang.Object */
                 mv = new ObjectConstructorVisitor(mv, name, insrtFldName);
             }
         }
-
         return mv;
     }
     
@@ -47,9 +48,6 @@ public class StatsCollector extends ClassVisitor {
             String signature, Object value) {
         if (name.equals(insrtFldName)) {
             isFieldPresent = true;
-        } else {
-            System.out.println("Could not insert " + insrtFldName + " in class"
-                    + visitedClassName);
         }
         return cv.visitField(access, name, desc, signature, value);
     }
@@ -63,6 +61,7 @@ public class StatsCollector extends ClassVisitor {
     @Override
     public void visitEnd() {
         if (!isFieldPresent) {
+            
             /* add a field of type ObjectCreation to current class */
             FieldVisitor fv = cv.visitField(Opcodes.ACC_PRIVATE, insrtFldName,
                     Type.getDescriptor(InstanceCreationStats.class), null,
@@ -70,6 +69,9 @@ public class StatsCollector extends ClassVisitor {
             if (fv != null) {
                 fv.visitEnd();
             }
+        } else {
+            System.out.println("Could not insert " + insrtFldName + " in class"
+                    + visitedClassName);
         }
         cv.visitEnd();
     }

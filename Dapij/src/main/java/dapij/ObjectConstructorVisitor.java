@@ -36,11 +36,12 @@ public class ObjectConstructorVisitor extends MethodVisitor {
         mv.visitInsn(Opcodes.DUP);
         mv.visitMethodInsn(Opcodes.INVOKESTATIC,  // pop line number dynamically
                 Type.getInternalName(LineNumTracker.class), "pop",
-                "()Ljava/lang/Integer;");
+                Type.getMethodDescriptor(Type.getType(Integer.class),
+                        Type.VOID_TYPE));
         // TODO: Should something be done here?
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL,   // initialise _init field 
                 Type.getInternalName(InstanceCreationStats.class), "<init>",
-                "(I)V");
+                Type.getMethodDescriptor(Type.VOID_TYPE, Type.INT_TYPE));
         
         /*
          * Set the _info field with the newly created InstanceCreationStats

@@ -19,12 +19,12 @@ public class LineNumTracker {
         }
      };
  
-    public static void push(Integer lineNum) {
-        lineNumStack.get().push(lineNum);
+    public static void push(int lineNum) {
+        lineNumStack.get().push(new Integer(lineNum));
     }
 
-    public static Integer pop() {
-        return lineNumStack.get().pop();
+    public static int pop() {
+        return lineNumStack.get().pop().intValue();
     }
      
     public static int size() {
@@ -36,7 +36,10 @@ public class LineNumTracker {
      * @return Integer The line number of caller of 'new'
      */
     public static Integer getLineNum() {
-        return new Integer(
-                Thread.currentThread().getStackTrace()[2].getLineNumber());
+        Integer i = new Integer(Thread.currentThread().getStackTrace()[2]
+                .getLineNumber());
+        System.out.println("The line is: " + i);
+        return i ;// new Integer(
+              //  Thread.currentThread().getStackTrace()[2].getLineNumber());
     }
 }

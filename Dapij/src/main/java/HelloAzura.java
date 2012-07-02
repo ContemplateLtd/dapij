@@ -1,7 +1,6 @@
 /*
  * TODO: enter sensible info
  */
-// package xxx;
 
 import dapij.InstanceCreationStats;
 
@@ -11,19 +10,33 @@ import dapij.InstanceCreationStats;
  */
 public class HelloAzura {
 
-    private int i = 1;
-    
-    public static int square(int input) {
-        return input * input;
+    private int i;
+  
+    public HelloAzura(int i) {
+        this.i = i;
     }
 
-    public static void azura() {
+    public HelloAzura(char c) {
+        this(5);
+        System.out.println(c);
+    }
+    
+    public int square() {
+        int sq = this.i * this.i;
+        System.out.println(sq);
+        return sq;
+    }
+
+    public void azura() {
+        
         System.out.println("Hello Azura");  /* Azura is the name of my dog */
     }
     
     public static void main(String args[]) {
-        HelloAzura ha = new HelloAzura();   /* create object to test agent */
-        // System.out.println("The square of 5 is " + square(5));
-        azura();
+        HelloAzura ha = new HelloAzura(2);  /* create object to test agent */
+        ha.azura();
+
+        Object ob = new Object();
+        System.out.println(ob.toString());
     }
 }
