@@ -9,6 +9,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 
 /**
  *
@@ -59,6 +60,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
             mv.visitTypeInsn(opcode, type);
             return;
         }
+        
         /* 
          * push the object creation data onto the stack and leave it there
          * until object initialization (construction) has completed
@@ -67,21 +69,11 @@ public class InstanceCreationVisitor extends MethodVisitor {
         objectCreationStack.push(new StackElement(t,
                 creator, line));
 
-        /* 
-         * Push a reference to the InstanceCreationTracker singleton object
-         * to allow for calling it's put instance method (just after visiting
-         * the INVOKESPECIAL that corresponds to this NEW).
-        THIS DOES NOT WORK, moved the load to visitMethodInsn
-        mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(
-                InstanceCreationTracker.class), "INSTANCE", 
-                Type.getDescriptor(InstanceCreationTracker.
-                        INSTANCE.getClass()));
-        */
         /* create reference of object being created */
         mv.visitTypeInsn(opcode, type);
-        
+
         /* duplicate on stack to supply the map key for the put method call */
-        //mv.visitInsn(Opcodes.DUP);
+        mv.visitInsn(Opcodes.DUP);
     }
     
     @Override
@@ -99,42 +91,52 @@ public class InstanceCreationVisitor extends MethodVisitor {
          * created equals type of stack entry to be popped.
          */
         StackElement top = objectCreationStack.lastElement();
-        if (top.method.equals(this.creator) &&
-                top.type.getInternalName().equals(owner)) {
-            StackElement currentElem = objectCreationStack.pop();
-            
-            /*
-             * MOVED THE LOADING OF THE SINGLETON REFERENCE HERE TO TEST AND
-             * IT WORKS, BUT THIS NEEDS TO HAPPEN IN visitTypeInsn
-             */ 
-            mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(
+        if (!top.method.equals(this.creator) ||
+                !top.type.getInternalName().equals(owner)) {
+            return;
+        }
+                
+        StackElement currentElem = objectCreationStack.pop();
+        
+//        int newLocal = this.newLocal(top.type);
+//        mv.visitVarInsn(Opcodes.ASTORE, newLocal);  /* Store new instance */
+//        mv.VisitVar
+
+        /* 
+         * Push a reference to the InstanceCreationTracker singleton object
+         * to allow for calling it's put instance method (just after visiting
+         * the INVOKESPECIAL that corresponds to this NEW).
+         */
+        mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(
                 InstanceCreationTracker.class), "INSTANCE", 
                 Type.getDescriptor(InstanceCreationTracker.
                         INSTANCE.getClass()));
-            
-            //mv.visitLdcInsn(currentElem.type);
-            //mv.visitLdcInsn(currentElem.method);
-            mv.visitLdcInsn(currentElem.offset);
-            // TODO: Insert bytecode to obtain threadId dynamically.
-            //mv.visitLdcInsn(73110);
-            
-            /*
-             * Put and entry into the (singleton) identity map containing
-             * the created instances to record the instance created.
-             * 
-             * TODO: Could the following be a problem - what if the constructor
-             * passes a reference to the created object to another thread and
-             * that thread deletes the object?
-             */
-            String descriptor = Type.getMethodDescriptor(
-                    Type.getType(void.class), //Type.getType(Object.class),
-                    //Type.getType(Class.class), Type.getType(String.class),
-                    Type.getType(int.class));//, Type.getType(long.class));
-            
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                    Type.getInternalName(InstanceCreationTracker.class),
-                    "put", descriptor);
-        }
+        
+        mv.visitInsn(Opcodes.SWAP);
+        
+        //mv.visitLdcInsn(currentElem.type);
+        //mv.visitLdcInsn(currentElem.method);
+        mv.visitLdcInsn(this.line);
+        // TODO: Insert bytecode to obtain threadId dynamically.
+        //mv.visitLdcInsn(73110);
+        
+        /*
+         * Put and entry into the (singleton) identity map containing
+         * the created instances to record the instance created.
+         * 
+         * TODO: Could the following be a problem - what if the constructor
+         * passes a reference to the created object to another thread and
+         * that thread deletes the object?
+         */
+        String descriptor = Type.getMethodDescriptor(
+                Type.getType(void.class), Type.getType(Object.class),
+                //Type.getType(Class.class), //Type.getType(String.class),
+                Type.getType(int.class));//, Type.getType(long.class));
+
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                Type.getInternalName(InstanceCreationTracker.class),
+                "put", descriptor);
+
     }
     
     @Override
