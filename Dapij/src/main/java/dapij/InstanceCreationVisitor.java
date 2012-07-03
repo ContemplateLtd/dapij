@@ -18,10 +18,9 @@ import org.objectweb.asm.commons.LocalVariablesSorter;
 public class InstanceCreationVisitor extends MethodVisitor {
 
     /* Stats for the object creation currently detected */
-    private int line = -1;      /* line of instance creation */
-    private String creator;     /* name of method where creation occured */
-    private String type;        /* type of object created */
-    private String sourceFile;  /* source file */
+    private int line = -1;          /* line of instance creation */
+    private String creatorMethod;   /* name of method where creation occured */
+    private String sourceFile;      /* source file */
     
     /*
      * A stack for handling nested NEW-INVOKEVIRTUAL instruction patterns met
@@ -48,7 +47,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
     public InstanceCreationVisitor(MethodVisitor mv, String name,
             String sourceFile) {
         super(Opcodes.ASM4, mv);
-        this.creator = name;
+        this.creatorMethod = name;
         this.sourceFile = sourceFile;
         
         objectCreationStack = new Stack<StackElement>();
@@ -67,7 +66,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
          */
         Type t = Type.getType(type);
         objectCreationStack.push(new StackElement(t,
-                creator, line));
+                creatorMethod, line));
 
         /* create reference of object being created */
         mv.visitTypeInsn(opcode, type);
@@ -91,17 +90,13 @@ public class InstanceCreationVisitor extends MethodVisitor {
          * created equals type of stack entry to be popped.
          */
         StackElement top = objectCreationStack.lastElement();
-        if (!top.method.equals(this.creator) ||
+        if (!top.method.equals(this.creatorMethod) ||
                 !top.type.getInternalName().equals(owner)) {
             return;
         }
-                
+        
         StackElement currentElem = objectCreationStack.pop();
         
-//        int newLocal = this.newLocal(top.type);
-//        mv.visitVarInsn(Opcodes.ASTORE, newLocal);  /* Store new instance */
-//        mv.VisitVar
-
         /* 
          * Push a reference to the InstanceCreationTracker singleton object
          * to allow for calling it's put instance method (just after visiting
@@ -116,7 +111,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
         
         //mv.visitLdcInsn(currentElem.type);
         mv.visitLdcInsn(currentElem.method);
-        mv.visitLdcInsn(this.line);
+        mv.visitLdcInsn(currentElem.offset);
         // TODO: Insert bytecode to obtain threadId dynamically.
         mv.visitLdcInsn((long) 73110);
         

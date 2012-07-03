@@ -3,8 +3,9 @@
  */
 package dapij;
 
-import org.objectweb.asm.*;
-import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 /**
  *
@@ -12,44 +13,16 @@ import org.objectweb.asm.tree.FieldNode;
  */
 public class StatsCollector extends ClassVisitor {
     
-    private String visitedClassName;
     private String sourceFile;
-    private boolean isFieldPresent;
-    private static final String insrtFldName = "_info";
 
-    @Override
-    public void visit(int version, int access, String name, String signature,
-            String superName, String[] interfaces) {
-        this.visitedClassName = name;
-        cv.visit(version, access, name, signature, superName, interfaces);
-    }
-
-    @Override
-    public MethodVisitor visitMethod(int access, String name, String desc,
-            String signature, String[] exceptions) {
-        MethodVisitor mv;
-        mv = cv.visitMethod(access, name, desc, signature, exceptions);
-        if (mv != null) {
-            /* Insert bytecode to detect every created object */
-            mv = new InstanceCreationVisitor(mv, name, sourceFile);
-
-            if (visitedClassName.equals(Type.getInternalName(Object.class)) &&
-                    name.equals("<init>")) {
-                System.out.println("Visiting Object's <init> method.");
-                /* Insert bytecode in the constructor of java.lang.Object */
-                mv = new ObjectConstructorVisitor(mv, name, insrtFldName);
-            }
-        }
-        return mv;
+    public StatsCollector(ClassVisitor cv) {
+        super(Opcodes.ASM4, cv);
     }
     
     @Override
-    public FieldVisitor visitField(int access, String name, String desc,
-            String signature, Object value) {
-        if (name.equals(insrtFldName)) {
-            isFieldPresent = true;
-        }
-        return cv.visitField(access, name, desc, signature, value);
+    public void visit(int version, int access, String name, String signature,
+            String superName, String[] interfaces) {
+        cv.visit(version, access, name, signature, superName, interfaces);
     }
     
     @Override
@@ -59,24 +32,17 @@ public class StatsCollector extends ClassVisitor {
     }
     
     @Override
-    public void visitEnd() {
-        if (!isFieldPresent) {
-            
-            /* add a field of type ObjectCreation to current class */
-            FieldVisitor fv = cv.visitField(Opcodes.ACC_PRIVATE, insrtFldName,
-                    Type.getDescriptor(InstanceCreationStats.class), null,
-                    null);
-            if (fv != null) {
-                fv.visitEnd();
-            }
-        } else {
-            System.out.println("Could not insert " + insrtFldName + " in class"
-                    + visitedClassName);
-        }
-        cv.visitEnd();
-    }
+    public MethodVisitor visitMethod(int access, String name, String desc,
+            String signature, String[] exceptions) {
 
-    public StatsCollector(ClassVisitor cv) {
-        super(Opcodes.ASM4, cv);
+        MethodVisitor mv = cv.visitMethod(access, name, desc, signature,
+                exceptions);
+        
+        /* Insert bytecode to track created objectects */
+        if (mv != null) {
+            mv = new InstanceCreationVisitor(mv, name, sourceFile);
+        }
+        
+        return mv;
     }
 }

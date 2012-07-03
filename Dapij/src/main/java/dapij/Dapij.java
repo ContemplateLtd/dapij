@@ -33,27 +33,23 @@ public class Dapij implements ClassFileTransformer {
         }
         
         System.out.println("Instrumenting " + className + " ...");
-        try {
-            /* read and instrument class bytecode */
-            ClassReader creader = new ClassReader(classfileBuffer);
-            ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-            
-            /*
-             * Uncomment the lines below and pass tcv to the constructor of
-             * sc_visitor to print the instrumented bytecode on System.out.
-             */
-            //TraceClassVisitor tcv = new TraceClassVisitor(writer,
-            //        new PrintWriter(System.out));
-            
-            ClassVisitor sc_visitor = new StatsCollector(writer);
-            creader.accept(sc_visitor, 0);
-            byte[] bts = writer.toByteArray();
-            
-            return bts;
-        } catch (IllegalStateException e)                 {
-            throw new IllegalClassFormatException("Error: " + e.getMessage()
-                    + " on class " + classfileBuffer);
-        }
+
+        /* read and instrument class bytecode */
+        ClassReader creader = new ClassReader(classfileBuffer);
+        ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+
+        /*
+         * Uncomment the lines below and pass tcv to the constructor of
+         * sc_visitor to print the instrumented bytecode on System.out.
+         */
+        //TraceClassVisitor tcv = new TraceClassVisitor(writer,
+        //        new PrintWriter(System.out));
+
+        ClassVisitor sc_visitor = new StatsCollector(writer);
+        creader.accept(sc_visitor, 0);
+        byte[] bts = writer.toByteArray();
+
+        return bts;
     }
 
     public static void premain(String arglist, Instrumentation inst) {

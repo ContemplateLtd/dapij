@@ -26,8 +26,8 @@ public class InstanceCreationStats {
     
     @Override
     public String toString() {
-        return ("type: " + clazz.getName() + ", creator: " + method
-                + ", offset: " + String.valueOf(offset) + ", thread_id: "
+        return ("Type: " + clazz.getName() + "\nCreator Method: " + method
+                + "\nOffset: " + String.valueOf(offset) + "\nThread id: "
                 + threadId);
     }
 
