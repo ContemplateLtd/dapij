@@ -21,12 +21,13 @@ public class InstanceCreationTracker {
         instanceMap = new MapMaker().weakKeys().makeMap();
     }
     
-    //public void put(Object key, Class clazz, String method, int offset,
-    //        long threadId) {
-    public void put(Object key, String method, int offset, long threadId) {
-        instanceMap.putIfAbsent(key, new InstanceCreationStats(offset));
+    public void put(Object key, Class clazz, String method, int offset,
+            long threadId) {
+    //public void put(Object key, String method, int offset, long threadId) {
+        instanceMap.putIfAbsent(key, new InstanceCreationStats(clazz, method, offset, threadId));
         System.out.println("CLASS: " + key.getClass().getName() + "\n" +
-                "OFFSET: " + String.valueOf(offset) + "\n");
+                "OFFSET: " + String.valueOf(offset) + "\n" +
+                "THREAD: " + threadId);
     }
     
     public Class getClazz(Object key) {

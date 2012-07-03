@@ -65,7 +65,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
          * push the object creation data onto the stack and leave it there
          * until object initialization (construction) has completed
          */
-        Type t = Type.getType(type);
+        Type t = Type.getObjectType(type);
         objectCreationStack.push(new StackElement(t,
                 creator, line));
 
@@ -114,11 +114,18 @@ public class InstanceCreationVisitor extends MethodVisitor {
         
         mv.visitInsn(Opcodes.SWAP);
         
-        //mv.visitLdcInsn(currentElem.type);
+        mv.visitLdcInsn(currentElem.type);
         mv.visitLdcInsn(currentElem.method);
         mv.visitLdcInsn(this.line);
-        // TODO: Insert bytecode to obtain threadId dynamically.
-        mv.visitLdcInsn((long) 73110);
+        
+        /* get the thread ID */
+        
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(
+                Thread.class), "currentThread", Type.getMethodDescriptor(
+                Type.getType(Thread.class)));
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(
+                Thread.class), "getId", Type.getMethodDescriptor(
+                Type.getType(long.class)));
         
         /*
          * Put and entry into the (singleton) identity map containing
@@ -130,7 +137,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
          */
         String descriptor = Type.getMethodDescriptor(
                 Type.getType(void.class), Type.getType(Object.class),
-                //Type.getType(Class.class),
+                Type.getType(Class.class),
                 Type.getType(String.class),
                 Type.getType(int.class), Type.getType(long.class));
 

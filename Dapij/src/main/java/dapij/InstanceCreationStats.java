@@ -15,13 +15,13 @@ public class InstanceCreationStats {
     private int offset;
     private long threadId;
     
-    //public ObjectCreationStats(Class clazz, String method, int offset,
-    //        long threadId) {
-    public InstanceCreationStats(int offset) {
-        //this.setClazz(clazz);
-        //this.setMethod(method);
+    public InstanceCreationStats(Class clazz, String method, int offset,
+            long threadId) {
+    //public InstanceCreationStats(int offset) {
+        this.setClazz(clazz);
+        this.setMethod(method);
         this.setOffset(offset);
-        //this.setThreadId(threadId);
+        this.setThreadId(threadId);
     }
     
     @Override
