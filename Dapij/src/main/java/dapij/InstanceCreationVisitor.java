@@ -115,10 +115,10 @@ public class InstanceCreationVisitor extends MethodVisitor {
         mv.visitInsn(Opcodes.SWAP);
         
         //mv.visitLdcInsn(currentElem.type);
-        //mv.visitLdcInsn(currentElem.method);
+        mv.visitLdcInsn(currentElem.method);
         mv.visitLdcInsn(this.line);
         // TODO: Insert bytecode to obtain threadId dynamically.
-        //mv.visitLdcInsn(73110);
+        mv.visitLdcInsn((long) 73110);
         
         /*
          * Put and entry into the (singleton) identity map containing
@@ -130,8 +130,9 @@ public class InstanceCreationVisitor extends MethodVisitor {
          */
         String descriptor = Type.getMethodDescriptor(
                 Type.getType(void.class), Type.getType(Object.class),
-                //Type.getType(Class.class), //Type.getType(String.class),
-                Type.getType(int.class));//, Type.getType(long.class));
+                //Type.getType(Class.class),
+                Type.getType(String.class),
+                Type.getType(int.class), Type.getType(long.class));
 
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                 Type.getInternalName(InstanceCreationTracker.class),

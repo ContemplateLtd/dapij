@@ -23,7 +23,7 @@ public class InstanceCreationTracker {
     
     //public void put(Object key, Class clazz, String method, int offset,
     //        long threadId) {
-    public void put(Object key, int offset) {
+    public void put(Object key, String method, int offset, long threadId) {
         instanceMap.putIfAbsent(key, new InstanceCreationStats(offset));
         System.out.println("CLASS: " + key.getClass().getName() + "\n" +
                 "OFFSET: " + String.valueOf(offset) + "\n");
