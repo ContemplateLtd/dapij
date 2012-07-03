@@ -15,20 +15,20 @@ public class InstanceCreationStats {
     private int offset;
     private long threadId;
     
-    //public ObjectCreationStats(Class clazz, String method, int offset,
-    //        long threadId) {
-    public InstanceCreationStats(int offset) {
-        //this.setClazz(clazz);
-        //this.setMethod(method);
-        this.setOffset(offset);
-        //this.setThreadId(threadId);
+    public InstanceCreationStats(Class clazz, String method, int offset,
+            long threadId) {
+    //public InstanceCreationStats(int offset) {
+        this.clazz = clazz;
+        this.method = method;
+        this.offset = offset;
+        this.threadId = threadId;
     }
     
     @Override
     public String toString() {
-        return ("Type: " + clazz.getName() + "\nCreator Method: " + method
-                + "\nOffset: " + String.valueOf(offset) + "\nThread id: "
-                + threadId);
+        return ("[cls: " + clazz.getName() + "; mtd: " + method + "; ofs: " +
+                String.valueOf(offset) + "; tId: " + String.valueOf(threadId) +
+                "]");
     }
 
     /**
