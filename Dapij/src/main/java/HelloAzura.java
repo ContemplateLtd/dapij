@@ -3,6 +3,7 @@
  */
 
 import dapij.InstanceCreationStats;
+import dapij.InstanceCreationTracker;
 
 /**
  *
@@ -38,5 +39,7 @@ public class HelloAzura {
 
         //Object ob = new Object();
         //System.out.println(ob.toString());
+        System.out.println("Concurrent Map Size: " +
+                String.valueOf(InstanceCreationTracker.INSTANCE.getSize())); 
     }
 }

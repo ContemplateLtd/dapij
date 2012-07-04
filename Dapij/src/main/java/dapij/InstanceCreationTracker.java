@@ -21,6 +21,11 @@ public class InstanceCreationTracker {
         instanceMap = new MapMaker().weakKeys().makeMap();
     }
     
+      
+    public InstanceCreationStats get(Object key) {
+        return instanceMap.get(key);
+    }
+    
     public void put(Object key, Class clazz, String method, int offset,
             long threadId) {
     //public void put(Object key, String method, int offset, long threadId) {
@@ -28,20 +33,12 @@ public class InstanceCreationTracker {
                 offset, threadId));
         System.out.println(instanceMap.get(key));
     }
-    
-    public Class getClazz(Object key) {
-        return instanceMap.get(key).getClazz();
+  
+    public boolean hasKey(Object key) {
+        return instanceMap.containsKey(key);
     }
-    
-    public String getMethod(Object key) {
-        return instanceMap.get(key).getMethod();
-    }
-    
-    public int getOffset(Object key) {
-        return instanceMap.get(key).getOffset();
-    }
-    
-    public long getThreadId(Object key) {
-        return instanceMap.get(key).getThreadId();
+  
+    public int getSize() {
+        return instanceMap.size();
     }
 }
