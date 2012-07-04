@@ -1,0 +1,1784 @@
+[INFO] Error stacktraces are turned on.
+[INFO] Scanning for projects...
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building dapij 0.1-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ dapij ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 0 resource
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.1:copy (copy) @ dapij ---
+[INFO] Configured Artifact: com.contemplateltd.interns:dapij:0.1-SNAPSHOT:jar
+[INFO] com.contemplateltd.interns:dapij:0.1-SNAPSHOT:jar already exists in /home/nikolay/contemplate/dapij/Dapij/target
+[INFO] 
+[INFO] --- maven-compiler-plugin:2.3.2:compile (default-compile) @ dapij ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ dapij ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /home/nikolay/contemplate/dapij/Dapij/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:2.3.2:testCompile (default-testCompile) @ dapij ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.12:test (default-test) @ dapij ---
+[INFO] Surefire report directory: /home/nikolay/contemplate/dapij/Dapij/target/surefire-reports
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Instrumenting org/apache/maven/surefire/booter/ForkedBooter ...
+// class version 47.0 (47)
+// access flags 0x21
+public class org/apache/maven/surefire/booter/ForkedBooter {
+  // compiled from: ForkedBooter.java
+  // access flags 0x1
+  public <init>()V
+   L0
+    LINENUMBER 39 L0
+    ALOAD 0
+    INVOKESPECIAL java/lang/Object.<init> ()V
+    RETURN
+   L1
+    LOCALVARIABLE this Lorg/apache/maven/surefire/booter/ForkedBooter; L0 L1 0
+    MAXSTACK = 1
+    MAXLOCALS = 1
+  // access flags 0x9
+  public static main([Ljava/lang/String;)V throws java/lang/Throwable 
+    TRYCATCHBLOCK L0 L1 L2 java/lang/Throwable
+   L0
+    LINENUMBER 54 L0
+    ALOAD 0
+    ARRAYLENGTH
+    ICONST_1
+    IF_ICMPLE L3
+   L4
+    LINENUMBER 56 L4
+    NEW java/io/File
+    DUP
+    DUP
+    ALOAD 0
+    ICONST_1
+    AALOAD
+    INVOKESPECIAL java/io/File.<init> (Ljava/lang/String;)V
+    GETSTATIC dapij/InstanceCreationTracker.INSTANCE : Ldapij/InstanceCreationTracker;
+    SWAP
+    LDC Ljava/io/File;.class
+    LDC "main"
+    LDC 56
+    INVOKESTATIC java/lang/Thread.currentThread ()Ljava/lang/Thread;
+    INVOKEVIRTUAL java/lang/Thread.getId ()J
+    INVOKEVIRTUAL dapij/InstanceCreationTracker.put (Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;IJ)V
+    INVOKESTATIC org/apache/maven/surefire/booter/SystemPropertyManager.setSystemProperties (Ljava/io/File;)V
+   L3
+    LINENUMBER 59 L3
+    NEW java/io/File
+    DUP
+    DUP
+    ALOAD 0
+    ICONST_0
+    AALOAD
+    INVOKESPECIAL java/io/File.<init> (Ljava/lang/String;)V
+    GETSTATIC dapij/InstanceCreationTracker.INSTANCE : Ldapij/InstanceCreationTracker;
+    SWAP
+    LDC Ljava/io/File;.class
+    LDC "main"
+    LDC 59
+    INVOKESTATIC java/lang/Thread.currentThread ()Ljava/lang/Thread;
+    INVOKEVIRTUAL java/lang/Thread.getId ()J
+    INVOKEVIRTUAL dapij/InstanceCreationTracker.put (Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;IJ)V
+    ASTORE 1
+   L5
+    LINENUMBER 60 L5
+    ALOAD 1
+    INVOKEVIRTUAL java/io/File.exists ()Z
+    IFEQ L6
+    NEW java/io/FileInputStream
+    DUP
+    DUP
+    ALOAD 1
+    INVOKESPECIAL java/io/FileInputStream.<init> (Ljava/io/File;)V
+    GETSTATIC dapij/InstanceCreationTracker.INSTANCE : Ldapij/InstanceCreationTracker;
+    SWAP
+    LDC Ljava/io/FileInputStream;.class
+    LDC "main"
+    LDC 60
+    INVOKESTATIC java/lang/Thread.currentThread ()Ljava/lang/Thread;
+    INVOKEVIRTUAL java/lang/Thread.getId ()J
+    INVOKEVIRTUAL dapij/InstanceCreationTracker.put (Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;IJ)V
+    GOTO L7
+   L6
+    ACONST_NULL
+   L7
+    ASTORE 2
+   L8
+    LINENUMBER 61 L8
+    NEW org/apache/maven/surefire/booter/BooterDeserializer
+    DUP
+    DUP
+    ALOAD 2
+    INVOKESPECIAL org/apache/maven/surefire/booter/BooterDeserializer.<init> (Ljava/io/InputStream;)V
+    GETSTATIC dapij/InstanceCreationTracker.INSTANCE : Ldapij/InstanceCreationTracker;
+    SWAP
+    LDC Lorg/apache/maven/surefire/booter/BooterDeserializer;.class
+    LDC "main"
+    LDC 61
+    INVOKESTATIC java/lang/Thread.currentThread ()Ljava/lang/Thread;
+    INVOKEVIRTUAL java/lang/Thread.getId ()J
+    INVOKEVIRTUAL dapij/InstanceCreationTracker.put (Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;IJ)V
+    ASTORE 3
+   L9
+    LINENUMBER 62 L9
+    ALOAD 3
+    INVOKEVIRTUAL org/apache/maven/surefire/booter/BooterDeserializer.deserialize ()Lorg/apache/maven/surefire/booter/ProviderConfiguration;
+    ASTORE 4
+   L10
+    LINENUMBER 63 L10
+    ALOAD 3
+    INVOKEVIRTUAL org/apache/maven/surefire/booter/BooterDeserializer.getProviderConfiguration ()Lorg/apache/maven/surefire/booter/StartupConfiguration;
+    ASTORE 5
+   L11
+    LINENUMBER 65 L11
+    ALOAD 4
+    INVOKEVIRTUAL org/apache/maven/surefire/booter/ProviderConfiguration.getTestForFork ()Lorg/apache/maven/surefire/booter/TypeEncodedValue;
+    ASTORE 6
+   L12
+    LINENUMBER 67 L12
+    ALOAD 5
+    INVOKEVIRTUAL org/apache/maven/surefire/booter/StartupConfiguration.getClasspathConfiguration ()Lorg/apache/maven/surefire/booter/ClasspathConfiguration;
+    ASTORE 7
+   L13
+    LINENUMBER 68 L13
+    ALOAD 7
+    ALOAD 5
+    INVOKEVIRTUAL org/apache/maven/surefire/booter/StartupConfiguration.isManifestOnlyJarRequestedAndUsable ()Z
+    INVOKEVIRTUAL org/apache/maven/surefire/booter/ClasspathConfiguration.createForkingTestClassLoader (Z)Ljava/lang/ClassLoader;
+    ASTORE 8
+   L14
+    LINENUMBER 71 L14
+    ALOAD 5
+    INVOKEVIRTUAL org/apache/maven/surefire/booter/StartupConfiguration.writeSurefireTestClasspathProperty ()V
+   L15
+    LINENUMBER 73 L15
+    ALOAD 6
+    IFNULL L16
+    ALOAD 6
+    ALOAD 8
+    INVOKEVIRTUAL org/apache/maven/surefire/booter/TypeEncodedValue.getDecodedValue (Ljava/lang/ClassLoader;)Ljava/lang/Object;
+    GOTO L17
+   L16
+    ACONST_NULL
+   L17
+    ASTORE 9
+   L18
+    LINENUMBER 74 L18
+    ALOAD 9
+    ALOAD 8
+    ALOAD 5
+    ALOAD 4
+    INVOKESTATIC org/apache/maven/surefire/booter/ForkedBooter.runSuitesInProcess (Ljava/lang/Object;Ljava/lang/ClassLoader;Lorg/apache/maven/surefire/booter/StartupConfiguration;Lorg/apache/maven/surefire/booter/ProviderConfiguration;)Lorg/apache/maven/surefire/suite/RunResult;
+    POP
+   L19
+    LINENUMBER 76 L19
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "Z,0,BYE!"
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+   L20
+    LINENUMBER 77 L20
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    INVOKEVIRTUAL java/io/PrintStream.flush ()V
+   L21
+    LINENUMBER 79 L21
+    ICONST_0
+    INVOKESTATIC java/lang/System.exit (I)V
+   L1
+    LINENUMBER 88 L1
+    GOTO L22
+   L2
+    LINENUMBER 81 L2
+    ASTORE 1
+   L23
+    LINENUMBER 85 L23
+    ALOAD 1
+    GETSTATIC java/lang/System.err : Ljava/io/PrintStream;
+    INVOKEVIRTUAL java/lang/Throwable.printStackTrace (Ljava/io/PrintStream;)V
+   L24
+    LINENUMBER 87 L24
+    ICONST_1
+    INVOKESTATIC java/lang/System.exit (I)V
+   L22
+    LINENUMBER 89 L22
+    RETURN
+   L25
+    LOCALVARIABLE surefirePropertiesFile Ljava/io/File; L5 L1 1
+    LOCALVARIABLE stream Ljava/io/InputStream; L8 L1 2
+    LOCALVARIABLE booterDeserializer Lorg/apache/maven/surefire/booter/BooterDeserializer; L9 L1 3
+    LOCALVARIABLE providerConfiguration Lorg/apache/maven/surefire/booter/ProviderConfiguration; L10 L1 4
+    LOCALVARIABLE startupConfiguration Lorg/apache/maven/surefire/booter/StartupConfiguration; L11 L1 5
+    LOCALVARIABLE forkedTestSet Lorg/apache/maven/surefire/booter/TypeEncodedValue; L12 L1 6
+    LOCALVARIABLE classpathConfiguration Lorg/apache/maven/surefire/booter/ClasspathConfiguration; L13 L1 7
+    LOCALVARIABLE testClassLoader Ljava/lang/ClassLoader; L14 L1 8
+    LOCALVARIABLE testSet Ljava/lang/Object; L18 L1 9
+    LOCALVARIABLE t Ljava/lang/Throwable; L23 L22 1
+    LOCALVARIABLE args [Ljava/lang/String; L0 L25 0
+    MAXSTACK = 4
+    MAXLOCALS = 10
+  // access flags 0x9
+  public static runSuitesInProcess(Ljava/lang/Object;Ljava/lang/ClassLoader;Lorg/apache/maven/surefire/booter/StartupConfiguration;Lorg/apache/maven/surefire/booter/ProviderConfiguration;)Lorg/apache/maven/surefire/suite/RunResult; throws org/apache/maven/surefire/booter/SurefireExecutionException 
+   L0
+    LINENUMBER 96 L0
+    ALOAD 2
+    INVOKEVIRTUAL org/apache/maven/surefire/booter/StartupConfiguration.getClasspathConfiguration ()Lorg/apache/maven/surefire/booter/ClasspathConfiguration;
+    ASTORE 4
+   L1
+    LINENUMBER 97 L1
+    ALOAD 4
+    ALOAD 1
+    INVOKEVIRTUAL org/apache/maven/surefire/booter/ClasspathConfiguration.createSurefireClassLoader (Ljava/lang/ClassLoader;)Ljava/lang/ClassLoader;
+    ASTORE 5
+   L2
+    LINENUMBER 99 L2
+    NEW org/apache/maven/surefire/booter/SurefireReflector
+    DUP
+    DUP
+    ALOAD 5
+    INVOKESPECIAL org/apache/maven/surefire/booter/SurefireReflector.<init> (Ljava/lang/ClassLoader;)V
+    GETSTATIC dapij/InstanceCreationTracker.INSTANCE : Ldapij/InstanceCreationTracker;
+    SWAP
+    LDC Lorg/apache/maven/surefire/booter/SurefireReflector;.class
+    LDC "runSuitesInProcess"
+    LDC 99
+    INVOKESTATIC java/lang/Thread.currentThread ()Ljava/lang/Thread;
+    INVOKEVIRTUAL java/lang/Thread.getId ()J
+    INVOKEVIRTUAL dapij/InstanceCreationTracker.put (Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;IJ)V
+    ASTORE 6
+   L3
+    LINENUMBER 101 L3
+    ALOAD 6
+    ALOAD 3
+    INVOKESTATIC org/apache/maven/surefire/booter/ForkedBooter.createForkingReporterFactory (Lorg/apache/maven/surefire/booter/SurefireReflector;Lorg/apache/maven/surefire/booter/ProviderConfiguration;)Ljava/lang/Object;
+    ASTORE 7
+   L4
+    LINENUMBER 103 L4
+    ALOAD 0
+    ALOAD 1
+    ALOAD 5
+    ALOAD 7
+    ALOAD 3
+    ICONST_1
+    ALOAD 2
+    INVOKESTATIC org/apache/maven/surefire/booter/ProviderFactory.invokeProvider (Ljava/lang/Object;Ljava/lang/ClassLoader;Ljava/lang/ClassLoader;Ljava/lang/Object;Lorg/apache/maven/surefire/booter/ProviderConfiguration;ZLorg/apache/maven/surefire/booter/StartupConfiguration;)Lorg/apache/maven/surefire/suite/RunResult;
+    ARETURN
+   L5
+    LOCALVARIABLE testSet Ljava/lang/Object; L0 L5 0
+    LOCALVARIABLE testsClassLoader Ljava/lang/ClassLoader; L0 L5 1
+    LOCALVARIABLE startupConfiguration Lorg/apache/maven/surefire/booter/StartupConfiguration; L0 L5 2
+    LOCALVARIABLE providerConfiguration Lorg/apache/maven/surefire/booter/ProviderConfiguration; L0 L5 3
+    LOCALVARIABLE classpathConfiguration Lorg/apache/maven/surefire/booter/ClasspathConfiguration; L1 L5 4
+    LOCALVARIABLE surefireClassLoader Ljava/lang/ClassLoader; L2 L5 5
+    LOCALVARIABLE surefireReflector Lorg/apache/maven/surefire/booter/SurefireReflector; L3 L5 6
+    LOCALVARIABLE factory Ljava/lang/Object; L4 L5 7
+    MAXSTACK = 7
+    MAXLOCALS = 8
+  // access flags 0xA
+  private static createForkingReporterFactory(Lorg/apache/maven/surefire/booter/SurefireReflector;Lorg/apache/maven/surefire/booter/ProviderConfiguration;)Ljava/lang/Object;
+   L0
+    LINENUMBER 110 L0
+    ALOAD 1
+    INVOKEVIRTUAL org/apache/maven/surefire/booter/ProviderConfiguration.getReporterConfiguration ()Lorg/apache/maven/surefire/report/ReporterConfiguration;
+    INVOKEVIRTUAL org/apache/maven/surefire/report/ReporterConfiguration.isTrimStackTrace ()Ljava/lang/Boolean;
+    ASTORE 2
+   L1
+    LINENUMBER 111 L1
+    ALOAD 1
+    INVOKEVIRTUAL org/apache/maven/surefire/booter/ProviderConfiguration.getReporterConfiguration ()Lorg/apache/maven/surefire/report/ReporterConfiguration;
+    INVOKEVIRTUAL org/apache/maven/surefire/report/ReporterConfiguration.getOriginalSystemOut ()Ljava/io/PrintStream;
+    ASTORE 3
+   L2
+    LINENUMBER 112 L2
+    ALOAD 0
+    ALOAD 2
+    ALOAD 3
+    INVOKEVIRTUAL org/apache/maven/surefire/booter/SurefireReflector.createForkingReporterFactory (Ljava/lang/Boolean;Ljava/io/PrintStream;)Ljava/lang/Object;
+    ARETURN
+   L3
+    LOCALVARIABLE surefireReflector Lorg/apache/maven/surefire/booter/SurefireReflector; L0 L3 0
+    LOCALVARIABLE providerConfiguration Lorg/apache/maven/surefire/booter/ProviderConfiguration; L0 L3 1
+    LOCALVARIABLE trimStackTrace Ljava/lang/Boolean; L1 L3 2
+    LOCALVARIABLE originalSystemOut Ljava/io/PrintStream; L2 L3 3
+    MAXSTACK = 3
+    MAXLOCALS = 4
+}
+Instrumenting java/lang/VerifyError ...
+// class version 49.0 (49)
+// access flags 0x21
+public class java/lang/VerifyError extends java/lang/LinkageError  {
+  // compiled from: VerifyError.java
+  // access flags 0x1
+  public <init>()V
+   L0
+    LINENUMBER 42 L0
+    ALOAD 0
+    INVOKESPECIAL java/lang/LinkageError.<init> ()V
+   L1
+    LINENUMBER 43 L1
+    RETURN
+   L2
+    LOCALVARIABLE this Ljava/lang/VerifyError; L0 L2 0
+    MAXSTACK = 1
+    MAXLOCALS = 1
+  // access flags 0x1
+  public <init>(Ljava/lang/String;)V
+   L0
+    LINENUMBER 51 L0
+    ALOAD 0
+    ALOAD 1
+    INVOKESPECIAL java/lang/LinkageError.<init> (Ljava/lang/String;)V
+   L1
+    LINENUMBER 52 L1
+    RETURN
+   L2
+    LOCALVARIABLE this Ljava/lang/VerifyError; L0 L2 0
+    LOCALVARIABLE s Ljava/lang/String; L0 L2 1
+    MAXSTACK = 2
+    MAXLOCALS = 2
+}
+Exception in thread "main" java.lang.VerifyError: (class: org/apache/maven/surefire/booter/ForkedBooter, method: runSuitesInProcess signature: (Ljava/lang/Object;Ljava/lang/ClassLoader;Lorg/apache/maven/surefire/booter/StartupConfiguration;Lorg/apache/maven/surefire/booter/ProviderConfiguration;)Lorg/apache/maven/surefire/suite/RunResult;) Illegal type in constant pool
+Instrumenting java/util/ArrayList$Itr ...
+// class version 49.0 (49)
+// access flags 0x20
+// signature Ljava/lang/Object;Ljava/util/Iterator<TE;>;
+// declaration: java/util/ArrayList$Itr implements java.util.Iterator<E>
+class java/util/ArrayList$Itr implements java/util/Iterator  {
+  // compiled from: ArrayList.java
+  // access flags 0x2
+  private INNERCLASS java/util/ArrayList$Itr java/util/ArrayList Itr
+  // access flags 0x1008
+  static INNERCLASS java/util/ArrayList$1 java/util/ArrayList null
+  // access flags 0x0
+  I cursor
+  // access flags 0x0
+  I lastRet
+  // access flags 0x0
+  I expectedModCount
+  // access flags 0x1010
+  final Ljava/util/ArrayList; this$0
+  // access flags 0x2
+  private <init>(Ljava/util/ArrayList;)V
+   L0
+    LINENUMBER 743 L0
+    ALOAD 0
+    ALOAD 1
+    PUTFIELD java/util/ArrayList$Itr.this$0 : Ljava/util/ArrayList;
+    ALOAD 0
+    INVOKESPECIAL java/lang/Object.<init> ()V
+   L1
+    LINENUMBER 745 L1
+    ALOAD 0
+    ICONST_M1
+    PUTFIELD java/util/ArrayList$Itr.lastRet : I
+   L2
+    LINENUMBER 746 L2
+    ALOAD 0
+    ALOAD 0
+    GETFIELD java/util/ArrayList$Itr.this$0 : Ljava/util/ArrayList;
+    GETFIELD java/util/ArrayList.modCount : I
+    PUTFIELD java/util/ArrayList$Itr.expectedModCount : I
+    RETURN
+   L3
+    LOCALVARIABLE this Ljava/util/ArrayList$Itr; L0 L3 0
+    // signature Ljava/util/ArrayList<TE;>.Itr;
+    // declaration: java.util.ArrayList<E>.Itr
+    MAXSTACK = 2
+    MAXLOCALS = 2
+  // access flags 0x1
+  public hasNext()Z
+   L0
+    LINENUMBER 749 L0
+    ALOAD 0
+    GETFIELD java/util/ArrayList$Itr.cursor : I
+    ALOAD 0
+    GETFIELD java/util/ArrayList$Itr.this$0 : Ljava/util/ArrayList;
+    INVOKESTATIC java/util/ArrayList.access$100 (Ljava/util/ArrayList;)I
+    IF_ICMPEQ L1
+    ICONST_1
+    GOTO L2
+   L1
+    ICONST_0
+   L2
+    IRETURN
+   L3
+    LOCALVARIABLE this Ljava/util/ArrayList$Itr; L0 L3 0
+    // signature Ljava/util/ArrayList<TE;>.Itr;
+    // declaration: java.util.ArrayList<E>.Itr
+    MAXSTACK = 2
+    MAXLOCALS = 1
+  // access flags 0x1
+  // signature ()TE;
+  // declaration: E next()
+  public next()Ljava/lang/Object;
+   L0
+    LINENUMBER 754 L0
+    ALOAD 0
+    INVOKEVIRTUAL java/util/ArrayList$Itr.checkForComodification ()V
+   L1
+    LINENUMBER 755 L1
+    ALOAD 0
+    GETFIELD java/util/ArrayList$Itr.cursor : I
+    ISTORE 1
+   L2
+    LINENUMBER 756 L2
+    ILOAD 1
+    ALOAD 0
+    GETFIELD java/util/ArrayList$Itr.this$0 : Ljava/util/ArrayList;
+    INVOKESTATIC java/util/ArrayList.access$100 (Ljava/util/ArrayList;)I
+    IF_ICMPLT L3
+   L4
+    LINENUMBER 757 L4
+    NEW java/util/NoSuchElementException
+    DUP
+    DUP
+    INVOKESPECIAL java/util/NoSuchElementException.<init> ()V
+    GETSTATIC dapij/InstanceCreationTracker.INSTANCE : Ldapij/InstanceCreationTracker;
+    SWAP
+    LDC Ljava/util/NoSuchElementException;.class
+    LDC "next"
+    LDC 757
+    INVOKESTATIC java/lang/Thread.currentThread ()Ljava/lang/Thread;
+    INVOKEVIRTUAL java/lang/Thread.getId ()J
+    INVOKEVIRTUAL dapij/InstanceCreationTracker.put (Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;IJ)V
+    ATHROW
+   L3
+    LINENUMBER 758 L3
+    ALOAD 0
+    GETFIELD java/util/ArrayList$Itr.this$0 : Ljava/util/ArrayList;
+    INVOKESTATIC java/util/ArrayList.access$200 (Ljava/util/ArrayList;)[Ljava/lang/Object;
+    ASTORE 2
+   L5
+    LINENUMBER 759 L5
+    ILOAD 1
+    ALOAD 2
+    ARRAYLENGTH
+    IF_ICMPLT L6
+   L7
+    LINENUMBER 760 L7
+    NEW java/util/ConcurrentModificationException
+    DUP
+    DUP
+    INVOKESPECIAL java/util/ConcurrentModificationException.<init> ()V
+    GETSTATIC dapij/InstanceCreationTracker.INSTANCE : Ldapij/InstanceCreationTracker;
+    SWAP
+    LDC Ljava/util/ConcurrentModificationException;.class
+    LDC "next"
+    LDC 760
+    INVOKESTATIC java/lang/Thread.currentThread ()Ljava/lang/Thread;
+    INVOKEVIRTUAL java/lang/Thread.getId ()J
+    INVOKEVIRTUAL dapij/InstanceCreationTracker.put (Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;IJ)V
+    ATHROW
+   L6
+    LINENUMBER 761 L6
+    ALOAD 0
+    ILOAD 1
+    ICONST_1
+    IADD
+    PUTFIELD java/util/ArrayList$Itr.cursor : I
+   L8
+    LINENUMBER 762 L8
+    ALOAD 2
+    ALOAD 0
+    ILOAD 1
+    DUP_X1
+    PUTFIELD java/util/ArrayList$Itr.lastRet : I
+    AALOAD
+    ARETURN
+   L9
+    LOCALVARIABLE this Ljava/util/ArrayList$Itr; L0 L9 0
+    // signature Ljava/util/ArrayList<TE;>.Itr;
+    // declaration: java.util.ArrayList<E>.Itr
+    LOCALVARIABLE i I L2 L9 1
+    LOCALVARIABLE elementData [Ljava/lang/Object; L5 L9 2
+    MAXSTACK = 4
+    MAXLOCALS = 3
+  // access flags 0x1
+  public remove()V
+    TRYCATCHBLOCK L0 L1 L2 java/lang/IndexOutOfBoundsException
+   L3
+    LINENUMBER 766 L3
+    ALOAD 0
+    GETFIELD java/util/ArrayList$Itr.lastRet : I
+    IFGE L4
+   L5
+    LINENUMBER 767 L5
+    NEW java/lang/IllegalStateException
+    DUP
+    DUP
+    INVOKESPECIAL java/lang/IllegalStateException.<init> ()V
+    GETSTATIC dapij/InstanceCreationTracker.INSTANCE : Ldapij/InstanceCreationTracker;
+    SWAP
+    LDC Ljava/lang/IllegalStateException;.class
+    LDC "remove"
+    LDC 767
+    INVOKESTATIC java/lang/Thread.currentThread ()Ljava/lang/Thread;
+    INVOKEVIRTUAL java/lang/Thread.getId ()J
+    INVOKEVIRTUAL dapij/InstanceCreationTracker.put (Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;IJ)V
+    ATHROW
+   L4
+    LINENUMBER 768 L4
+    ALOAD 0
+    INVOKEVIRTUAL java/util/ArrayList$Itr.checkForComodification ()V
+   L0
+    LINENUMBER 771 L0
+    ALOAD 0
+    GETFIELD java/util/ArrayList$Itr.this$0 : Ljava/util/ArrayList;
+    ALOAD 0
+    GETFIELD java/util/ArrayList$Itr.lastRet : I
+    INVOKEVIRTUAL java/util/ArrayList.remove (I)Ljava/lang/Object;
+    POP
+   L6
+    LINENUMBER 772 L6
+    ALOAD 0
+    ALOAD 0
+    GETFIELD java/util/ArrayList$Itr.lastRet : I
+    PUTFIELD java/util/ArrayList$Itr.cursor : I
+   L7
+    LINENUMBER 773 L7
+    ALOAD 0
+    ICONST_M1
+    PUTFIELD java/util/ArrayList$Itr.lastRet : I
+   L8
+    LINENUMBER 774 L8
+    ALOAD 0
+    ALOAD 0
+    GETFIELD java/util/ArrayList$Itr.this$0 : Ljava/util/ArrayList;
+    GETFIELD java/util/ArrayList.modCount : I
+    PUTFIELD java/util/ArrayList$Itr.expectedModCount : I
+   L1
+    LINENUMBER 777 L1
+    GOTO L9
+   L2
+    LINENUMBER 775 L2
+    ASTORE 1
+   L10
+    LINENUMBER 776 L10
+    NEW java/util/ConcurrentModificationException
+    DUP
+    DUP
+    INVOKESPECIAL java/util/ConcurrentModificationException.<init> ()V
+    GETSTATIC dapij/InstanceCreationTracker.INSTANCE : Ldapij/InstanceCreationTracker;
+    SWAP
+    LDC Ljava/util/ConcurrentModificationException;.class
+    LDC "remove"
+    LDC 776
+    INVOKESTATIC java/lang/Thread.currentThread ()Ljava/lang/Thread;
+    INVOKEVIRTUAL java/lang/Thread.getId ()J
+    INVOKEVIRTUAL dapij/InstanceCreationTracker.put (Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;IJ)V
+    ATHROW
+   L9
+    LINENUMBER 778 L9
+    RETURN
+   L11
+    LOCALVARIABLE ex Ljava/lang/IndexOutOfBoundsException; L10 L9 1
+    LOCALVARIABLE this Ljava/util/ArrayList$Itr; L3 L11 0
+    // signature Ljava/util/ArrayList<TE;>.Itr;
+    // declaration: java.util.ArrayList<E>.Itr
+    MAXSTACK = 2
+    MAXLOCALS = 2
+  // access flags 0x10
+  final checkForComodification()V
+   L0
+    LINENUMBER 781 L0
+    ALOAD 0
+    GETFIELD java/util/ArrayList$Itr.this$0 : Ljava/util/ArrayList;
+    GETFIELD java/util/ArrayList.modCount : I
+    ALOAD 0
+    GETFIELD java/util/ArrayList$Itr.expectedModCount : I
+    IF_ICMPEQ L1
+   L2
+    LINENUMBER 782 L2
+    NEW java/util/ConcurrentModificationException
+    DUP
+    DUP
+    INVOKESPECIAL java/util/ConcurrentModificationException.<init> ()V
+    GETSTATIC dapij/InstanceCreationTracker.INSTANCE : Ldapij/InstanceCreationTracker;
+    SWAP
+    LDC Ljava/util/ConcurrentModificationException;.class
+    LDC "checkForComodification"
+    LDC 782
+    INVOKESTATIC java/lang/Thread.currentThread ()Ljava/lang/Thread;
+    INVOKEVIRTUAL java/lang/Thread.getId ()J
+    INVOKEVIRTUAL dapij/InstanceCreationTracker.put (Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;IJ)V
+    ATHROW
+   L1
+    LINENUMBER 783 L1
+    RETURN
+   L3
+    LOCALVARIABLE this Ljava/util/ArrayList$Itr; L0 L3 0
+    // signature Ljava/util/ArrayList<TE;>.Itr;
+    // declaration: java.util.ArrayList<E>.Itr
+    MAXSTACK = 2
+    MAXLOCALS = 1
+  // access flags 0x1000
+  <init>(Ljava/util/ArrayList;Ljava/util/ArrayList$1;)V
+   L0
+    LINENUMBER 743 L0
+    ALOAD 0
+    ALOAD 1
+    INVOKESPECIAL java/util/ArrayList$Itr.<init> (Ljava/util/ArrayList;)V
+    RETURN
+   L1
+    LOCALVARIABLE this Ljava/util/ArrayList$Itr; L0 L1 0
+    // signature Ljava/util/ArrayList<TE;>.Itr;
+    // declaration: java.util.ArrayList<E>.Itr
+    LOCALVARIABLE x0 Ljava/util/ArrayList; L0 L1 1
+    LOCALVARIABLE x1 Ljava/util/ArrayList$1; L0 L1 2
+    MAXSTACK = 2
+    MAXLOCALS = 3
+}
+Instrumenting java/util/IdentityHashMap$KeySet ...
+// class version 49.0 (49)
+// access flags 0x20
+// signature Ljava/util/AbstractSet<TK;>;
+// declaration: java/util/IdentityHashMap$KeySet extends java.util.AbstractSet<K>
+class java/util/IdentityHashMap$KeySet extends java/util/AbstractSet  {
+  // compiled from: IdentityHashMap.java
+  // access flags 0x2
+  private INNERCLASS java/util/IdentityHashMap$KeySet java/util/IdentityHashMap KeySet
+  // access flags 0x1008
+  static INNERCLASS java/util/IdentityHashMap$1 java/util/IdentityHashMap null
+  // access flags 0x2
+  private INNERCLASS java/util/IdentityHashMap$KeyIterator java/util/IdentityHashMap KeyIterator
+  // access flags 0x1010
+  final Ljava/util/IdentityHashMap; this$0
+  // access flags 0x2
+  private <init>(Ljava/util/IdentityHashMap;)V
+   L0
+    LINENUMBER 954 L0
+    ALOAD 0
+    ALOAD 1
+    PUTFIELD java/util/IdentityHashMap$KeySet.this$0 : Ljava/util/IdentityHashMap;
+    ALOAD 0
+    INVOKESPECIAL java/util/AbstractSet.<init> ()V
+    RETURN
+   L1
+    LOCALVARIABLE this Ljava/util/IdentityHashMap$KeySet; L0 L1 0
+    // signature Ljava/util/IdentityHashMap<TK;TV;>.KeySet;
+    // declaration: java.util.IdentityHashMap<K, V>.KeySet
+    MAXSTACK = 2
+    MAXLOCALS = 2
+  // access flags 0x1
+  // signature ()Ljava/util/Iterator<TK;>;
+  // declaration: java.util.Iterator<K> iterator()
+  public iterator()Ljava/util/Iterator;
+   L0
+    LINENUMBER 956 L0
+    NEW java/util/IdentityHashMap$KeyIterator
+    DUP
+    DUP
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$KeySet.this$0 : Ljava/util/IdentityHashMap;
+    ACONST_NULL
+    INVOKESPECIAL java/util/IdentityHashMap$KeyIterator.<init> (Ljava/util/IdentityHashMap;Ljava/util/IdentityHashMap$1;)V
+    GETSTATIC dapij/InstanceCreationTracker.INSTANCE : Ldapij/InstanceCreationTracker;
+    SWAP
+    LDC Ljava/util/IdentityHashMap$KeyIterator;.class
+    LDC "iterator"
+    LDC 956
+    INVOKESTATIC java/lang/Thread.currentThread ()Ljava/lang/Thread;
+    INVOKEVIRTUAL java/lang/Thread.getId ()J
+    INVOKEVIRTUAL dapij/InstanceCreationTracker.put (Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;IJ)V
+    ARETURN
+   L1
+    LOCALVARIABLE this Ljava/util/IdentityHashMap$KeySet; L0 L1 0
+    // signature Ljava/util/IdentityHashMap<TK;TV;>.KeySet;
+    // declaration: java.util.IdentityHashMap<K, V>.KeySet
+    MAXSTACK = 4
+    MAXLOCALS = 1
+  // access flags 0x1
+  public size()I
+   L0
+    LINENUMBER 959 L0
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$KeySet.this$0 : Ljava/util/IdentityHashMap;
+    INVOKESTATIC java/util/IdentityHashMap.access$000 (Ljava/util/IdentityHashMap;)I
+    IRETURN
+   L1
+    LOCALVARIABLE this Ljava/util/IdentityHashMap$KeySet; L0 L1 0
+    // signature Ljava/util/IdentityHashMap<TK;TV;>.KeySet;
+    // declaration: java.util.IdentityHashMap<K, V>.KeySet
+    MAXSTACK = 1
+    MAXLOCALS = 1
+  // access flags 0x1
+  public contains(Ljava/lang/Object;)Z
+   L0
+    LINENUMBER 962 L0
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$KeySet.this$0 : Ljava/util/IdentityHashMap;
+    ALOAD 1
+    INVOKEVIRTUAL java/util/IdentityHashMap.containsKey (Ljava/lang/Object;)Z
+    IRETURN
+   L1
+    LOCALVARIABLE this Ljava/util/IdentityHashMap$KeySet; L0 L1 0
+    // signature Ljava/util/IdentityHashMap<TK;TV;>.KeySet;
+    // declaration: java.util.IdentityHashMap<K, V>.KeySet
+    LOCALVARIABLE o Ljava/lang/Object; L0 L1 1
+    MAXSTACK = 2
+    MAXLOCALS = 2
+  // access flags 0x1
+  public remove(Ljava/lang/Object;)Z
+   L0
+    LINENUMBER 965 L0
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$KeySet.this$0 : Ljava/util/IdentityHashMap;
+    INVOKESTATIC java/util/IdentityHashMap.access$000 (Ljava/util/IdentityHashMap;)I
+    ISTORE 2
+   L1
+    LINENUMBER 966 L1
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$KeySet.this$0 : Ljava/util/IdentityHashMap;
+    ALOAD 1
+    INVOKEVIRTUAL java/util/IdentityHashMap.remove (Ljava/lang/Object;)Ljava/lang/Object;
+    POP
+   L2
+    LINENUMBER 967 L2
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$KeySet.this$0 : Ljava/util/IdentityHashMap;
+    INVOKESTATIC java/util/IdentityHashMap.access$000 (Ljava/util/IdentityHashMap;)I
+    ILOAD 2
+    IF_ICMPEQ L3
+    ICONST_1
+    GOTO L4
+   L3
+    ICONST_0
+   L4
+    IRETURN
+   L5
+    LOCALVARIABLE this Ljava/util/IdentityHashMap$KeySet; L0 L5 0
+    // signature Ljava/util/IdentityHashMap<TK;TV;>.KeySet;
+    // declaration: java.util.IdentityHashMap<K, V>.KeySet
+    LOCALVARIABLE o Ljava/lang/Object; L0 L5 1
+    LOCALVARIABLE oldSize I L1 L5 2
+    MAXSTACK = 2
+    MAXLOCALS = 3
+  // access flags 0x1
+  // signature (Ljava/util/Collection<*>;)Z
+  // declaration: boolean removeAll(java.util.Collection<?>)
+  public removeAll(Ljava/util/Collection;)Z
+   L0
+    LINENUMBER 975 L0
+    ICONST_0
+    ISTORE 2
+   L1
+    LINENUMBER 976 L1
+    ALOAD 0
+    INVOKEVIRTUAL java/util/IdentityHashMap$KeySet.iterator ()Ljava/util/Iterator;
+    ASTORE 3
+   L2
+    ALOAD 3
+    INVOKEINTERFACE java/util/Iterator.hasNext ()Z
+    IFEQ L3
+   L4
+    LINENUMBER 977 L4
+    ALOAD 1
+    ALOAD 3
+    INVOKEINTERFACE java/util/Iterator.next ()Ljava/lang/Object;
+    INVOKEINTERFACE java/util/Collection.contains (Ljava/lang/Object;)Z
+    IFEQ L2
+   L5
+    LINENUMBER 978 L5
+    ALOAD 3
+    INVOKEINTERFACE java/util/Iterator.remove ()V
+   L6
+    LINENUMBER 979 L6
+    ICONST_1
+    ISTORE 2
+    GOTO L2
+   L3
+    LINENUMBER 982 L3
+    ILOAD 2
+    IRETURN
+   L7
+    LOCALVARIABLE i Ljava/util/Iterator; L2 L3 3
+    LOCALVARIABLE this Ljava/util/IdentityHashMap$KeySet; L0 L7 0
+    // signature Ljava/util/IdentityHashMap<TK;TV;>.KeySet;
+    // declaration: java.util.IdentityHashMap<K, V>.KeySet
+    LOCALVARIABLE c Ljava/util/Collection; L0 L7 1
+    // signature Ljava/util/Collection<*>;
+    // declaration: java.util.Collection<?>
+    LOCALVARIABLE modified Z L1 L7 2
+    MAXSTACK = 2
+    MAXLOCALS = 4
+  // access flags 0x1
+  public clear()V
+   L0
+    LINENUMBER 985 L0
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$KeySet.this$0 : Ljava/util/IdentityHashMap;
+    INVOKEVIRTUAL java/util/IdentityHashMap.clear ()V
+   L1
+    LINENUMBER 986 L1
+    RETURN
+   L2
+    LOCALVARIABLE this Ljava/util/IdentityHashMap$KeySet; L0 L2 0
+    // signature Ljava/util/IdentityHashMap<TK;TV;>.KeySet;
+    // declaration: java.util.IdentityHashMap<K, V>.KeySet
+    MAXSTACK = 1
+    MAXLOCALS = 1
+  // access flags 0x1
+  public hashCode()I
+   L0
+    LINENUMBER 988 L0
+    ICONST_0
+    ISTORE 1
+   L1
+    LINENUMBER 989 L1
+    ALOAD 0
+    INVOKEVIRTUAL java/util/IdentityHashMap$KeySet.iterator ()Ljava/util/Iterator;
+    ASTORE 2
+   L2
+    ALOAD 2
+    INVOKEINTERFACE java/util/Iterator.hasNext ()Z
+    IFEQ L3
+    ALOAD 2
+    INVOKEINTERFACE java/util/Iterator.next ()Ljava/lang/Object;
+    ASTORE 3
+   L4
+    LINENUMBER 990 L4
+    ILOAD 1
+    ALOAD 3
+    INVOKESTATIC java/lang/System.identityHashCode (Ljava/lang/Object;)I
+    IADD
+    ISTORE 1
+   L5
+    GOTO L2
+   L3
+    LINENUMBER 991 L3
+    ILOAD 1
+    IRETURN
+   L6
+    LOCALVARIABLE key Ljava/lang/Object; L4 L5 3
+    // signature TK;
+    // declaration: K
+    LOCALVARIABLE i$ Ljava/util/Iterator; L2 L3 2
+    LOCALVARIABLE this Ljava/util/IdentityHashMap$KeySet; L0 L6 0
+    // signature Ljava/util/IdentityHashMap<TK;TV;>.KeySet;
+    // declaration: java.util.IdentityHashMap<K, V>.KeySet
+    LOCALVARIABLE result I L1 L6 1
+    MAXSTACK = 2
+    MAXLOCALS = 4
+  // access flags 0x1000
+  <init>(Ljava/util/IdentityHashMap;Ljava/util/IdentityHashMap$1;)V
+   L0
+    LINENUMBER 954 L0
+    ALOAD 0
+    ALOAD 1
+    INVOKESPECIAL java/util/IdentityHashMap$KeySet.<init> (Ljava/util/IdentityHashMap;)V
+    RETURN
+   L1
+    LOCALVARIABLE this Ljava/util/IdentityHashMap$KeySet; L0 L1 0
+    // signature Ljava/util/IdentityHashMap<TK;TV;>.KeySet;
+    // declaration: java.util.IdentityHashMap<K, V>.KeySet
+    LOCALVARIABLE x0 Ljava/util/IdentityHashMap; L0 L1 1
+    LOCALVARIABLE x1 Ljava/util/IdentityHashMap$1; L0 L1 2
+    MAXSTACK = 2
+    MAXLOCALS = 3
+}
+Instrumenting java/util/IdentityHashMap$KeyIterator ...
+// class version 49.0 (49)
+// access flags 0x20
+// signature Ljava/util/IdentityHashMap<TK;TV;>.IdentityHashMapIterator<TK;>;
+// declaration: java/util/IdentityHashMap$KeyIterator extends java.util.IdentityHashMap<K, V>.IdentityHashMapIterator<K>
+class java/util/IdentityHashMap$KeyIterator extends java/util/IdentityHashMap$IdentityHashMapIterator  {
+  // compiled from: IdentityHashMap.java
+  // access flags 0x2
+  private INNERCLASS java/util/IdentityHashMap$KeyIterator java/util/IdentityHashMap KeyIterator
+  // access flags 0x1008
+  static INNERCLASS java/util/IdentityHashMap$1 java/util/IdentityHashMap null
+  // access flags 0x402
+  private abstract INNERCLASS java/util/IdentityHashMap$IdentityHashMapIterator java/util/IdentityHashMap IdentityHashMapIterator
+  // access flags 0x1010
+  final Ljava/util/IdentityHashMap; this$0
+  // access flags 0x2
+  private <init>(Ljava/util/IdentityHashMap;)V
+   L0
+    LINENUMBER 819 L0
+    ALOAD 0
+    ALOAD 1
+    PUTFIELD java/util/IdentityHashMap$KeyIterator.this$0 : Ljava/util/IdentityHashMap;
+    ALOAD 0
+    ALOAD 1
+    ACONST_NULL
+    INVOKESPECIAL java/util/IdentityHashMap$IdentityHashMapIterator.<init> (Ljava/util/IdentityHashMap;Ljava/util/IdentityHashMap$1;)V
+    RETURN
+   L1
+    LOCALVARIABLE this Ljava/util/IdentityHashMap$KeyIterator; L0 L1 0
+    // signature Ljava/util/IdentityHashMap<TK;TV;>.KeyIterator;
+    // declaration: java.util.IdentityHashMap<K, V>.KeyIterator
+    MAXSTACK = 3
+    MAXLOCALS = 2
+  // access flags 0x1
+  // signature ()TK;
+  // declaration: K next()
+  public next()Ljava/lang/Object;
+   L0
+    LINENUMBER 821 L0
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$KeyIterator.traversalTable : [Ljava/lang/Object;
+    ALOAD 0
+    INVOKEVIRTUAL java/util/IdentityHashMap$KeyIterator.nextIndex ()I
+    AALOAD
+    INVOKESTATIC java/util/IdentityHashMap.access$600 (Ljava/lang/Object;)Ljava/lang/Object;
+    ARETURN
+   L1
+    LOCALVARIABLE this Ljava/util/IdentityHashMap$KeyIterator; L0 L1 0
+    // signature Ljava/util/IdentityHashMap<TK;TV;>.KeyIterator;
+    // declaration: java.util.IdentityHashMap<K, V>.KeyIterator
+    MAXSTACK = 2
+    MAXLOCALS = 1
+  // access flags 0x1000
+  <init>(Ljava/util/IdentityHashMap;Ljava/util/IdentityHashMap$1;)V
+   L0
+    LINENUMBER 819 L0
+    ALOAD 0
+    ALOAD 1
+    INVOKESPECIAL java/util/IdentityHashMap$KeyIterator.<init> (Ljava/util/IdentityHashMap;)V
+    RETURN
+   L1
+    LOCALVARIABLE this Ljava/util/IdentityHashMap$KeyIterator; L0 L1 0
+    // signature Ljava/util/IdentityHashMap<TK;TV;>.KeyIterator;
+    // declaration: java.util.IdentityHashMap<K, V>.KeyIterator
+    LOCALVARIABLE x0 Ljava/util/IdentityHashMap; L0 L1 1
+    LOCALVARIABLE x1 Ljava/util/IdentityHashMap$1; L0 L1 2
+    MAXSTACK = 2
+    MAXLOCALS = 3
+}
+Instrumenting java/util/IdentityHashMap$IdentityHashMapIterator ...
+// class version 49.0 (49)
+// access flags 0x420
+// signature <T:Ljava/lang/Object;>Ljava/lang/Object;Ljava/util/Iterator<TT;>;
+// declaration: java/util/IdentityHashMap$IdentityHashMapIterator<T> implements java.util.Iterator<T>
+abstract class java/util/IdentityHashMap$IdentityHashMapIterator implements java/util/Iterator  {
+  // compiled from: IdentityHashMap.java
+  // access flags 0x402
+  private abstract INNERCLASS java/util/IdentityHashMap$IdentityHashMapIterator java/util/IdentityHashMap IdentityHashMapIterator
+  // access flags 0x1008
+  static INNERCLASS java/util/IdentityHashMap$1 java/util/IdentityHashMap null
+  // access flags 0x0
+  I index
+  // access flags 0x0
+  I expectedModCount
+  // access flags 0x0
+  I lastReturnedIndex
+  // access flags 0x0
+  Z indexValid
+  // access flags 0x0
+  [Ljava/lang/Object; traversalTable
+  // access flags 0x1010
+  final Ljava/util/IdentityHashMap; this$0
+  // access flags 0x2
+  private <init>(Ljava/util/IdentityHashMap;)V
+   L0
+    LINENUMBER 710 L0
+    ALOAD 0
+    ALOAD 1
+    PUTFIELD java/util/IdentityHashMap$IdentityHashMapIterator.this$0 : Ljava/util/IdentityHashMap;
+    ALOAD 0
+    INVOKESPECIAL java/lang/Object.<init> ()V
+   L1
+    LINENUMBER 711 L1
+    ALOAD 0
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.this$0 : Ljava/util/IdentityHashMap;
+    INVOKESTATIC java/util/IdentityHashMap.access$000 (Ljava/util/IdentityHashMap;)I
+    IFEQ L2
+    ICONST_0
+    GOTO L3
+   L2
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.this$0 : Ljava/util/IdentityHashMap;
+    INVOKESTATIC java/util/IdentityHashMap.access$100 (Ljava/util/IdentityHashMap;)[Ljava/lang/Object;
+    ARRAYLENGTH
+   L3
+    PUTFIELD java/util/IdentityHashMap$IdentityHashMapIterator.index : I
+   L4
+    LINENUMBER 712 L4
+    ALOAD 0
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.this$0 : Ljava/util/IdentityHashMap;
+    INVOKESTATIC java/util/IdentityHashMap.access$200 (Ljava/util/IdentityHashMap;)I
+    PUTFIELD java/util/IdentityHashMap$IdentityHashMapIterator.expectedModCount : I
+   L5
+    LINENUMBER 713 L5
+    ALOAD 0
+    ICONST_M1
+    PUTFIELD java/util/IdentityHashMap$IdentityHashMapIterator.lastReturnedIndex : I
+   L6
+    LINENUMBER 715 L6
+    ALOAD 0
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.this$0 : Ljava/util/IdentityHashMap;
+    INVOKESTATIC java/util/IdentityHashMap.access$100 (Ljava/util/IdentityHashMap;)[Ljava/lang/Object;
+    PUTFIELD java/util/IdentityHashMap$IdentityHashMapIterator.traversalTable : [Ljava/lang/Object;
+    RETURN
+   L7
+    LOCALVARIABLE this Ljava/util/IdentityHashMap$IdentityHashMapIterator; L0 L7 0
+    // signature Ljava/util/IdentityHashMap<TK;TV;>.IdentityHashMapIterator<TT;>;
+    // declaration: java.util.IdentityHashMap<K, V>.IdentityHashMapIterator<T>
+    MAXSTACK = 2
+    MAXLOCALS = 2
+  // access flags 0x1
+  public hasNext()Z
+   L0
+    LINENUMBER 718 L0
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.traversalTable : [Ljava/lang/Object;
+    ASTORE 1
+   L1
+    LINENUMBER 719 L1
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.index : I
+    ISTORE 2
+   L2
+    ILOAD 2
+    ALOAD 1
+    ARRAYLENGTH
+    IF_ICMPGE L3
+   L4
+    LINENUMBER 720 L4
+    ALOAD 1
+    ILOAD 2
+    AALOAD
+    ASTORE 3
+   L5
+    LINENUMBER 721 L5
+    ALOAD 3
+    IFNULL L6
+   L7
+    LINENUMBER 722 L7
+    ALOAD 0
+    ILOAD 2
+    PUTFIELD java/util/IdentityHashMap$IdentityHashMapIterator.index : I
+   L8
+    LINENUMBER 723 L8
+    ALOAD 0
+    ICONST_1
+    DUP_X1
+    PUTFIELD java/util/IdentityHashMap$IdentityHashMapIterator.indexValid : Z
+    IRETURN
+   L6
+    LINENUMBER 719 L6
+    IINC 2 2
+    GOTO L2
+   L3
+    LINENUMBER 726 L3
+    ALOAD 0
+    ALOAD 1
+    ARRAYLENGTH
+    PUTFIELD java/util/IdentityHashMap$IdentityHashMapIterator.index : I
+   L9
+    LINENUMBER 727 L9
+    ICONST_0
+    IRETURN
+   L10
+    LOCALVARIABLE key Ljava/lang/Object; L5 L6 3
+    LOCALVARIABLE i I L2 L3 2
+    LOCALVARIABLE this Ljava/util/IdentityHashMap$IdentityHashMapIterator; L0 L10 0
+    // signature Ljava/util/IdentityHashMap<TK;TV;>.IdentityHashMapIterator<TT;>;
+    // declaration: java.util.IdentityHashMap<K, V>.IdentityHashMapIterator<T>
+    LOCALVARIABLE tab [Ljava/lang/Object; L1 L10 1
+    MAXSTACK = 3
+    MAXLOCALS = 4
+  // access flags 0x4
+  protected nextIndex()I
+   L0
+    LINENUMBER 731 L0
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.this$0 : Ljava/util/IdentityHashMap;
+    INVOKESTATIC java/util/IdentityHashMap.access$200 (Ljava/util/IdentityHashMap;)I
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.expectedModCount : I
+    IF_ICMPEQ L1
+   L2
+    LINENUMBER 732 L2
+    NEW java/util/ConcurrentModificationException
+    DUP
+    DUP
+    INVOKESPECIAL java/util/ConcurrentModificationException.<init> ()V
+    GETSTATIC dapij/InstanceCreationTracker.INSTANCE : Ldapij/InstanceCreationTracker;
+    SWAP
+    LDC Ljava/util/ConcurrentModificationException;.class
+    LDC "nextIndex"
+    LDC 732
+    INVOKESTATIC java/lang/Thread.currentThread ()Ljava/lang/Thread;
+    INVOKEVIRTUAL java/lang/Thread.getId ()J
+    INVOKEVIRTUAL dapij/InstanceCreationTracker.put (Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;IJ)V
+    ATHROW
+   L1
+    LINENUMBER 733 L1
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.indexValid : Z
+    IFNE L3
+    ALOAD 0
+    INVOKEVIRTUAL java/util/IdentityHashMap$IdentityHashMapIterator.hasNext ()Z
+    IFNE L3
+   L4
+    LINENUMBER 734 L4
+    NEW java/util/NoSuchElementException
+    DUP
+    DUP
+    INVOKESPECIAL java/util/NoSuchElementException.<init> ()V
+    GETSTATIC dapij/InstanceCreationTracker.INSTANCE : Ldapij/InstanceCreationTracker;
+    SWAP
+    LDC Ljava/util/NoSuchElementException;.class
+    LDC "nextIndex"
+    LDC 734
+    INVOKESTATIC java/lang/Thread.currentThread ()Ljava/lang/Thread;
+    INVOKEVIRTUAL java/lang/Thread.getId ()J
+    INVOKEVIRTUAL dapij/InstanceCreationTracker.put (Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;IJ)V
+    ATHROW
+   L3
+    LINENUMBER 736 L3
+    ALOAD 0
+    ICONST_0
+    PUTFIELD java/util/IdentityHashMap$IdentityHashMapIterator.indexValid : Z
+   L5
+    LINENUMBER 737 L5
+    ALOAD 0
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.index : I
+    PUTFIELD java/util/IdentityHashMap$IdentityHashMapIterator.lastReturnedIndex : I
+   L6
+    LINENUMBER 738 L6
+    ALOAD 0
+    DUP
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.index : I
+    ICONST_2
+    IADD
+    PUTFIELD java/util/IdentityHashMap$IdentityHashMapIterator.index : I
+   L7
+    LINENUMBER 739 L7
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.lastReturnedIndex : I
+    IRETURN
+   L8
+    LOCALVARIABLE this Ljava/util/IdentityHashMap$IdentityHashMapIterator; L0 L8 0
+    // signature Ljava/util/IdentityHashMap<TK;TV;>.IdentityHashMapIterator<TT;>;
+    // declaration: java.util.IdentityHashMap<K, V>.IdentityHashMapIterator<T>
+    MAXSTACK = 3
+    MAXLOCALS = 1
+  // access flags 0x1
+  public remove()V
+   L0
+    LINENUMBER 743 L0
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.lastReturnedIndex : I
+    ICONST_M1
+    IF_ICMPNE L1
+   L2
+    LINENUMBER 744 L2
+    NEW java/lang/IllegalStateException
+    DUP
+    DUP
+    INVOKESPECIAL java/lang/IllegalStateException.<init> ()V
+    GETSTATIC dapij/InstanceCreationTracker.INSTANCE : Ldapij/InstanceCreationTracker;
+    SWAP
+    LDC Ljava/lang/IllegalStateException;.class
+    LDC "remove"
+    LDC 744
+    INVOKESTATIC java/lang/Thread.currentThread ()Ljava/lang/Thread;
+    INVOKEVIRTUAL java/lang/Thread.getId ()J
+    INVOKEVIRTUAL dapij/InstanceCreationTracker.put (Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;IJ)V
+    ATHROW
+   L1
+    LINENUMBER 745 L1
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.this$0 : Ljava/util/IdentityHashMap;
+    INVOKESTATIC java/util/IdentityHashMap.access$200 (Ljava/util/IdentityHashMap;)I
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.expectedModCount : I
+    IF_ICMPEQ L3
+   L4
+    LINENUMBER 746 L4
+    NEW java/util/ConcurrentModificationException
+    DUP
+    DUP
+    INVOKESPECIAL java/util/ConcurrentModificationException.<init> ()V
+    GETSTATIC dapij/InstanceCreationTracker.INSTANCE : Ldapij/InstanceCreationTracker;
+    SWAP
+    LDC Ljava/util/ConcurrentModificationException;.class
+    LDC "remove"
+    LDC 746
+    INVOKESTATIC java/lang/Thread.currentThread ()Ljava/lang/Thread;
+    INVOKEVIRTUAL java/lang/Thread.getId ()J
+    INVOKEVIRTUAL dapij/InstanceCreationTracker.put (Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;IJ)V
+    ATHROW
+   L3
+    LINENUMBER 748 L3
+    ALOAD 0
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.this$0 : Ljava/util/IdentityHashMap;
+    INVOKESTATIC java/util/IdentityHashMap.access$204 (Ljava/util/IdentityHashMap;)I
+    PUTFIELD java/util/IdentityHashMap$IdentityHashMapIterator.expectedModCount : I
+   L5
+    LINENUMBER 749 L5
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.lastReturnedIndex : I
+    ISTORE 1
+   L6
+    LINENUMBER 750 L6
+    ALOAD 0
+    ICONST_M1
+    PUTFIELD java/util/IdentityHashMap$IdentityHashMapIterator.lastReturnedIndex : I
+   L7
+    LINENUMBER 751 L7
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.this$0 : Ljava/util/IdentityHashMap;
+    INVOKESTATIC java/util/IdentityHashMap.access$010 (Ljava/util/IdentityHashMap;)I
+    POP
+   L8
+    LINENUMBER 753 L8
+    ALOAD 0
+    ILOAD 1
+    PUTFIELD java/util/IdentityHashMap$IdentityHashMapIterator.index : I
+   L9
+    LINENUMBER 754 L9
+    ALOAD 0
+    ICONST_0
+    PUTFIELD java/util/IdentityHashMap$IdentityHashMapIterator.indexValid : Z
+   L10
+    LINENUMBER 768 L10
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.traversalTable : [Ljava/lang/Object;
+    ASTORE 2
+   L11
+    LINENUMBER 769 L11
+    ALOAD 2
+    ARRAYLENGTH
+    ISTORE 3
+   L12
+    LINENUMBER 771 L12
+    ILOAD 1
+    ISTORE 4
+   L13
+    LINENUMBER 772 L13
+    ALOAD 2
+    ILOAD 4
+    AALOAD
+    ASTORE 5
+   L14
+    LINENUMBER 773 L14
+    ALOAD 2
+    ILOAD 4
+    ACONST_NULL
+    AASTORE
+   L15
+    LINENUMBER 774 L15
+    ALOAD 2
+    ILOAD 4
+    ICONST_1
+    IADD
+    ACONST_NULL
+    AASTORE
+   L16
+    LINENUMBER 778 L16
+    ALOAD 2
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.this$0 : Ljava/util/IdentityHashMap;
+    INVOKESTATIC java/util/IdentityHashMap.access$100 (Ljava/util/IdentityHashMap;)[Ljava/lang/Object;
+    IF_ACMPEQ L17
+   L18
+    LINENUMBER 779 L18
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.this$0 : Ljava/util/IdentityHashMap;
+    ALOAD 5
+    INVOKEVIRTUAL java/util/IdentityHashMap.remove (Ljava/lang/Object;)Ljava/lang/Object;
+    POP
+   L19
+    LINENUMBER 780 L19
+    ALOAD 0
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.this$0 : Ljava/util/IdentityHashMap;
+    INVOKESTATIC java/util/IdentityHashMap.access$200 (Ljava/util/IdentityHashMap;)I
+    PUTFIELD java/util/IdentityHashMap$IdentityHashMapIterator.expectedModCount : I
+   L20
+    LINENUMBER 781 L20
+    RETURN
+   L17
+    LINENUMBER 785 L17
+    ILOAD 4
+    ILOAD 3
+    INVOKESTATIC java/util/IdentityHashMap.access$300 (II)I
+    ISTORE 7
+   L21
+    ALOAD 2
+    ILOAD 7
+    AALOAD
+    DUP
+    ASTORE 6
+   L22
+    IFNULL L23
+   L24
+    LINENUMBER 787 L24
+    ALOAD 6
+    ILOAD 3
+    INVOKESTATIC java/util/IdentityHashMap.access$400 (Ljava/lang/Object;I)I
+    ISTORE 8
+   L25
+    LINENUMBER 789 L25
+
+Results :
+
+    ILOAD 7
+Tests run: 0, Failures: 0, Errors: 0, Skipped: 0
+
+    ILOAD 8
+    IF_ICMPGE L26
+    ILOAD 8
+    ILOAD 4
+    IF_ICMPLE L27
+    ILOAD 4
+    ILOAD 7
+    IF_ICMPLE L27
+   L26
+    ILOAD 8
+    ILOAD 4
+    IF_ICMPGT L28
+    ILOAD 4
+    ILOAD 7
+    IF_ICMPGT L28
+   L27
+    LINENUMBER 799 L27
+    ILOAD 7
+    ILOAD 1
+    IF_ICMPGE L29
+    ILOAD 4
+    ILOAD 1
+    IF_ICMPLT L29
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.traversalTable : [Ljava/lang/Object;
+    ALOAD 0
+    GETFIELD java/util/IdentityHashMap$IdentityHashMapIterator.this$0 : Ljava/util/IdentityHashMap;
+    INVOKESTATIC java/util/IdentityHashMap.access$100 (Ljava/util/IdentityHashMap;)[Ljava/lang/Object;
+    IF_ACMPNE L29
+   L30
+    LINENUMBER 801 L30
+    ILOAD 3
+    ILOAD 1
+[INFO] ------------------------------------------------------------------------
+    ISUB
+[INFO] BUILD FAILURE
+    ISTORE 9
+[INFO] ------------------------------------------------------------------------
+   L31
+    LINENUMBER 802 L31
+    ILOAD 9
+    ANEWARRAY java/lang/Object
+    ASTORE 10
+   L32
+    LINENUMBER 803 L32
+    ALOAD 2
+    ILOAD 1
+    ALOAD 10
+    ICONST_0
+    ILOAD 9
+    INVOKESTATIC java/lang/System.arraycopy (Ljava/lang/Object;ILjava/lang/Object;II)V
+   L33
+    LINENUMBER 805 L33
+    ALOAD 0
+    ALOAD 10
+[INFO] Total time: 1.289s
+    PUTFIELD java/util/IdentityHashMap$IdentityHashMapIterator.traversalTable : [Ljava/lang/Object;
+   L34
+    LINENUMBER 806 L34
+[INFO] Finished at: Wed Jul 04 15:30:38 BST 2012
+    ALOAD 0
+    ICONST_0
+    PUTFIELD java/util/IdentityHashMap$IdentityHashMapIterator.index : I
+   L29
+    LINENUMBER 809 L29
+    ALOAD 2
+    ILOAD 4
+    ALOAD 6
+    AASTORE
+   L35
+    LINENUMBER 810 L35
+    ALOAD 2
+    ILOAD 4
+    ICONST_1
+    IADD
+    ALOAD 2
+    ILOAD 7
+    ICONST_1
+    IADD
+    AALOAD
+    AASTORE
+   L36
+    LINENUMBER 811 L36
+    ALOAD 2
+    ILOAD 7
+    ACONST_NULL
+    AASTORE
+   L37
+    LINENUMBER 812 L37
+    ALOAD 2
+    ILOAD 7
+    ICONST_1
+    IADD
+    ACONST_NULL
+    AASTORE
+   L38
+    LINENUMBER 813 L38
+    ILOAD 7
+    ISTORE 4
+   L28
+    LINENUMBER 786 L28
+    ILOAD 7
+    ILOAD 3
+    INVOKESTATIC java/util/IdentityHashMap.access$300 (II)I
+    ISTORE 7
+    GOTO L21
+   L23
+    LINENUMBER 816 L23
+    RETURN
+   L39
+    LOCALVARIABLE remaining I L31 L29 9
+    LOCALVARIABLE newTable [Ljava/lang/Object; L32 L29 10
+    LOCALVARIABLE r I L25 L28 8
+    LOCALVARIABLE i I L21 L23 7
+    LOCALVARIABLE this Ljava/util/IdentityHashMap$IdentityHashMapIterator; L0 L39 0
+    // signature Ljava/util/IdentityHashMap<TK;TV;>.IdentityHashMapIterator<TT;>;
+    // declaration: java.util.IdentityHashMap<K, V>.IdentityHashMapIterator<T>
+    LOCALVARIABLE deletedSlot I L6 L39 1
+    LOCALVARIABLE tab [Ljava/lang/Object; L11 L39 2
+    LOCALVARIABLE len I L12 L39 3
+    LOCALVARIABLE d I L13 L39 4
+    LOCALVARIABLE key Ljava/lang/Object; L14 L39 5
+    // signature TK;
+    // declaration: K
+    LOCALVARIABLE item Ljava/lang/Object; L22 L39 6
+    MAXSTACK = 5
+    MAXLOCALS = 11
+  // access flags 0x1000
+  <init>(Ljava/util/IdentityHashMap;Ljava/util/IdentityHashMap$1;)V
+   L0
+    LINENUMBER 710 L0
+    ALOAD 0
+    ALOAD 1
+    INVOKESPECIAL java/util/IdentityHashMap$IdentityHashMapIterator.<init> (Ljava/util/IdentityHashMap;)V
+    RETURN
+   L1
+    LOCALVARIABLE this Ljava/util/IdentityHashMap$IdentityHashMapIterator; L0 L1 0
+    // signature Ljava/util/IdentityHashMap<TK;TV;>.IdentityHashMapIterator<TT;>;
+    // declaration: java.util.IdentityHashMap<K, V>.IdentityHashMapIterator<T>
+    LOCALVARIABLE x0 Ljava/util/IdentityHashMap; L0 L1 1
+    LOCALVARIABLE x1 Ljava/util/IdentityHashMap$1; L0 L1 2
+    MAXSTACK = 2
+    MAXLOCALS = 3
+}
+Instrumenting java/io/DeleteOnExitHook ...
+// class version 49.0 (49)
+// access flags 0x20
+class java/io/DeleteOnExitHook {
+  // compiled from: DeleteOnExitHook.java
+  // access flags 0xA
+  private static Ljava/io/DeleteOnExitHook; instance
+  // access flags 0xA
+  // signature Ljava/util/LinkedHashSet<Ljava/lang/String;>;
+  // declaration: java.util.LinkedHashSet<java.lang.String>
+  private static Ljava/util/LinkedHashSet; files
+  // access flags 0x8
+  static hook()Ljava/io/DeleteOnExitHook;
+   L0
+    LINENUMBER 42 L0
+    GETSTATIC java/io/DeleteOnExitHook.instance : Ljava/io/DeleteOnExitHook;
+    IFNONNULL L1
+   L2
+    LINENUMBER 43 L2
+    NEW java/io/DeleteOnExitHook
+    DUP
+    DUP
+    INVOKESPECIAL java/io/DeleteOnExitHook.<init> ()V
+    GETSTATIC dapij/InstanceCreationTracker.INSTANCE : Ldapij/InstanceCreationTracker;
+    SWAP
+    LDC Ljava/io/DeleteOnExitHook;.class
+    LDC "hook"
+    LDC 43
+    INVOKESTATIC java/lang/Thread.currentThread ()Ljava/lang/Thread;
+    INVOKEVIRTUAL java/lang/Thread.getId ()J
+    INVOKEVIRTUAL dapij/InstanceCreationTracker.put (Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;IJ)V
+    PUTSTATIC java/io/DeleteOnExitHook.instance : Ljava/io/DeleteOnExitHook;
+   L1
+    LINENUMBER 45 L1
+    GETSTATIC java/io/DeleteOnExitHook.instance : Ljava/io/DeleteOnExitHook;
+    ARETURN
+    MAXSTACK = 2
+    MAXLOCALS = 0
+  // access flags 0x2
+  private <init>()V
+   L0
+    LINENUMBER 48 L0
+    ALOAD 0
+    INVOKESPECIAL java/lang/Object.<init> ()V
+    RETURN
+   L1
+    LOCALVARIABLE this Ljava/io/DeleteOnExitHook; L0 L1 0
+    MAXSTACK = 1
+    MAXLOCALS = 1
+  // access flags 0x28
+  static synchronized add(Ljava/lang/String;)V
+   L0
+    LINENUMBER 51 L0
+    GETSTATIC java/io/DeleteOnExitHook.files : Ljava/util/LinkedHashSet;
+    IFNONNULL L1
+   L2
+    LINENUMBER 52 L2
+    NEW java/lang/IllegalStateException
+    DUP
+    DUP
+    LDC "Shutdown in progress"
+    INVOKESPECIAL java/lang/IllegalStateException.<init> (Ljava/lang/String;)V
+    GETSTATIC dapij/InstanceCreationTracker.INSTANCE : Ldapij/InstanceCreationTracker;
+    SWAP
+    LDC Ljava/lang/IllegalStateException;.class
+    LDC "add"
+    LDC 52
+    INVOKESTATIC java/lang/Thread.currentThread ()Ljava/lang/Thread;
+    INVOKEVIRTUAL java/lang/Thread.getId ()J
+    INVOKEVIRTUAL dapij/InstanceCreationTracker.put (Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;IJ)V
+    ATHROW
+   L1
+    LINENUMBER 54 L1
+    GETSTATIC java/io/DeleteOnExitHook.files : Ljava/util/LinkedHashSet;
+    ALOAD 0
+    INVOKEVIRTUAL java/util/LinkedHashSet.add (Ljava/lang/Object;)Z
+    POP
+   L3
+    LINENUMBER 55 L3
+    RETURN
+   L4
+    LOCALVARIABLE file Ljava/lang/String; L0 L4 0
+    MAXSTACK = 3
+    MAXLOCALS = 1
+  // access flags 0x0
+  run()V
+    TRYCATCHBLOCK L0 L1 L2 null
+    TRYCATCHBLOCK L2 L3 L2 null
+   L4
+    LINENUMBER 60 L4
+    LDC Ljava/io/DeleteOnExitHook;.class
+    DUP
+    ASTORE 2
+    MONITORENTER
+   L0
+    LINENUMBER 61 L0
+    GETSTATIC java/io/DeleteOnExitHook.files : Ljava/util/LinkedHashSet;
+    ASTORE 1
+   L5
+    LINENUMBER 62 L5
+    ACONST_NULL
+    PUTSTATIC java/io/DeleteOnExitHook.files : Ljava/util/LinkedHashSet;
+   L6
+    LINENUMBER 63 L6
+    ALOAD 2
+    MONITOREXIT
+   L1
+    GOTO L7
+   L2
+    ASTORE 3
+    ALOAD 2
+    MONITOREXIT
+   L3
+    ALOAD 3
+    ATHROW
+   L7
+    LINENUMBER 65 L7
+    NEW java/util/ArrayList
+    DUP
+[INFO] Final Memory: 7M/179M
+[INFO] ------------------------------------------------------------------------
+    DUP
+    ALOAD 1
+    INVOKESPECIAL java/util/ArrayList.<init> (Ljava/util/Collection;)V
+    GETSTATIC dapij/InstanceCreationTracker.INSTANCE : Ldapij/InstanceCreationTracker;
+    SWAP
+    LDC Ljava/util/ArrayList;.class
+    LDC "run"
+    LDC 65
+    INVOKESTATIC java/lang/Thread.currentThread ()Ljava/lang/Thread;
+    INVOKEVIRTUAL java/lang/Thread.getId ()J
+    INVOKEVIRTUAL dapij/InstanceCreationTracker.put (Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;IJ)V
+    ASTORE 2
+   L8
+    LINENUMBER 69 L8
+    ALOAD 2
+    INVOKESTATIC java/util/Collections.reverse (Ljava/util/List;)V
+   L9
+    LINENUMBER 70 L9
+    ALOAD 2
+    INVOKEVIRTUAL java/util/ArrayList.iterator ()Ljava/util/Iterator;
+    ASTORE 3
+   L10
+    ALOAD 3
+    INVOKEINTERFACE java/util/Iterator.hasNext ()Z
+    IFEQ L11
+    ALOAD 3
+    INVOKEINTERFACE java/util/Iterator.next ()Ljava/lang/Object;
+    CHECKCAST java/lang/String
+    ASTORE 4
+   L12
+    LINENUMBER 71 L12
+    NEW java/io/File
+    DUP
+    DUP
+    ALOAD 4
+    INVOKESPECIAL java/io/File.<init> (Ljava/lang/String;)V
+    GETSTATIC dapij/InstanceCreationTracker.INSTANCE : Ldapij/InstanceCreationTracker;
+    SWAP
+    LDC Ljava/io/File;.class
+    LDC "run"
+    LDC 71
+    INVOKESTATIC java/lang/Thread.currentThread ()Ljava/lang/Thread;
+    INVOKEVIRTUAL java/lang/Thread.getId ()J
+    INVOKEVIRTUAL dapij/InstanceCreationTracker.put (Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;IJ)V
+    INVOKEVIRTUAL java/io/File.delete ()Z
+    POP
+   L13
+    GOTO L10
+   L11
+    LINENUMBER 73 L11
+    RETURN
+   L14
+    LOCALVARIABLE filename Ljava/lang/String; L12 L13 4
+    LOCALVARIABLE i$ Ljava/util/Iterator; L10 L11 3
+    LOCALVARIABLE this Ljava/io/DeleteOnExitHook; L4 L14 0
+    LOCALVARIABLE theFiles Ljava/util/LinkedHashSet; L5 L14 1
+    // signature Ljava/util/LinkedHashSet<Ljava/lang/String;>;
+    // declaration: java.util.LinkedHashSet<java.lang.String>
+    LOCALVARIABLE toBeDeleted Ljava/util/ArrayList; L8 L14 2
+    // signature Ljava/util/ArrayList<Ljava/lang/String;>;
+    // declaration: java.util.ArrayList<java.lang.String>
+    MAXSTACK = 3
+    MAXLOCALS = 5
+  // access flags 0x8
+  static <clinit>()V
+   L0
+    LINENUMBER 37 L0
+    ACONST_NULL
+    PUTSTATIC java/io/DeleteOnExitHook.instance : Ljava/io/DeleteOnExitHook;
+   L1
+    LINENUMBER 39 L1
+    NEW java/util/LinkedHashSet
+    DUP
+    DUP
+    INVOKESPECIAL java/util/LinkedHashSet.<init> ()V
+    GETSTATIC dapij/InstanceCreationTracker.INSTANCE : Ldapij/InstanceCreationTracker;
+    SWAP
+    LDC Ljava/util/LinkedHashSet;.class
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:2.12:test (default-test) on project dapij: ExecutionException; nested exception is java.util.concurrent.ExecutionException: org.apache.maven.surefire.booter.SurefireBooterForkException: Error occurred in starting fork, check output in log -> [Help 1]
+    LDC "<clinit>"
+    LDC 39
+    INVOKESTATIC java/lang/Thread.currentThread ()Ljava/lang/Thread;
+    INVOKEVIRTUAL java/lang/Thread.getId ()J
+    INVOKEVIRTUAL dapij/InstanceCreationTracker.put (Ljava/lang/Object;Ljava/lang/Class;Ljava/lang/String;IJ)V
+    PUTSTATIC java/io/DeleteOnExitHook.files : Ljava/util/LinkedHashSet;
+    RETURN
+    MAXSTACK = 2
+    MAXLOCALS = 0
+}
+Instrumenting java/util/LinkedHashSet ...
+// class version 49.0 (49)
+// access flags 0x21
+org.apache.maven.lifecycle.LifecycleExecutionException: Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:2.12:test (default-test) on project dapij: ExecutionException; nested exception is java.util.concurrent.ExecutionException: org.apache.maven.surefire.booter.SurefireBooterForkException: Error occurred in starting fork, check output in log
+	at org.apache.maven.lifecycle.internal.MojoExecutor.execute(MojoExecutor.java:217)
+	at org.apache.maven.lifecycle.internal.MojoExecutor.execute(MojoExecutor.java:153)
+	at org.apache.maven.lifecycle.internal.MojoExecutor.execute(MojoExecutor.java:145)
+	at org.apache.maven.lifecycle.internal.LifecycleModuleBuilder.buildProject(LifecycleModuleBuilder.java:84)
+	at org.apache.maven.lifecycle.internal.LifecycleModuleBuilder.buildProject(LifecycleModuleBuilder.java:59)
+	at org.apache.maven.lifecycle.internal.LifecycleStarter.singleThreadedBuild(LifecycleStarter.java:183)
+	at org.apache.maven.lifecycle.internal.LifecycleStarter.execute(LifecycleStarter.java:161)
+	at org.apache.maven.DefaultMaven.doExecute(DefaultMaven.java:320)
+	at org.apache.maven.DefaultMaven.execute(DefaultMaven.java:156)
+	at org.apache.maven.cli.MavenCli.execute(MavenCli.java:537)
+	at org.apache.maven.cli.MavenCli.doMain(MavenCli.java:196)
+	at org.apache.maven.cli.MavenCli.main(MavenCli.java:141)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:616)
+	at org.codehaus.plexus.classworlds.launcher.Launcher.launchEnhanced(Launcher.java:290)
+	at org.codehaus.plexus.classworlds.launcher.Launcher.launch(Launcher.java:230)
+	at org.codehaus.plexus.classworlds.launcher.Launcher.mainWithExitCode(Launcher.java:409)
+	at org.codehaus.plexus.classworlds.launcher.Launcher.main(Launcher.java:352)
+Caused by: org.apache.maven.plugin.MojoExecutionException: ExecutionException; nested exception is java.util.concurrent.ExecutionException: org.apache.maven.surefire.booter.SurefireBooterForkException: Error occurred in starting fork, check output in log
+	at org.apache.maven.plugin.surefire.SurefirePlugin.assertNoException(SurefirePlugin.java:656)
+	at org.apache.maven.plugin.surefire.SurefirePlugin.handleSummary(SurefirePlugin.java:645)
+	at org.apache.maven.plugin.surefire.AbstractSurefireMojo.executeAfterPreconditionsChecked(AbstractSurefireMojo.java:137)
+	at org.apache.maven.plugin.surefire.AbstractSurefireMojo.execute(AbstractSurefireMojo.java:98)
+	at org.apache.maven.plugin.DefaultBuildPluginManager.executeMojo(DefaultBuildPluginManager.java:101)
+	at org.apache.maven.lifecycle.internal.MojoExecutor.execute(MojoExecutor.java:209)
+	... 19 more
+Caused by: org.apache.maven.surefire.booter.SurefireBooterForkException: ExecutionException; nested exception is java.util.concurrent.ExecutionException: org.apache.maven.surefire.booter.SurefireBooterForkException: Error occurred in starting fork, check output in log
+	at org.apache.maven.plugin.surefire.booterclient.ForkStarter.runSuitesForkPerTestSet(ForkStarter.java:187)
+	at org.apache.maven.plugin.surefire.booterclient.ForkStarter.run(ForkStarter.java:118)
+	at org.apache.maven.plugin.surefire.AbstractSurefireMojo.executeProvider(AbstractSurefireMojo.java:199)
+	at org.apache.maven.plugin.surefire.AbstractSurefireMojo.executeAllProviders(AbstractSurefireMojo.java:176)
+	at org.apache.maven.plugin.surefire.AbstractSurefireMojo.executeAfterPreconditionsChecked(AbstractSurefireMojo.java:135)
+	... 22 more
+Caused by: java.util.concurrent.ExecutionException: org.apache.maven.surefire.booter.SurefireBooterForkException: Error occurred in starting fork, check output in log
+	at java.util.concurrent.FutureTask$Sync.innerGet(FutureTask.java:252)
+	at java.util.concurrent.FutureTask.get(FutureTask.java:111)
+	at org.apache.maven.plugin.surefire.booterclient.ForkStarter.runSuitesForkPerTestSet(ForkStarter.java:171)
+	... 26 more
+Caused by: org.apache.maven.surefire.booter.SurefireBooterForkException: Error occurred in starting fork, check output in log
+	at org.apache.maven.plugin.surefire.booterclient.ForkStarter.fork(ForkStarter.java:281)
+	at org.apache.maven.plugin.surefire.booterclient.ForkStarter.access$100(ForkStarter.java:71)
+	at org.apache.maven.plugin.surefire.booterclient.ForkStarter$1.call(ForkStarter.java:160)
+	at org.apache.maven.plugin.surefire.booterclient.ForkStarter$1.call(ForkStarter.java:157)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:334)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:166)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1110)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:603)
+	at java.lang.Thread.run(Thread.java:679)
+// signature <E:Ljava/lang/Object;>Ljava/util/HashSet<TE;>;Ljava/util/Set<TE;>;Ljava/lang/Cloneable;Ljava/io/Serializable;
+[ERROR] 
+// declaration: java/util/LinkedHashSet<E> extends java.util.HashSet<E> implements java.util.Set<E>, java.lang.Cloneable, java.io.Serializable
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+public class java/util/LinkedHashSet extends java/util/HashSet  implements java/util/Set java/lang/Cloneable java/io/Serializable  {
+[ERROR] 
+  // compiled from: LinkedHashSet.java
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+  // access flags 0x1A
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException
+  private final static J serialVersionUID = -2851667679971038690
+  // access flags 0x1
+  public <init>(IF)V
+   L0
+    LINENUMBER 134 L0
+    ALOAD 0
+    ILOAD 1
+    FLOAD 2
+    ICONST_1
+    INVOKESPECIAL java/util/HashSet.<init> (IFZ)V
+   L1
+    LINENUMBER 135 L1
+    RETURN
+   L2
+    LOCALVARIABLE this Ljava/util/LinkedHashSet; L0 L2 0
+    // signature Ljava/util/LinkedHashSet<TE;>;
+    // declaration: java.util.LinkedHashSet<E>
+    LOCALVARIABLE initialCapacity I L0 L2 1
+    LOCALVARIABLE loadFactor F L0 L2 2
+    MAXSTACK = 4
+    MAXLOCALS = 3
+  // access flags 0x1
+  public <init>(I)V
+   L0
+    LINENUMBER 146 L0
+    ALOAD 0

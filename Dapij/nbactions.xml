@@ -37,4 +37,10 @@
                 <profiler.action>profile</profiler.action>
             </properties>
         </action>
+        <action>
+            <actionName>test</actionName>
+            <goals>
+                <goal>test</goal>
+            </goals>
+        </action>
     </actions>

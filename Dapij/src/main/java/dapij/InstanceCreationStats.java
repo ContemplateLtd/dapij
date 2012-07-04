@@ -4,6 +4,8 @@
  */
 package dapij;
 
+import org.objectweb.asm.Type;
+
 /**
  *
  * @author Marcin Szymczak <mpszymczak@gmail.com>
@@ -17,7 +19,6 @@ public class InstanceCreationStats {
     
     public InstanceCreationStats(Class clazz, String method, int offset,
             long threadId) {
-    //public InstanceCreationStats(int offset) {
         this.clazz = clazz;
         this.method = method;
         this.offset = offset;

@@ -37,9 +37,7 @@ public class HelloAzura {
         HelloAzura ha = new HelloAzura(2);  /* create object to test agent */
         ha.azura();
 
-        //Object ob = new Object();
-        //System.out.println(ob.toString());
         System.out.println("Concurrent Map Size: " +
-                String.valueOf(InstanceCreationTracker.INSTANCE.getSize())); 
+                String.valueOf(InstanceCreationTracker.INSTANCE.getSize()));
     }
 }

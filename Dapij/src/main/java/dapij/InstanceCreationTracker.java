@@ -21,17 +21,15 @@ public class InstanceCreationTracker {
         instanceMap = new MapMaker().weakKeys().makeMap();
     }
     
-      
     public InstanceCreationStats get(Object key) {
         return instanceMap.get(key);
     }
     
     public void put(Object key, Class clazz, String method, int offset,
             long threadId) {
-    //public void put(Object key, String method, int offset, long threadId) {
         instanceMap.putIfAbsent(key, new InstanceCreationStats(clazz, method,
                 offset, threadId));
-        System.out.println(instanceMap.get(key));
+        System.out.println(instanceMap.get(key)); // TODO: Remove this
     }
   
     public boolean hasKey(Object key) {
