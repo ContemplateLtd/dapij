@@ -28,6 +28,7 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.8.2</version>
+      <!--<scope>test</scope>-->
     </dependency>
   </dependencies>
 
@@ -71,43 +72,39 @@
         </executions>
       </plugin>
 
-      <!-- this configures the surefire plugin to run your tests with the javaagent enabled -->
+      <!-- This configures SureFire run the tests with javaagent enabled. -->
+      <!-- Because the agent is in this project, test execution is moved -->
+      <!-- to the verify phase to allow agent packaging. -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.12</version>
-        <configuration>
-          <forkMode>pertest</forkMode>
-       	  <argLine>-javaagent:${basedir}/target/dapij-0.1-SNAPSHOT.jar </argLine>
-          <workingDirectory>${basedir}/target</workingDirectory>
-        </configuration>
+        <executions>
+          <execution>
+            <id>default-test</id>
+            <phase>test</phase>
+              <configuration>
+               <excludes>
+                 <exclude>*</exclude>
+               </excludes>
+              </configuration>
+          </execution>
+          <execution>
+            <id>agent-tests</id>
+            <phase>verify</phase>
+            <goals>
+            <goal>test</goal>
+            </goals>
+              <configuration>
+                <parallel>methods</parallel>
+                <threadCount>10</threadCount>
+                <forkMode>pertest</forkMode>
+       	        <argLine>-javaagent:${project.build.directory}/dapij-0.1-SNAPSHOT.jar</argLine>
+                <workingDirectory>${basedir}/target</workingDirectory>
+              </configuration>
+          </execution>	
+        </executions>
       </plugin>
-
-    <!-- this tells maven to copy the javaagent jar into your target/ directory -->
-    <!-- where surefire can see it -->
-    <plugin>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-dependency-plugin</artifactId>
-      <executions>
-        <execution>
-          <id>copy</id>
-          <phase>process-resources</phase>
-          <goals>
-            <goal>copy</goal>
-          </goals>
-          <configuration>
-            <artifactItems>
-              <artifactItem>
-                <groupId>com.contemplateltd.interns</groupId>
-                <artifactId>dapij</artifactId>
-                <version>0.1-SNAPSHOT</version>
-                <outputDirectory>${project.build.directory}</outputDirectory>
-              </artifactItem>
-            </artifactItems>
-          </configuration>
-        </execution>
-      </executions>
-    </plugin> 
 
     </plugins>
 

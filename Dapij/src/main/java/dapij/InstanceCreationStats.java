@@ -4,8 +4,6 @@
  */
 package dapij;
 
-import org.objectweb.asm.Type;
-
 /**
  *
  * @author Marcin Szymczak <mpszymczak@gmail.com>

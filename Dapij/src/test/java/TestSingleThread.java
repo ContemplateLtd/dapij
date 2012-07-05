@@ -19,7 +19,7 @@ public class TestSingleThread {
         HelloAzura ha = new HelloAzura(2);  /* create object to test agent */
         
         InstanceCreationTracker map = InstanceCreationTracker.INSTANCE;
-        Assert.assertEquals("Size: ", 0, map.getSize());
+        //Assert.assertEquals("Size: ", 0, map.getSize());
         
         /* Does not work if agent not supplied as a command line argument */
         Assert.assertEquals("Exists in map: ", true, map.hasKey(ha));

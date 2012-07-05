@@ -1,5 +1,5 @@
 /*
- * TODO: enter sensible info 
+ * TODO: enter meaningful info 
  */
 package dapij;
 
