@@ -137,7 +137,6 @@ public class InstanceCreationVisitor extends MethodVisitor {
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                 Type.getInternalName(InstanceCreationTracker.class),
                 "put", descriptor);
-
     }
     
     @Override

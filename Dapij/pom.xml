@@ -28,7 +28,7 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.8.2</version>
-      <!--<scope>test</scope>-->
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -93,16 +93,16 @@
             <id>agent-tests</id>
             <phase>verify</phase>
             <goals>
-            <goal>test</goal>
+              <goal>test</goal>
             </goals>
-              <configuration>
-                <parallel>methods</parallel>
-                <threadCount>10</threadCount>
-                <forkMode>pertest</forkMode>
-       	        <argLine>-javaagent:${project.build.directory}/dapij-0.1-SNAPSHOT.jar</argLine>
-                <workingDirectory>${basedir}/target</workingDirectory>
-              </configuration>
-          </execution>	
+            <configuration>
+              <parallel>methods</parallel>
+              <threadCount>10</threadCount>
+              <forkMode>pertest</forkMode>
+       	      <argLine>-javaagent:${project.build.directory}/dapij-0.1-SNAPSHOT.jar</argLine>
+              <workingDirectory>${basedir}/target</workingDirectory>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
 

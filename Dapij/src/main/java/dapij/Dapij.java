@@ -25,7 +25,7 @@ public class Dapij implements ClassFileTransformer {
             byte[] classfileBuffer) throws IllegalClassFormatException {
         
         /* Do not instrument agent classes */
-        if(className.startsWith("dapij")) {
+        if (className.startsWith("dapij")) {
             System.out.println("Did not instument " + className + "!");
             return classfileBuffer;
         }
@@ -51,6 +51,9 @@ public class Dapij implements ClassFileTransformer {
     }
 
     public static void premain(String arglist, Instrumentation inst) {
+            InstanceCreationTracker ict = InstanceCreationTracker.INSTANCE;
+        System.out.println("CLASSPATH: " +
+                System.getProperty("java.class.path"));
         inst.addTransformer(new Dapij());
     }
 }
