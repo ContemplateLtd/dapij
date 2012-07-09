@@ -1,4 +1,6 @@
-<?xml version="1.0" necoding="UTF-8" standalone="no" ?>
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<SourceFile>HelloAzura.java</SourceFile>
+<Line>42</Line>
 <Elements>
     <Element>
         <Class>HelloAzura</Class>

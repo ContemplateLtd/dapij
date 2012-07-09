@@ -27,7 +27,13 @@ public class xmlWriter {
         
         /* Write the XML header */
         
-        filePrinter.println("<?xml version=\"1.0\" necoding=\"UTF-8\" standalone=\"no\" ?>");
+        filePrinter.println("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>");
+        
+        /* Write the breakpoint details */
+        
+        filePrinter.println("<SourceFile>" + InstanceCreationVisitor.targetFile +"</SourceFile>");
+        filePrinter.println("<Line>" + InstanceCreationVisitor.targetLine + "</Line>");
+        
         
         /* Write the opening tag */
         
@@ -39,6 +45,9 @@ public class xmlWriter {
         String twoTabs = tab + tab;
         
         for(InstanceCreationStats info : InstanceCreationTracker.INSTANCE.getValues()) {
+            
+            /* Write the data for the given object */
+            
             filePrinter.println(tab + "<Element>");
             filePrinter.println(twoTabs + "<Class>" + info.getClazz().getName() +"</Class>");
             filePrinter.println(twoTabs + "<Method>" + info.getMethod() +"</Method>");
