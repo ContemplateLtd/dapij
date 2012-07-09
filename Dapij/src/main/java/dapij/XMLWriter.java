@@ -12,7 +12,7 @@ import java.io.PrintWriter;
  *
  * @author Marcin Szymczak <mpszymczak@gmail.com>
  */
-public class xmlWriter {
+public class XMLWriter {
     
     /*
      * Writes the object creation info to an XML file

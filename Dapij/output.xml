@@ -5,13 +5,13 @@
     <Element>
         <Class>HelloAzura</Class>
         <Method>main</Method>
-        <Offset>37</Offset>
+        <Offset>36</Offset>
         <ThreadId>1</ThreadId>
     </Element>
     <Element>
         <Class>java.lang.StringBuilder</Class>
         <Method>main</Method>
-        <Offset>40</Offset>
+        <Offset>41</Offset>
         <ThreadId>1</ThreadId>
     </Element>
 </Elements>

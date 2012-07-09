@@ -146,6 +146,51 @@ public class InstanceCreationVisitor extends MethodVisitor {
     }
     
     @Override
+    public void visitFieldInsn(int opcode, String owner, String name, String desc) {
+        if (opcode == Opcodes.GETFIELD) {
+            
+            /* Duplicate the object reference to pass as an argument */
+            
+            mv.visitInsn(Opcodes.DUP);
+            
+            /* 
+             * Get a reference to InstanceCreationTracker and put it on the
+             * bottom
+             * 
+             */
+            
+            mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(
+                InstanceCreationTracker.class), "INSTANCE", 
+                Type.getDescriptor(InstanceCreationTracker.
+                        INSTANCE.getClass()));
+            
+            mv.visitInsn(Opcodes.SWAP);
+            
+            /* get the thread ID */
+            
+            mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(
+                Thread.class), "currentThread", Type.getMethodDescriptor(
+                Type.getType(Thread.class)));
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(
+                Thread.class), "getId", Type.getMethodDescriptor(
+                Type.getType(long.class)));
+            
+            
+            /* register object access */
+            
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(
+                InstanceCreationTracker.class), "registerAccess", Type.getMethodDescriptor(
+                Type.getType(void.class),Type.getType(Object.class),Type.getType(long.class)));
+            
+        }
+        else if (opcode == Opcodes.PUTFIELD) {
+            //TODO
+        }
+        
+        mv.visitFieldInsn(opcode, owner, name, desc);
+    }
+    
+    @Override
     public void visitLineNumber(int line, Label start) {
         this.line = line;
         

@@ -58,7 +58,12 @@ public class InstanceCreationTracker {
     /* Write the content of the map to an XML file */
     
     public void writeInfoToXml() throws IOException {
-        xmlWriter.writeDataToXml("output.xml");
+        XMLWriter.writeDataToXml("output.xml");
+    }
+    
+    public void registerAccess(Object ref, long threadId) {
+        //dummy implementation for now
+        System.out.println("Object " + ref + " accessed from thread " + threadId);
     }
     
 }
