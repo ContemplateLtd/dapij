@@ -19,6 +19,7 @@ public class Dapij implements ClassFileTransformer {
             Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
             byte[] classfileBuffer) throws IllegalClassFormatException {
         
+        /* Do not instrument agent classes */
         if (className.startsWith("dapij")) {
             System.out.println("Did not instument " + className + "!");
             return classfileBuffer;
@@ -46,8 +47,8 @@ public class Dapij implements ClassFileTransformer {
 
         ClassVisitor sc_visitor = new StatsCollector(writer);
         creader.accept(sc_visitor, 0);
-        byte[] bts = writer.toByteArray();
-        return bts;
+
+        return writer.toByteArray();
     }
 
 }

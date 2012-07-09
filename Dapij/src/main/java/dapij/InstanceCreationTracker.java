@@ -4,9 +4,9 @@
  */
 package dapij;
 
-import java.util.concurrent.ConcurrentMap;
-
 import com.google.common.collect.MapMaker;
+import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  *
@@ -23,14 +23,13 @@ public class InstanceCreationTracker {
     }
     
     public InstanceCreationStats get(Object key) {
-        return instanceMap.get(key);
+        return (InstanceCreationStats) get(key);
     }
     
     public void put(Object key, Class clazz, String method, int offset,
             long threadId) {
         instanceMap.putIfAbsent(key, new InstanceCreationStats(clazz, method,
                 offset, threadId));
-        System.out.println(instanceMap.get(key)); // TODO: Remove this
     }
   
     public boolean hasKey(Object key) {
@@ -39,5 +38,9 @@ public class InstanceCreationTracker {
   
     public int getSize() {
         return instanceMap.size();
+    }
+    
+    public Map getMap() {
+        return this.instanceMap;
     }
 }
