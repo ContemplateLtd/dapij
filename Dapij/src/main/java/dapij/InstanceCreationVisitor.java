@@ -20,6 +20,11 @@ public class InstanceCreationVisitor extends MethodVisitor {
     private int line = -1;          /* line of instance creation */
     private String creatorMethod;   /* name of method where creation occured */
     private String sourceFile;      /* source file */
+    //private int lastLine = -1;      /* last line visited */
+    public static int targetLine = 23;
+    public static String targetFile = "HelloAzura.java";
+    private static boolean targetVisited = false;
+    public static boolean writeToXML = false;   /* write output to an XML file /*
     
     /*
      * A stack for handling nested NEW-INVOKEVIRTUAL instruction patterns met
@@ -141,7 +146,54 @@ public class InstanceCreationVisitor extends MethodVisitor {
     
     @Override
     public void visitLineNumber(int line, Label start) {
-        mv.visitLineNumber(line, start);
         this.line = line;
+        
+        //if(sourceFile.equals(targetFile))
+            //System.out.println("line: " + line);
+        
+        /*
+         * In the current version, in case the specified line is not valid, 
+         * the code will be inserted before the next valid line.
+         * 
+         * TODO: 
+         */
+        
+        if((line >= targetLine) && (!targetVisited) && (sourceFile.equals(targetFile))) {
+            
+            mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+            mv.visitLdcInsn("State for line " + line);
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V");
+            
+            
+            
+            mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(
+                InstanceCreationTracker.class), "INSTANCE", 
+                Type.getDescriptor(InstanceCreationTracker.
+                        INSTANCE.getClass()));
+            
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(
+                InstanceCreationTracker.class), "displayInfo", Type.getMethodDescriptor(
+                Type.getType(void.class)));
+            
+            if(writeToXML) {
+            
+            mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(
+                InstanceCreationTracker.class), "INSTANCE", 
+                Type.getDescriptor(InstanceCreationTracker.
+                        INSTANCE.getClass()));
+            
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(
+                InstanceCreationTracker.class), "writeInfoToXml", Type.getMethodDescriptor(
+                Type.getType(void.class)));
+            
+            }
+            
+            targetVisited = true;
+            
+        }
+        
+        //lastLine = line;
+        
+        mv.visitLineNumber(line, start);
     }
 }

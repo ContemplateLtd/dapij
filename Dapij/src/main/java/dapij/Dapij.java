@@ -3,6 +3,9 @@
  */
 package dapij;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -25,7 +28,8 @@ public class Dapij implements ClassFileTransformer {
             byte[] classfileBuffer) throws IllegalClassFormatException {
         
         /* Do not instrument agent classes */
-        if (className.startsWith("dapij")) {
+        //comment this!
+        if (className.startsWith("dapij/") || className.startsWith("com/google/common/collect/") || className.startsWith("java/io/") ) {
             System.out.println("Did not instument " + className + "!");
             return classfileBuffer;
         }
@@ -50,10 +54,22 @@ public class Dapij implements ClassFileTransformer {
         return bts;
     }
 
-    public static void premain(String arglist, Instrumentation inst) {
-            InstanceCreationTracker ict = InstanceCreationTracker.INSTANCE;
+    public static void premain(String arglist, Instrumentation inst) throws IOException {
         System.out.println("CLASSPATH: " +
                 System.getProperty("java.class.path"));
         inst.addTransformer(new Dapij());
+        
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        
+        System.out.println("Hello! I'm Coco, your personal assistant!");
+        System.out.println("In which file is the breakpoint?");
+        InstanceCreationVisitor.targetFile = br.readLine();
+        System.out.println("And what is its line number?");
+        InstanceCreationVisitor.targetLine = Integer.parseInt(br.readLine());
+        System.out.println("Do you want me to write it to an XML file as well? (y)");
+        if(br.readLine().equalsIgnoreCase("y")) {
+            InstanceCreationVisitor.writeToXML = true;
+        }
+        System.out.println("Cool! Let me set it then!");
     }
 }

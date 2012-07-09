@@ -5,6 +5,8 @@
 package dapij;
 
 import com.google.common.collect.MapMaker;
+import java.io.IOException;
+import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -29,7 +31,8 @@ public class InstanceCreationTracker {
             long threadId) {
         instanceMap.putIfAbsent(key, new InstanceCreationStats(clazz, method,
                 offset, threadId));
-        System.out.println(instanceMap.get(key)); // TODO: Remove this
+        //displayInfo();
+        //System.out.println(instanceMap.get(key)); // TODO: Remove this
     }
   
     public boolean hasKey(Object key) {
@@ -39,4 +42,22 @@ public class InstanceCreationTracker {
     public int getSize() {
         return instanceMap.size();
     }
+    
+    public Collection<InstanceCreationStats> getValues() {
+        return instanceMap.values();
+    }
+    
+    public void displayInfo() {
+        System.out.println("Objects in use:");
+        for(InstanceCreationStats info : instanceMap.values()) {
+            System.out.println(info);
+        }
+    }
+    
+    /* Write the content of the map to an XML file */
+    
+    public void writeInfoToXml() throws IOException {
+        xmlWriter.writeDataToXml("output.xml");
+    }
+    
 }
