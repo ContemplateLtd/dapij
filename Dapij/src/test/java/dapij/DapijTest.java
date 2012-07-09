@@ -13,9 +13,16 @@ public class DapijTest {
     public void constructorIsInstrumented() throws Exception {
         ClassLoader cl = new TestClassLoader();
         Class<?> clazz = cl.loadClass(ObjectCreator.class.getName());
-        clazz.getMethod("create").invoke(null);
+        Object mapEntry = clazz.getMethod("create").invoke(null);
         Map<Object, InstanceCreationStats> m = getCreationMap(cl);
-        assertEquals(1, m.size());
+        
+//        int size = m.size();
+        assertEquals(true, m.containsKey(mapEntry));
+        
+//        mapEntry = null;
+//        while (m.containsKey(mapEntry)) {};
+//        assertEquals(size-1, m.size());
+
     }
 
     private Map<Object, InstanceCreationStats> getCreationMap(ClassLoader cl) {
