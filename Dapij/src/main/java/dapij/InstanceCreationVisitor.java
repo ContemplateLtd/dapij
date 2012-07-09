@@ -59,7 +59,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
             return;
         }
         
-        /* 
+        /*
          * push the object creation data onto the stack and leave it there
          * until object initialization (construction) has completed
          */
@@ -96,7 +96,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
         
         StackElement currentElem = objectCreationStack.pop();
         
-        /* 
+        /*
          * Push a reference to the InstanceCreationTracker singleton object
          * to allow for calling it's put instance method (just after visiting
          * the INVOKESPECIAL that corresponds to this NEW).
