@@ -1,5 +1,8 @@
 package dapij;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
@@ -20,7 +23,10 @@ public class Dapij implements ClassFileTransformer {
             byte[] classfileBuffer) throws IllegalClassFormatException {
         
         /* Do not instrument agent classes */
-        if (className.startsWith("dapij")) {
+        // TODO: should remove guava classes from blacklist!
+        if (className.startsWith("dapij/") || 
+                className.startsWith("com/google/common/collect/") || 
+                className.startsWith("java/io/") ) {
             System.out.println("Did not instument " + className + "!");
             return classfileBuffer;
         }
@@ -29,9 +35,6 @@ public class Dapij implements ClassFileTransformer {
         return transformClass(classfileBuffer);
     }
 
-    public static void premain(String arglist, Instrumentation inst) {
-        inst.addTransformer(new Dapij());
-    }
 
     static byte[] transformClass(byte[] classfileBuffer) {
         /* read and instrument class bytecode */
@@ -51,4 +54,24 @@ public class Dapij implements ClassFileTransformer {
         return writer.toByteArray();
     }
 
+
+    public static void premain(String arglist, Instrumentation inst) throws IOException {
+        System.out.println("CLASSPATH: " +
+                System.getProperty("java.class.path"));
+        inst.addTransformer(new Dapij());
+        
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        
+        System.out.println("Hello! I'm Coco, your personal assistant!");
+        System.out.println("In which file is the breakpoint?");
+        InstanceCreationVisitor.targetFile = br.readLine();
+        System.out.println("And what is its line number?");
+        InstanceCreationVisitor.targetLine = Integer.parseInt(br.readLine());
+        System.out.println("Do you want me to write it to an XML file as well? (y)");
+        if(br.readLine().equalsIgnoreCase("y")) {
+            InstanceCreationVisitor.writeToXML = true;
+        }
+        System.out.println("Cool! Let me set it then!");
+    }
+    
 }
