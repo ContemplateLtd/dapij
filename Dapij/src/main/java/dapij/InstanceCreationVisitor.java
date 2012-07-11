@@ -5,7 +5,6 @@ package dapij;
 
 
 import java.util.Stack;
-
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -32,7 +31,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
      * while visiting methods.
      */
     private Stack<StackElement> objectCreationStack;
- 
+
     /**
      * A wrapper of object creation information. Used to compose the
      * entries of objectCreationStack.
@@ -83,6 +82,274 @@ public class InstanceCreationVisitor extends MethodVisitor {
     @Override
     public void visitMethodInsn(int opcode, String owner, String name,
             String desc) {
+        
+        
+        /* Register object access */
+        if(opcode == Opcodes.INVOKEVIRTUAL) {
+            
+            /* 
+             * To access the object reference, all the arguments have to be
+             * removed first
+             */
+            
+            /* Get the argument type list */
+            Type[] argumentTypes = Type.getArgumentTypes(desc);
+            //System.out.println(argumentTypes.length);
+            /* 
+             * Pop the arguments from the stack and store them temporarily on 
+             * an external stack
+             */
+            for(int i = argumentTypes.length - 1; i >= 0; i--) {
+                Type argType = argumentTypes[i];
+                mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(
+                    ObjectStack.class), "INSTANCE", Type.getDescriptor(
+                    ObjectStack.INSTANCE.getClass()));
+                
+                if(argType.equals(Type.getType(Object.class))) {
+                    
+                    mv.visitInsn(Opcodes.SWAP);
+                    
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getInternalName(ObjectStack.class),
+                        "push", Type.getMethodDescriptor(Type.VOID_TYPE, 
+                        Type.getType(Object.class)));
+                    System.out.println("popping obj");
+                }
+                else if(argType.equals(Type.BOOLEAN_TYPE)) {
+                    
+                    mv.visitInsn(Opcodes.SWAP);
+                    
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getInternalName(ObjectStack.class),
+                        "push", Type.getMethodDescriptor(Type.VOID_TYPE, 
+                        Type.BOOLEAN_TYPE));
+                    System.out.println("popping bool");
+                }
+                else if(argType.equals(Type.BYTE_TYPE)) {
+                    
+                    mv.visitInsn(Opcodes.SWAP);
+                    
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getInternalName(ObjectStack.class),
+                        "push", Type.getMethodDescriptor(Type.VOID_TYPE, 
+                        Type.BYTE_TYPE));
+                    System.out.println("popping byte");
+                }
+                else if(argType.equals(Type.CHAR_TYPE)) {
+                    
+                    mv.visitInsn(Opcodes.SWAP);
+                    
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getInternalName(ObjectStack.class),
+                        "push", Type.getMethodDescriptor(Type.VOID_TYPE, 
+                        Type.CHAR_TYPE));
+                    System.out.println("popping char");
+                }
+                else if(argType.equals(Type.DOUBLE_TYPE)) {
+                    
+                    mv.visitInsn(Opcodes.DUP_X2);
+                    mv.visitInsn(Opcodes.POP);
+                    
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getInternalName(ObjectStack.class),
+                        "push", Type.getMethodDescriptor(Type.VOID_TYPE, 
+                        Type.DOUBLE_TYPE));
+                    System.out.println("popping double");
+                }
+                else if(argType.equals(Type.FLOAT_TYPE)) {
+                    
+                    mv.visitInsn(Opcodes.SWAP);
+                    
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getInternalName(ObjectStack.class),
+                        "push", Type.getMethodDescriptor(Type.VOID_TYPE, 
+                        Type.FLOAT_TYPE));
+                    System.out.println("popping float");
+                }
+                else if(argType.equals(Type.INT_TYPE)) {
+                    
+                    mv.visitInsn(Opcodes.SWAP);
+                    
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getInternalName(ObjectStack.class),
+                        "push", Type.getMethodDescriptor(Type.VOID_TYPE, 
+                        Type.INT_TYPE));
+                    System.out.println("popping int");
+                }
+                else if(argType.equals(Type.LONG_TYPE)) {
+                    
+                    mv.visitInsn(Opcodes.DUP_X2);
+                    mv.visitInsn(Opcodes.POP);
+                    
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getInternalName(ObjectStack.class),
+                        "push", Type.getMethodDescriptor(Type.VOID_TYPE, 
+                        Type.LONG_TYPE));
+                    System.out.println("popping long");
+                }
+                else if(argType.equals(Type.SHORT_TYPE)) {
+                    
+                    mv.visitInsn(Opcodes.SWAP);
+                    
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getInternalName(ObjectStack.class),
+                        "push", Type.getMethodDescriptor(Type.VOID_TYPE, 
+                        Type.SHORT_TYPE));
+                    System.out.println("popping short");
+                }
+                else {
+                    mv.visitInsn(Opcodes.SWAP);
+                    
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getInternalName(ObjectStack.class),
+                        "push", Type.getMethodDescriptor(Type.VOID_TYPE, 
+                        Type.getType(Object.class)));
+                    System.out.println("popping obj");
+                }
+            }
+            
+            mv.visitInsn(Opcodes.DUP);
+            
+            /* Now the object reference is on top of the stack */
+            mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(
+                InstanceCreationTracker.class), "INSTANCE", 
+                Type.getDescriptor(InstanceCreationTracker.
+                        INSTANCE.getClass()));
+
+            mv.visitInsn(Opcodes.SWAP);
+
+            /* get the thread ID */
+            mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(
+                Thread.class), "currentThread", Type.getMethodDescriptor(
+                Type.getType(Thread.class)));
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(
+                Thread.class), "getId", Type.getMethodDescriptor(
+                Type.getType(long.class)));
+
+
+            /* register object access */
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(
+                InstanceCreationTracker.class), "registerAccess", Type.getMethodDescriptor(
+                Type.getType(void.class),Type.getType(Object.class),Type.getType(long.class)));
+                
+            
+            /* Push the arguments back on the stack */
+            for(Type argType : argumentTypes) {
+                
+                mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(
+                    ObjectStack.class), "INSTANCE", Type.getDescriptor(
+                    ObjectStack.INSTANCE.getClass()));
+                
+                if(argType.equals(Type.getType(Object.class))) {
+                    
+                    //mv.visitInsn(Opcodes.SWAP);
+                    
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getInternalName(ObjectStack.class),
+                        "popObj", Type.getMethodDescriptor(
+                        Type.getType(Object.class)));
+                    System.out.println("pushing obj");
+                }
+                else if(argType.equals(Type.BOOLEAN_TYPE)) {
+                    
+                    //mv.visitInsn(Opcodes.SWAP);
+                    
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getInternalName(ObjectStack.class),
+                        "popBoolean", Type.getMethodDescriptor(
+                        Type.BOOLEAN_TYPE));
+                    System.out.println("pushing bool");
+                }
+                else if(argType.equals(Type.BYTE_TYPE)) {
+                    
+                    //mv.visitInsn(Opcodes.SWAP);
+                    
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getInternalName(ObjectStack.class),
+                        "popByte", Type.getMethodDescriptor(
+                        Type.BYTE_TYPE));
+                    System.out.println("pushing byte");
+                }
+                else if(argType.equals(Type.CHAR_TYPE)) {
+                    
+                    //mv.visitInsn(Opcodes.SWAP);
+                    
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getInternalName(ObjectStack.class),
+                        "popChar", Type.getMethodDescriptor(
+                        Type.CHAR_TYPE));
+                    System.out.println("pushing char");
+                }
+                else if(argType.equals(Type.DOUBLE_TYPE)) {
+                    
+                    //mv.visitInsn(Opcodes.DUP_X2);
+                    //mv.visitInsn(Opcodes.POP);
+                    
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getInternalName(ObjectStack.class),
+                        "popDouble", Type.getMethodDescriptor(
+                        Type.DOUBLE_TYPE));
+                    System.out.println("pushing double");
+                }
+                else if(argType.equals(Type.FLOAT_TYPE)) {
+                    
+                    //mv.visitInsn(Opcodes.SWAP);
+                    
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getInternalName(ObjectStack.class),
+                        "popFloat", Type.getMethodDescriptor(
+                        Type.FLOAT_TYPE));
+                    System.out.println("pushing float");
+                }
+                else if(argType.equals(Type.INT_TYPE)) {
+                    
+                    //mv.visitInsn(Opcodes.SWAP);
+                    
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getInternalName(ObjectStack.class),
+                        "popInt", Type.getMethodDescriptor(
+                        Type.INT_TYPE));
+                    System.out.println("pushing int");
+                }
+                else if(argType.equals(Type.LONG_TYPE)) {
+                    
+                    //mv.visitInsn(Opcodes.DUP_X2);
+                    //mv.visitInsn(Opcodes.POP);
+                    
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getInternalName(ObjectStack.class),
+                        "popLong", Type.getMethodDescriptor(
+                        Type.LONG_TYPE));
+                    System.out.println("pushing long");
+                }
+                else if(argType.equals(Type.SHORT_TYPE)) {
+                    
+                    //mv.visitInsn(Opcodes.SWAP);
+                    
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getInternalName(ObjectStack.class),
+                        "popShort", Type.getMethodDescriptor(
+                        Type.SHORT_TYPE));
+                    System.out.println("pushing short");
+                
+                } else {
+                    //mv.visitInsn(Opcodes.SWAP);
+                    
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                        Type.getInternalName(ObjectStack.class),
+                        "popObj", Type.getMethodDescriptor(
+                        Type.getType(Object.class)));
+                    mv.visitTypeInsn(Opcodes.CHECKCAST, argType.getInternalName());
+                    System.out.println("pushing obj");
+                }
+            }
+            
+            
+            //mv.visitInsn(Opcodes.POP);
+            
+            
+        }
+        
         mv.visitMethodInsn(opcode, owner, name, desc);
         
         /* Do not transform if not a constructor or if stack empty */
@@ -158,7 +425,6 @@ public class InstanceCreationVisitor extends MethodVisitor {
              * bottom
              * 
              */
-            
             mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(
                 InstanceCreationTracker.class), "INSTANCE", 
                 Type.getDescriptor(InstanceCreationTracker.
@@ -184,6 +450,92 @@ public class InstanceCreationVisitor extends MethodVisitor {
             
         }
         else if (opcode == Opcodes.PUTFIELD) {
+            
+            Type type = Type.getType(desc);
+            
+            if(type.equals(Type.LONG_TYPE) || type.equals(Type.DOUBLE_TYPE)) {
+                
+                /* 
+                 * If the value to be stored is of computational type 2, then 
+                 * we cannot swap the top 2 values on the stack. This case has 
+                 * to be treated separately
+                 */
+                
+                /* Copy the  */
+                mv.visitInsn(Opcodes.DUP2_X1);
+                mv.visitInsn(Opcodes.POP2);
+                mv.visitInsn(Opcodes.DUP_X2);
+                
+                
+                /* 
+                * Get a reference to InstanceCreationTracker and put it on the
+                * bottomd
+                * 
+                */
+
+                mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(
+                    InstanceCreationTracker.class), "INSTANCE", 
+                    Type.getDescriptor(InstanceCreationTracker.
+                            INSTANCE.getClass()));
+
+                mv.visitInsn(Opcodes.SWAP);
+
+                /* get the thread ID */
+
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(
+                    Thread.class), "currentThread", Type.getMethodDescriptor(
+                    Type.getType(Thread.class)));
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(
+                    Thread.class), "getId", Type.getMethodDescriptor(
+                    Type.getType(long.class)));
+
+
+                /* register object access */
+
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(
+                    InstanceCreationTracker.class), "registerAccess", Type.getMethodDescriptor(
+                    Type.getType(void.class),Type.getType(Object.class),Type.getType(long.class)));
+
+            }
+            else {
+                
+                /* swap the value and the object reference */
+                mv.visitInsn(Opcodes.SWAP);
+                
+                /* Duplicate the object reference to pass as an argument */
+                mv.visitInsn(Opcodes.DUP);
+
+                /* 
+                * Get a reference to InstanceCreationTracker and put it on the
+                * bottom
+                * 
+                */
+                mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(
+                    InstanceCreationTracker.class), "INSTANCE", 
+                    Type.getDescriptor(InstanceCreationTracker.
+                            INSTANCE.getClass()));
+
+                mv.visitInsn(Opcodes.SWAP);
+
+                /* get the thread ID */
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(
+                    Thread.class), "currentThread", Type.getMethodDescriptor(
+                    Type.getType(Thread.class)));
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(
+                    Thread.class), "getId", Type.getMethodDescriptor(
+                    Type.getType(long.class)));
+
+
+                /* register object access */
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(
+                    InstanceCreationTracker.class), "registerAccess", Type.getMethodDescriptor(
+                    Type.getType(void.class),Type.getType(Object.class),Type.getType(long.class)));
+                
+                /* swap back */
+                mv.visitInsn(Opcodes.SWAP);
+
+            }
+            
             //TODO
         }
         

@@ -60,7 +60,7 @@ class TestClassLoader extends ClassLoader {
         String path = name.replace('.', '/') + ".class";
         File testPath = new File(testClasses, path);
         if (testPath.exists()) {
-            return defineClass(name, transformClass(readClass(name, testPath)));
+            //return defineClass(name, transformClass(readClass(name, testPath)));
         }
 
         File mainPath = new File(mainClasses, path);

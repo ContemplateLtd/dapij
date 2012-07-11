@@ -1,12 +1,12 @@
 package dapij;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -32,11 +32,11 @@ public class Dapij implements ClassFileTransformer {
         }
         
         System.out.println("Instrumenting " + className + " ...");
-        return transformClass(classfileBuffer);
+        return transformClass(classfileBuffer, className);
     }
 
 
-    static byte[] transformClass(byte[] classfileBuffer) {
+    static byte[] transformClass(byte[] classfileBuffer, String className) {
         /* read and instrument class bytecode */
         ClassReader creader = new ClassReader(classfileBuffer);
         ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
@@ -50,6 +50,23 @@ public class Dapij implements ClassFileTransformer {
 
         ClassVisitor sc_visitor = new StatsCollector(writer);
         creader.accept(sc_visitor, 0);
+        
+        if(className.equals("HelloAzura"))
+        try {
+            FileOutputStream data = new FileOutputStream("out.class");
+            try {
+                data.write(writer.toByteArray());
+            } catch (IOException ex) {
+                Logger.getLogger(Dapij.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            try {
+                data.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Dapij.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Dapij.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
         return writer.toByteArray();
     }

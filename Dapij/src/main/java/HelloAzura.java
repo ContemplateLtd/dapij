@@ -3,6 +3,7 @@
  */
 
 import dapij.InstanceCreationTracker;
+import java.util.Stack;
 
 /**
  *
@@ -10,6 +11,7 @@ import dapij.InstanceCreationTracker;
  */
 public class HelloAzura {
 
+    /*
     private int i = 7;
 
     public HelloAzura(int i) {
@@ -23,22 +25,35 @@ public class HelloAzura {
 
     public int square() {
         int sq = this.i * this.i;
-        System.out.println(sq);
+        //System.out.println(sq);
         return sq;
     }
-
-    public void azura() {
-        System.out.println("Hello Azura");  /* Azura is the name of my dog */
+*/
+    public int azura(int x) {
+        return x;
+        //System.out.println("Hello Azura");  /* Azura is the name of my dog */
     }
 
-    public static void main(String args[]) {
+    public static void main(Object args[]) {
+        HelloAzura ha = new HelloAzura();  
+        ha.azura(2);
+        
+        /*
         System.out.println("BEGIN MAIN");
-        HelloAzura ha = new HelloAzura('a');  /* create object to test agent */
+        HelloAzura ha = new HelloAzura('a');  
         ha.azura();
         ha.i = 1;
         System.out.println(ha.i);
+        
+        Stack stack = new Stack();
+        stack.push(7);
+        stack.push(new Object());
+        System.out.println(stack.pop());
+        System.out.println(stack.pop());
 
         System.out.println("Concurrent Map Size: " +
                 String.valueOf(InstanceCreationTracker.INSTANCE.getSize()));
+                * 
+                */
     }
 }
