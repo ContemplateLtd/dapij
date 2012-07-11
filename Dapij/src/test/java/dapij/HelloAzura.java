@@ -1,3 +1,5 @@
+package dapij;
+
 /*
  * TODO: enter meaningful info
  */
@@ -32,13 +34,9 @@ public class HelloAzura {
     }
 
     public static void main(String args[]) {
-        System.out.println("BEGIN MAIN");
         HelloAzura ha = new HelloAzura('a');  /* create object to test agent */
         ha.azura();
         ha.i = 1;
         System.out.println(ha.i);
-
-        System.out.println("Concurrent Map Size: " +
-                String.valueOf(InstanceCreationTracker.INSTANCE.getSize()));
     }
 }

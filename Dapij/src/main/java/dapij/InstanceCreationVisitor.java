@@ -3,9 +3,9 @@
  */
 package dapij;
 
-
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Stack;
-
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -21,11 +21,6 @@ public class InstanceCreationVisitor extends MethodVisitor {
     private int line = -1;          /* line of instance creation */
     private String creatorMethod;   /* name of method where creation occured */
     private String sourceFile;      /* source file */
-    //private int lastLine = -1;      /* last line visited */
-    public static int targetLine = 23;
-    public static String targetFile = "HelloAzura.java";
-    private static boolean targetVisited = false;
-    public static boolean writeToXML = false;   /* write output to an XML file /*
     
     /*
      * A stack for handling nested NEW-INVOKEVIRTUAL instruction patterns met
@@ -48,16 +43,15 @@ public class InstanceCreationVisitor extends MethodVisitor {
             this.offset = offset;
         }
     }
-
+ 
     public InstanceCreationVisitor(MethodVisitor mv, String name,
             String sourceFile) {
         super(Opcodes.ASM4, mv);
         this.creatorMethod = name;
         this.sourceFile = sourceFile;
-        
         objectCreationStack = new Stack<StackElement>();
     }
-
+    
     @Override
     public void visitTypeInsn(int opcode, String type) {
         if (opcode != Opcodes.NEW) {
@@ -128,11 +122,11 @@ public class InstanceCreationVisitor extends MethodVisitor {
         
         /*
          * Put and entry into the (singleton) identity map containing
-         * the created instances to record the instance created.
+         * the created instances info objects to mark this creation.
          * 
          * TODO: Could the following be a problem - what if the constructor
          * passes a reference to the created object to another thread and
-         * that thread deletes the object?
+         * that thread deletes the object? (leaked reference)
          */
         String descriptor = Type.getMethodDescriptor(
                 Type.getType(void.class), Type.getType(Object.class),
@@ -146,19 +140,17 @@ public class InstanceCreationVisitor extends MethodVisitor {
     }
     
     @Override
-    public void visitFieldInsn(int opcode, String owner, String name, String desc) {
+    public void visitFieldInsn(int opcode, String owner, String name,
+            String desc) {
         if (opcode == Opcodes.GETFIELD) {
             
             /* Duplicate the object reference to pass as an argument */
-            
             mv.visitInsn(Opcodes.DUP);
             
             /* 
              * Get a reference to InstanceCreationTracker and put it on the
              * bottom
-             * 
              */
-            
             mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(
                 InstanceCreationTracker.class), "INSTANCE", 
                 Type.getDescriptor(InstanceCreationTracker.
@@ -167,7 +159,6 @@ public class InstanceCreationVisitor extends MethodVisitor {
             mv.visitInsn(Opcodes.SWAP);
             
             /* get the thread ID */
-            
             mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(
                 Thread.class), "currentThread", Type.getMethodDescriptor(
                 Type.getType(Thread.class)));
@@ -177,25 +168,24 @@ public class InstanceCreationVisitor extends MethodVisitor {
             
             
             /* register object access */
-            
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(
-                InstanceCreationTracker.class), "registerAccess", Type.getMethodDescriptor(
-                Type.getType(void.class),Type.getType(Object.class),Type.getType(long.class)));
-            
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                    Type.getInternalName(InstanceCreationTracker.class),
+                    "registerAccess", Type.getMethodDescriptor(
+                            Type.getType(void.class),
+                            Type.getType(Object.class),
+                            Type.getType(long.class)));
         }
+        
         else if (opcode == Opcodes.PUTFIELD) {
             //TODO
         }
-        
         mv.visitFieldInsn(opcode, owner, name, desc);
     }
     
     @Override
     public void visitLineNumber(int line, Label start) {
         this.line = line;
-        
-        //if(sourceFile.equals(targetFile))
-            //System.out.println("line: " + line);
+        //if(sourceFile.equals(targetFile)) System.out.println("line: " + line);
         
         /*
          * In the current version, in case the specified line is not valid, 
@@ -203,43 +193,66 @@ public class InstanceCreationVisitor extends MethodVisitor {
          * 
          * TODO: 
          */
-        
-        if((line >= targetLine) && (!targetVisited) && (sourceFile.equals(targetFile))) {
-            
-            mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-            mv.visitLdcInsn("State for line " + line);
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V");
-            
-            
-            
-            mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(
-                InstanceCreationTracker.class), "INSTANCE", 
-                Type.getDescriptor(InstanceCreationTracker.
-                        INSTANCE.getClass()));
-            
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(
-                InstanceCreationTracker.class), "displayInfo", Type.getMethodDescriptor(
-                Type.getType(void.class)));
-            
-            if(writeToXML) {
-            
-            mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(
-                InstanceCreationTracker.class), "INSTANCE", 
-                Type.getDescriptor(InstanceCreationTracker.
-                        INSTANCE.getClass()));
-            
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(
-                InstanceCreationTracker.class), "writeInfoToXml", Type.getMethodDescriptor(
-                Type.getType(void.class)));
-            
-            }
-            
-            targetVisited = true;
-            
+        HashMap<Integer, HashMap<String, Breakpoint>> bpts =
+                Settings.INSTANCE.getBreakpts();
+        if (!bpts.containsKey(line) ||
+                !bpts.get(line).containsKey(sourceFile) ||
+                bpts.get(line).get(sourceFile).isVisited()) {
+            mv.visitLineNumber(line, start);
+            return;
         }
+
+        Breakpoint b = bpts.get(line).get(sourceFile);
+        b.setVisited(true);
         
-        //lastLine = line;
-        
-        mv.visitLineNumber(line, start);
+        mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out",
+                "Ljava/io/PrintStream;");
+        mv.visitLdcInsn("State just before line " + line);
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream",
+                "println", "(Ljava/lang/String;)V");
+
+        mv.visitFieldInsn(Opcodes.GETSTATIC,
+                Type.getInternalName(InstanceCreationTracker.class),
+                "INSTANCE", 
+                Type.getDescriptor(InstanceCreationTracker.INSTANCE.
+                getClass()));
+
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                Type.getInternalName(InstanceCreationTracker.class),
+                "displayInfo",
+                Type.getMethodDescriptor(Type.getType(void.class)));
+
+        if(b.isWriteToXML()) {
+            mv.visitFieldInsn(Opcodes.GETSTATIC,
+                    Type.getInternalName(InstanceCreationTracker.class),
+                    "INSTANCE", 
+                    Type.getDescriptor(InstanceCreationTracker.INSTANCE
+                            .getClass()));
+
+            mv.visitLdcInsn(Settings.INSTANCE.get(Settings.XML_OUT_SETT));
+            
+            /* Pass a Breakpoint object on the stack */
+            mv.visitTypeInsn(Opcodes.NEW,
+                    Type.getInternalName(Breakpoint.class));
+            mv.visitInsn(Opcodes.DUP);
+            mv.visitLdcInsn(b.getSourceFile());
+            mv.visitLdcInsn(b.getLine());
+            mv.visitLdcInsn(b.isVisited());
+            mv.visitLdcInsn(b.isWriteToXML());
+            mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
+                    Type.getInternalName(Breakpoint.class), "<init>",
+                    Type.getMethodDescriptor(Type.VOID_TYPE,
+                            Type.getType(String.class), Type.getType(int.class),
+                            Type.getType(boolean.class),
+                            Type.getType(boolean.class)));
+            
+            /* Export snapshot to XML file */
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                    Type.getInternalName(InstanceCreationTracker.class),
+                    "writeXmlSnapshot",
+                    Type.getMethodDescriptor(Type.VOID_TYPE,
+                            Type.getType(String.class),
+                            Type.getType(Breakpoint.class)));
+        }
     }
 }
