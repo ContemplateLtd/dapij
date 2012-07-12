@@ -1,13 +1,16 @@
 /*
  * TODO: enter meningful info
- * TODO: count instruction offset with a clever approach
+ * TODO: count instruction offset with a clever approach if possible
  */
 package dapij;
 
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Stack;
-import org.objectweb.asm.*;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 /**
  *
@@ -16,9 +19,10 @@ import org.objectweb.asm.*;
 public class InstanceCreationVisitor extends MethodVisitor {
 
     /* Stats for the object creation currently detected */
-    private int insnOfst = -1;
     private String creatorMethod;   /* name of method where creation occured */
     private String sourceFile;      /* source file */
+    private InsnOffsetVisitor offstCntr;
+    private int line;
     
     /**
      * A stack for handling nested NEW-INVOKEVIRTUAL instruction patterns met
@@ -51,21 +55,34 @@ public class InstanceCreationVisitor extends MethodVisitor {
         objectCreationStack = new Stack<StackElement>();
     }
     
+    /**
+     * A reference to a InsnOffsetVisitor has to be passed to each object of
+     * this type before any other of it's methods are called. This creates
+     * backward access in the chain of visitors.
+     * 
+     * @offstCntr The method visitor that calculates the correct instruction
+     * offsets prior to delegating to an instance of this class.
+     */
+    public void setInsnOffsetCounter(InsnOffsetVisitor offstCntr) {
+        this.offstCntr = offstCntr;
+    }
+    
     @Override
     public void visitTypeInsn(int opcode, String type) {
-        insnOfst++; /* keep instruction count up to date */
+        
+        /* Only intereseted in NEW instructions */
         if (opcode != Opcodes.NEW) {
             mv.visitTypeInsn(opcode, type);
             return;
         }
 
         /*
-         * push the object creation data onto the stack and leave it there
-         * until object initialization (construction) has completed
+         * Push the object creation data onto the stack and leave it there
+         * until object initialization (construction) has completed.
          */
         Type t = Type.getObjectType(type);
-        objectCreationStack.push(new StackElement(t,
-                creatorMethod, insnOfst));
+        objectCreationStack.push(new StackElement(t, creatorMethod,
+                offstCntr.getInsnOffset()));
 
         /* create reference of object being created */
         mv.visitTypeInsn(opcode, type);
@@ -77,7 +94,6 @@ public class InstanceCreationVisitor extends MethodVisitor {
     @Override
     public void visitMethodInsn(int opcode, String owner, String name,
             String desc) {
-        insnOfst++; /* keep instruction count up to date */
         mv.visitMethodInsn(opcode, owner, name, desc);
         
         /* Don't transform if not a constructor or objectCreationStack empty */
@@ -143,8 +159,6 @@ public class InstanceCreationVisitor extends MethodVisitor {
     @Override
     public void visitFieldInsn(int opcode, String owner, String name,
             String desc) {
-        insnOfst++; /* keep instruction count up to date */
- 
         if (opcode == Opcodes.GETFIELD) {
   
             /* Duplicate the object reference to pass as an argument */
@@ -186,6 +200,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
     
     @Override
     public void visitLineNumber(int line, Label start) {
+        this.line = line;// TODO: remove
         /*
          * In the current version, in case the specified line is not valid, 
          * the code will be inserted before the next valid line.
@@ -253,67 +268,5 @@ public class InstanceCreationVisitor extends MethodVisitor {
                             Type.getType(String.class),
                             Type.getType(Breakpoint.class)));
         }
-    }
-    
-    @Override
-    public void visitIincInsn(int var, int increment) {
-        insnOfst++; /* keep instruction count up to date */
-        mv.visitIincInsn(var, increment);
-    }
-    
-    @Override
-    public void visitInsn(int opcode) {
-        insnOfst++; /* keep instruction count up to date */
-        mv.visitInsn(opcode);
-    }
-    
-    @Override
-    public void visitIntInsn(int opcode, int operand) {
-        insnOfst++; /* keep instruction count up to date */
-        mv.visitIntInsn(opcode, operand);
-    }
-    
-    @Override
-    public void visitInvokeDynamicInsn(String name, String desc, Handle bsm,
-            Object... bsmArgs) {
-        insnOfst++; /* keep instruction count up to date */
-        mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
-    }
-    
-    @Override
-    public void visitJumpInsn(int opcode, Label label) {
-        insnOfst++; /* keep instruction count up to date */
-        mv.visitJumpInsn(opcode, label);
-    }
-    
-    @Override
-    public void visitLdcInsn(Object cst) {
-        insnOfst++; /* keep instruction count up to date */
-        mv.visitLdcInsn(cst);
-    }
-    
-    @Override
-    public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
-        insnOfst++; /* keep instruction count up to date */
-        mv.visitLookupSwitchInsn(dflt, keys, labels);
-    }
-    
-    @Override
-    public void visitMultiANewArrayInsn(String desc, int dims) {
-        insnOfst++; /* keep instruction count up to date */
-        mv.visitMultiANewArrayInsn(desc, dims);
-    }
-    
-    @Override
-    public void visitTableSwitchInsn(int min, int max, Label dflt,
-            Label ... labels) {
-        insnOfst++; /* keep instruction count up to date */
-        mv.visitTableSwitchInsn(min, max, dflt, labels);
-    }
-    
-    @Override
-    public void visitVarInsn(int opcode, int var) {
-        insnOfst++; /* keep instruction count up to date */
-        mv.visitVarInsn(opcode, var);
     }
 }

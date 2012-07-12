@@ -70,7 +70,10 @@ public class StatsCollector extends ClassVisitor {
         
         /* Insert bytecode to track created objectects */
         if (mv != null) {
-            mv = new InstanceCreationVisitor(mv, name, sourceFile);
+            InstanceCreationVisitor icv =
+                    new InstanceCreationVisitor(mv, name, sourceFile);
+            mv = new InsnOffsetVisitor(icv);
+            icv.setInsnOffsetCounter((InsnOffsetVisitor) mv);
         }
         
         return mv;

@@ -28,11 +28,13 @@ public class HelloAzura {
     }
 
     public void azura() {
-        System.out.println("Hello Azura::azura(): "+String.valueOf(c));  /* Azura is the name of my dog */
+        /* Azura is the name of my dog */
+        System.out.println("Hello Azura::azura(): " + String.valueOf(c));
     }
 
     public static void main(String args[]) {
-        HelloAzura ha = new HelloAzura('a');  /* create object to test agent */;
+        System.out.println(new String(String.valueOf(new Integer(5))));
+        HelloAzura ha = new HelloAzura('a');  /* create object to test agent */
         ha.azura();
         ha.i = 1;
     }
