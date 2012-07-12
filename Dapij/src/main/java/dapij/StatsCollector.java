@@ -15,7 +15,7 @@ import org.objectweb.asm.Opcodes;
  */
 public class StatsCollector extends ClassVisitor {
     
-    private String sourceFile;
+    private String sourceFile;    
 
     public StatsCollector(ClassVisitor cv) {
         super(Opcodes.ASM4, cv);

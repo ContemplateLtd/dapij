@@ -1,17 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <SourceFile>HelloAzura.java</SourceFile>
-<Line>42</Line>
-<Elements>
-    <Element>
-        <Class>HelloAzura</Class>
-        <Method>main</Method>
-        <Offset>36</Offset>
-        <ThreadId>1</ThreadId>
-    </Element>
-    <Element>
-        <Class>java.lang.StringBuilder</Class>
-        <Method>main</Method>
-        <Offset>41</Offset>
-        <ThreadId>1</ThreadId>
-    </Element>
-</Elements>
+<Line>38</Line>
+
+    <elements>
+    <element>
+        <class>dapij.HelloAzura</class>
+        <method>main</method>
+        <offset>37</offset>
+        <thread_id>1</thread_id>
+    </element>
+</elements>

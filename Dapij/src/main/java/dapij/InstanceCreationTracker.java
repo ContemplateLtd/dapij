@@ -5,6 +5,7 @@
 package dapij;
 
 import com.google.common.collect.MapMaker;
+import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
@@ -14,7 +15,7 @@ import java.util.concurrent.ConcurrentMap;
  * @author Marcin Szymczak <mpszymczak@gmail.com>
  */
 public class InstanceCreationTracker {
-    public final static InstanceCreationTracker INSTANCE = 
+    public static final  InstanceCreationTracker INSTANCE = 
             new InstanceCreationTracker();
     
     private ConcurrentMap<Object, InstanceCreationStats> instanceMap;
@@ -24,7 +25,7 @@ public class InstanceCreationTracker {
     }
     
     public InstanceCreationStats get(Object key) {
-        return (InstanceCreationStats) get(key);
+        return instanceMap.get(key);
     }
     
     public void put(Object key, Class clazz, String method, int offset,
@@ -53,9 +54,10 @@ public class InstanceCreationTracker {
     }
     
     /* Write the content of the map to an XML file */
-    
-    public void writeInfoToXml() throws IOException {
-        XMLWriter.writeDataToXml("output.xml");
+    public void writeXmlSnapshot(String xmlLogFilePath, Breakpoint b)
+            throws IOException {
+        File f = new File(xmlLogFilePath);
+        XMLWriter.snapshotToXml(f, b);
     }
     
     public void registerAccess(Object ref, long threadId) {

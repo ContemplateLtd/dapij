@@ -4,9 +4,9 @@
  */
 package dapij;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 /**
  *
@@ -17,54 +17,56 @@ public class XMLWriter {
     /*
      * Writes the object creation info to an XML file
      */
-    
-    public static void writeDataToXml(String filename) throws IOException {
-        
-        /* Initialize the file writer */
-        
-        FileWriter fileWriter = new FileWriter(filename, false);
-        PrintWriter filePrinter = new PrintWriter(fileWriter);
-        
-        /* Write the XML header */
-        
-        filePrinter.println("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>");
-        
-        /* Write the breakpoint details */
-        
-        filePrinter.println("<SourceFile>" + InstanceCreationVisitor.targetFile +"</SourceFile>");
-        filePrinter.println("<Line>" + InstanceCreationVisitor.targetLine + "</Line>");
-        
-        
-        /* Write the opening tag */
-        
-        filePrinter.println("<Elements>");
-        
-        /* Now write the object creation data for all objects on the map */
-        
+    public static void snapshotToXml(File outputFile, Breakpoint b)
+            throws IOException {
         String tab = "    ";
         String twoTabs = tab + tab;
         
-        for(InstanceCreationStats info : InstanceCreationTracker.INSTANCE.getValues()) {
-            
-            /* Write the data for the given object */
-            
-            filePrinter.println(tab + "<Element>");
-            filePrinter.println(twoTabs + "<Class>" + info.getClazz().getName() +"</Class>");
-            filePrinter.println(twoTabs + "<Method>" + info.getMethod() +"</Method>");
-            filePrinter.println(twoTabs + "<Offset>" + info.getOffset() +"</Offset>");
-            filePrinter.println(twoTabs + "<ThreadId>" + info.getThreadId() +"</ThreadId>");
-            filePrinter.println(tab + "</Element>");
+        String tagElmsOp = "<elements>";
+        String tagElmsCl = "</elements>";
+        String tagElemOp = "<element>";
+        String tagElemCl = "</element>";
+        String tagClasOp = "<class>";
+        String tagClasCl = "</class>";
+        String tagMetdOp = "<method>";
+        String tagMetdCl = "</method>";
+        String tagOfstOp = "<offset>";
+        String tagOfstCl = "</offset>";
+        String tagThIdOp = "<thread_id>";
+        String tagThIdCl = "</thread_id>";
+        
+        /* Initialize a file writer */
+        FileOutputStream fos = new FileOutputStream(outputFile, false);
+        OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+        PrintWriter pw = new PrintWriter(osw);
+
+        /* Write the XML header */
+        pw.println("<?xml version=\"1.0\" encoding=\"UTF-8\" " +
+                "standalone=\"no\" ?>");
+        
+        /* Write the breakpoint details */
+        pw.println("<SourceFile>" + b.getSourceFile() + "</SourceFile>");
+        pw.println("<Line>" + b.getLine() + "</Line>");
+        
+        /* Enclose data for all objects in an <Elements> tag. */
+        pw.println();
+        pw.println(tab + tagElmsOp);
+
+        /* Write the data for each object */
+        for(InstanceCreationStats info :
+                InstanceCreationTracker.INSTANCE.getValues()) {
+            pw.println(tab + tagElemOp);
+            pw.println(twoTabs + tagClasOp + info.getClazz().getName() +
+                    tagClasCl);
+            pw.println(twoTabs + tagMetdOp + info.getMethod() + tagMetdCl);
+            pw.println(twoTabs + tagOfstOp + info.getOffset() + tagOfstCl);
+            pw.println(twoTabs + tagThIdOp + info.getThreadId() + tagThIdCl);
+            pw.println(tab + tagElemCl);
         }
+        pw.println(tagElmsCl);
         
-        
-        /* Write the closing tag */
-        
-        filePrinter.println("</Elements>");
-        
-        /* Close the file writer */
-        
-        filePrinter.close();
-        
+        pw.close();
+        osw.close();
+        fos.close();
     }
-    
 }
