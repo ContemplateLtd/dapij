@@ -1,8 +1,10 @@
 /*
  * TODO: enter meningful info
+ * TODO: count instruction offset with a clever approach if possible
  */
 package dapij;
 
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Stack;
 import org.objectweb.asm.Label;
@@ -17,13 +19,15 @@ import org.objectweb.asm.Type;
 public class InstanceCreationVisitor extends MethodVisitor {
 
     /* Stats for the object creation currently detected */
-    private int line = -1;          /* line of instance creation */
     private String creatorMethod;   /* name of method where creation occured */
     private String sourceFile;      /* source file */
+    private InsnOffsetVisitor offstCntr;
+    private int line;
     
-    /*
+    /**
      * A stack for handling nested NEW-INVOKEVIRTUAL instruction patterns met
-     * while visiting methods.
+     * while visiting methods. Needed for inserting bytecode for recording
+     * info about created objects.
      */
     private Stack<StackElement> objectCreationStack;
 
@@ -51,6 +55,18 @@ public class InstanceCreationVisitor extends MethodVisitor {
         objectCreationStack = new Stack<StackElement>();
     }
     
+    /**
+     * A reference to a InsnOffsetVisitor has to be passed to each object of
+     * this type before any other of it's methods are called. This creates
+     * backward access in the chain of visitors.
+     * 
+     * @offstCntr The method visitor that calculates the correct instruction
+     * offsets prior to delegating to an instance of this class.
+     */
+    public void setInsnOffsetCounter(InsnOffsetVisitor offstCntr) {
+        this.offstCntr = offstCntr;
+    }
+    
     @Override
     public void visitInsn(int opcode) {
         mv.visitInsn(opcode);
@@ -59,18 +75,20 @@ public class InstanceCreationVisitor extends MethodVisitor {
     
     @Override
     public void visitTypeInsn(int opcode, String type) {
+        
+        /* Only intereseted in NEW instructions */
         if (opcode != Opcodes.NEW) {
             mv.visitTypeInsn(opcode, type);
             return;
         }
-        
+
         /*
-         * push the object creation data onto the stack and leave it there
-         * until object initialization (construction) has completed
+         * Push the object creation data onto the stack and leave it there
+         * until object initialization (construction) has completed.
          */
         Type t = Type.getObjectType(type);
-        objectCreationStack.push(new StackElement(t,
-                creatorMethod, line));
+        objectCreationStack.push(new StackElement(t, creatorMethod,
+                offstCntr.getInsnOffset()));
 
         /* create reference of object being created */
         mv.visitTypeInsn(opcode, type);
@@ -326,7 +344,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
         
         mv.visitMethodInsn(opcode, owner, name, desc);
         
-        /* Do not transform if not a constructor or if stack empty */
+        /* Don't transform if not a constructor or objectCreationStack empty */
         if(!name.equals("<init>") || objectCreationStack.empty()) {
             return;
         }
@@ -390,7 +408,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
     public void visitFieldInsn(int opcode, String owner, String name,
             String desc) {
         if (opcode == Opcodes.GETFIELD) {
-            
+  
             /* Duplicate the object reference to pass as an argument */
             mv.visitInsn(Opcodes.DUP);
             
@@ -412,7 +430,6 @@ public class InstanceCreationVisitor extends MethodVisitor {
             mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(
                 Thread.class), "getId", Type.getMethodDescriptor(
                 Type.getType(long.class)));
-            
             
             /* register object access */
             mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
@@ -517,14 +534,10 @@ public class InstanceCreationVisitor extends MethodVisitor {
     
     @Override
     public void visitLineNumber(int line, Label start) {
-        this.line = line;
-        //if(sourceFile.equals(targetFile)) System.out.println("line: " + line);
-        
+        this.line = line;// TODO: remove
         /*
          * In the current version, in case the specified line is not valid, 
          * the code will be inserted before the next valid line.
-         * 
-         * TODO: 
          */
         HashMap<Integer, HashMap<String, Breakpoint>> bpts =
                 Settings.INSTANCE.getBreakpts();
@@ -538,17 +551,18 @@ public class InstanceCreationVisitor extends MethodVisitor {
         Breakpoint b = bpts.get(line).get(sourceFile);
         b.setVisited(true);
         
-        mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out",
-                "Ljava/io/PrintStream;");
+        mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(System.class),
+                "out", Type.getDescriptor(PrintStream.class));
         mv.visitLdcInsn("State just before line " + line);
-        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream",
-                "println", "(Ljava/lang/String;)V");
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                Type.getInternalName(PrintStream.class), "println",
+                Type.getMethodDescriptor(Type.VOID_TYPE,
+                        Type.getType(String.class)));
 
         mv.visitFieldInsn(Opcodes.GETSTATIC,
-                Type.getInternalName(InstanceCreationTracker.class),
-                "INSTANCE", 
+                Type.getInternalName(InstanceCreationTracker.class), "INSTANCE", 
                 Type.getDescriptor(InstanceCreationTracker.INSTANCE.
-                getClass()));
+                        getClass()));
 
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                 Type.getInternalName(InstanceCreationTracker.class),
@@ -562,9 +576,10 @@ public class InstanceCreationVisitor extends MethodVisitor {
                     Type.getDescriptor(InstanceCreationTracker.INSTANCE
                             .getClass()));
 
+            /* Load fullpath of xml output file on stack */
             mv.visitLdcInsn(Settings.INSTANCE.get(Settings.XML_OUT_SETT));
             
-            /* Pass a Breakpoint object on the stack */
+            /* create and load a Breakpoint object on stack */
             mv.visitTypeInsn(Opcodes.NEW,
                     Type.getInternalName(Breakpoint.class));
             mv.visitInsn(Opcodes.DUP);

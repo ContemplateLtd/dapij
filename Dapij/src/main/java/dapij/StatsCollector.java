@@ -4,7 +4,6 @@
 package dapij;
 
 import java.util.ArrayList;
-
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -71,8 +70,10 @@ public class StatsCollector extends ClassVisitor {
         
         /* Insert bytecode to track created objectects */
         if (mv != null) {
-            System.out.println("vis: " + name);
-            mv = new InstanceCreationVisitor(mv, name, sourceFile);
+            InstanceCreationVisitor icv =
+                    new InstanceCreationVisitor(mv, name, sourceFile);
+            mv = new InsnOffsetVisitor(icv);
+            icv.setInsnOffsetCounter((InsnOffsetVisitor) mv);
         }
         
         return mv;

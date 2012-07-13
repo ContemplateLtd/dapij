@@ -1,10 +1,7 @@
-package dapij;
-
 /*
  * TODO: enter meaningful info
  */
-
-import dapij.InstanceCreationTracker;
+package dapij;
 
 /**
  *
@@ -13,6 +10,7 @@ import dapij.InstanceCreationTracker;
 public class HelloAzura {
 
     private int i = 7;
+    private char c;
 
     public HelloAzura(int i) {
         this.i = i;
@@ -20,7 +18,7 @@ public class HelloAzura {
 
     public HelloAzura(char c) {
         this(5);
-        System.out.println(c);
+        this.c = c;
     }
 
     public int square() {
@@ -30,14 +28,14 @@ public class HelloAzura {
     }
 
     public void azura() {
-        System.out.println("Hello Azura");  /* Azura is the name of my dog */
+        /* Azura is the name of my dog */
+        System.out.println("Hello Azura::azura(): " + String.valueOf(c));
     }
 
     public static void main(String args[]) {
+        System.out.println(new String(String.valueOf(new Integer(5))));
         HelloAzura ha = new HelloAzura('a');  /* create object to test agent */
         ha.azura();
         ha.i = 1;
-        ThreadLocal aaa = new ThreadLocal();
-        System.out.println(ha.i);
     }
 }

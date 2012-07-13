@@ -26,7 +26,7 @@ public class DapijTest {
         
         Map<Object, InstanceCreationStats> m = getCreationMap(cl);
         
-        // Create an object  & test wheter recorded
+        // Create an object & test wheter recorded
         Integer mapEntry = (Integer) clazz.getMethod("create").invoke(
                 clazz.newInstance());
         
