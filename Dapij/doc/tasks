@@ -1,0 +1,35 @@
+# This file contains a list of task specifications. A person that wishes to undertake
+# a particular task can notify other people by putting his id at the beginning of the
+# same line where the task specification begins.
+
+Marcin Szymczak <mpszymczak@gmail.com>
+id: MS
+
+Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
+id: NP
+
+
+	[1]. Architecture
+NP			1.1	Implement a java server that streams *events to a network port
+			1.2	Implement a consumer API (e.g. using the Visitor pattern)
+			1.3	Establish a protocol (message format) for the events
+
+			*events - object creation, thread accesses to objects (class method invocation, filed access)
+
+	[2]. Testing
+			2.1	Test communication architecture & protocol
+
+	[3]. Agent
+			3.1	Implement object identification (either in map or in inserted field)
+			3.2	Research the approach of adding a field to java.lang.Object
+				- this is better as it is centralised, but might introduce other problems
+			3.3	Cover the rest of the (currently not handled) cases for object creation
+				which include (but may not be limited to):
+				- create instances using reflection
+				- create instances using deserialisation
+				- deal with unknown instances (i.e. without known origin)
+
+	[4]. Settings Singleton
+			4.1 make it thread save in case needed, e.g.:
+				- use a concurrent HashMap
+				- use synchronised setters

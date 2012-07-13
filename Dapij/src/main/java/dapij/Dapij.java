@@ -53,11 +53,12 @@ public class Dapij implements ClassFileTransformer {
     public static void premain(String argString, Instrumentation inst)
             throws IOException {
         int i = 0;
-        String[] args = argString.split(" *");
+        /* Split arglsit on one or more whitespaces */
+        String[] args = argString.split("\\s+", 0);
         
         while (i < args.length) {
             if (args[i].equals("-o") && i + 1 < args.length) {
-                Settings.INSTANCE.set(Settings.XML_OUT_SETT, args[++i]);
+                Settings.INSTANCE.setProp(Settings.XML_OUT_SETT, args[++i]);
             }
             /* Add more arguments if needed */
             //else if (args[i].equals(...)) {

@@ -47,7 +47,6 @@ public class StatsCollector extends ClassVisitor {
         javaVersions.add(Integer.valueOf(Opcodes.V1_2));
         javaVersions.add(Integer.valueOf(Opcodes.V1_3));
         javaVersions.add(Integer.valueOf(Opcodes.V1_4));
-        
         if (javaVersions.contains(version)) {
             version = Opcodes.V1_5;
         }
