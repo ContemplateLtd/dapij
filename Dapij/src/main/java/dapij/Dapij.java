@@ -54,22 +54,28 @@ public class Dapij implements ClassFileTransformer {
             throws IOException {
         int i = 0;
         /* Split arglsit on one or more whitespaces */
-        String[] args = argString.split("\\s+", 0);
-        
-        while (i < args.length) {
-            if (args[i].equals("-o") && i + 1 < args.length) {
-                Settings.INSTANCE.setProp(Settings.XML_OUT_SETT, args[++i]);
+        if (argString != null) {
+                String[] args = argString.split("\\s+", 0);
+
+            while (i < args.length) {
+                if (args[i].equals("-o") && i + 1 < args.length) {
+                    Settings.INSTANCE.setProp(Settings.XML_OUT_SETT, args[++i]);
+                }
+                /* Add more arguments if needed */
+                //else if (args[i].equals(...)) {
+                //...
+                //} 
+                i++;
             }
-            /* Add more arguments if needed */
-            //else if (args[i].equals(...)) {
-            //...
-            //} 
-            i++;
         }
-        
+        // TODO: remove
         Settings.INSTANCE.addBreakpt(
                 new Breakpoint("HelloAzura.java", 37, true));
 
         inst.addTransformer(new Dapij());
+    }
+    
+    public static void initialise() {
+    
     }
 }
