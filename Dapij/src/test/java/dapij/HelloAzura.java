@@ -37,6 +37,7 @@ public class HelloAzura {
         HelloAzura ha = new HelloAzura('a');  /* create object to test agent */
         ha.azura();
         ha.i = 1;
+        ThreadLocal aaa = new ThreadLocal();
         System.out.println(ha.i);
     }
 }

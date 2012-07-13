@@ -65,7 +65,7 @@ class TestClassLoader extends ClassLoader {
         /* If a test class, transform and return */
         File testPath = new File(testClasses, path);
         if (testPath.exists()) {
-            //return defineClass(name, transformClass(readClass(name, testPath)));
+            return defineClass(name, transformClass(readClass(name, testPath)));
         }
         
         /* If a main class, only return */

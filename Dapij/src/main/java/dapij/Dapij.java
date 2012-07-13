@@ -53,6 +53,7 @@ public class Dapij implements ClassFileTransformer {
     public static void premain(String argString, Instrumentation inst)
             throws IOException {
         int i = 0;
+        
         String[] args = argString.split(" *");
         
         while (i < args.length) {

@@ -3,7 +3,6 @@
  */
 package dapij;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 import org.objectweb.asm.Label;
@@ -53,6 +52,12 @@ public class InstanceCreationVisitor extends MethodVisitor {
     }
     
     @Override
+    public void visitInsn(int opcode) {
+        mv.visitInsn(opcode);
+        System.out.println("insn opc:" + Integer.toHexString(opcode));
+    }
+    
+    @Override
     public void visitTypeInsn(int opcode, String type) {
         if (opcode != Opcodes.NEW) {
             mv.visitTypeInsn(opcode, type);
@@ -78,9 +83,13 @@ public class InstanceCreationVisitor extends MethodVisitor {
     public void visitMethodInsn(int opcode, String owner, String name,
             String desc) {
         
-        
+        System.out.println("opc:" + Integer.toHexString(opcode));
         /* Register object access */
-        if(opcode == Opcodes.INVOKEVIRTUAL) {
+        /* Do not register object creation here */
+        if((opcode == Opcodes.INVOKEVIRTUAL)||
+                (opcode == Opcodes.INVOKEINTERFACE)||
+                ((opcode == Opcodes.INVOKEINTERFACE)&&
+                (!name.equals("<init>")))){
             
             /* 
              * To access the object reference, all the arguments have to be
@@ -94,6 +103,10 @@ public class InstanceCreationVisitor extends MethodVisitor {
              * Pop the arguments from the stack and store them temporarily on 
              * an external stack
              */
+            
+            /* Create the stack */
+            
+            
             for(int i = argumentTypes.length - 1; i >= 0; i--) {
                 Type argType = argumentTypes[i];
                 mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(
@@ -236,9 +249,6 @@ public class InstanceCreationVisitor extends MethodVisitor {
                     ObjectStack.INSTANCE.getClass()));
                 
                 if(argType.equals(Type.getType(Object.class))) {
-                    
-                    //mv.visitInsn(Opcodes.SWAP);
-                    
                     mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                         Type.getInternalName(ObjectStack.class),
                         "popObj", Type.getMethodDescriptor(
@@ -246,9 +256,6 @@ public class InstanceCreationVisitor extends MethodVisitor {
                     System.out.println("pushing obj");
                 }
                 else if(argType.equals(Type.BOOLEAN_TYPE)) {
-                    
-                    //mv.visitInsn(Opcodes.SWAP);
-                    
                     mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                         Type.getInternalName(ObjectStack.class),
                         "popBoolean", Type.getMethodDescriptor(
@@ -256,9 +263,6 @@ public class InstanceCreationVisitor extends MethodVisitor {
                     System.out.println("pushing bool");
                 }
                 else if(argType.equals(Type.BYTE_TYPE)) {
-                    
-                    //mv.visitInsn(Opcodes.SWAP);
-                    
                     mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                         Type.getInternalName(ObjectStack.class),
                         "popByte", Type.getMethodDescriptor(
@@ -266,9 +270,6 @@ public class InstanceCreationVisitor extends MethodVisitor {
                     System.out.println("pushing byte");
                 }
                 else if(argType.equals(Type.CHAR_TYPE)) {
-                    
-                    //mv.visitInsn(Opcodes.SWAP);
-                    
                     mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                         Type.getInternalName(ObjectStack.class),
                         "popChar", Type.getMethodDescriptor(
@@ -276,10 +277,6 @@ public class InstanceCreationVisitor extends MethodVisitor {
                     System.out.println("pushing char");
                 }
                 else if(argType.equals(Type.DOUBLE_TYPE)) {
-                    
-                    //mv.visitInsn(Opcodes.DUP_X2);
-                    //mv.visitInsn(Opcodes.POP);
-                    
                     mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                         Type.getInternalName(ObjectStack.class),
                         "popDouble", Type.getMethodDescriptor(
@@ -287,9 +284,6 @@ public class InstanceCreationVisitor extends MethodVisitor {
                     System.out.println("pushing double");
                 }
                 else if(argType.equals(Type.FLOAT_TYPE)) {
-                    
-                    //mv.visitInsn(Opcodes.SWAP);
-                    
                     mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                         Type.getInternalName(ObjectStack.class),
                         "popFloat", Type.getMethodDescriptor(
@@ -297,9 +291,6 @@ public class InstanceCreationVisitor extends MethodVisitor {
                     System.out.println("pushing float");
                 }
                 else if(argType.equals(Type.INT_TYPE)) {
-                    
-                    //mv.visitInsn(Opcodes.SWAP);
-                    
                     mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                         Type.getInternalName(ObjectStack.class),
                         "popInt", Type.getMethodDescriptor(
@@ -307,31 +298,19 @@ public class InstanceCreationVisitor extends MethodVisitor {
                     System.out.println("pushing int");
                 }
                 else if(argType.equals(Type.LONG_TYPE)) {
-                    
-                    //mv.visitInsn(Opcodes.DUP_X2);
-                    //mv.visitInsn(Opcodes.POP);
-                    
                     mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                         Type.getInternalName(ObjectStack.class),
                         "popLong", Type.getMethodDescriptor(
                         Type.LONG_TYPE));
                     System.out.println("pushing long");
                 }
-                else if(argType.equals(Type.SHORT_TYPE)) {
-                    
-                    //mv.visitInsn(Opcodes.SWAP);
-                    
-                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                        Type.getInternalName(ObjectStack.class),
+                else if(argType.equals(Type.SHORT_TYPE)) {mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                   Type.getInternalName(ObjectStack.class),
                         "popShort", Type.getMethodDescriptor(
                         Type.SHORT_TYPE));
                     System.out.println("pushing short");
-                
-                } else {
-                    //mv.visitInsn(Opcodes.SWAP);
-                    
-                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                        Type.getInternalName(ObjectStack.class),
+                } else {mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                    Type.getInternalName(ObjectStack.class),
                         "popObj", Type.getMethodDescriptor(
                         Type.getType(Object.class)));
                     mv.visitTypeInsn(Opcodes.CHECKCAST, argType.getInternalName());

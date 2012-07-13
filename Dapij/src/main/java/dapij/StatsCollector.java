@@ -71,6 +71,7 @@ public class StatsCollector extends ClassVisitor {
         
         /* Insert bytecode to track created objectects */
         if (mv != null) {
+            System.out.println("vis: " + name);
             mv = new InstanceCreationVisitor(mv, name, sourceFile);
         }
         
