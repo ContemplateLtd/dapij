@@ -22,7 +22,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
     private String creatorMethod;   /* name of method where creation occured */
     private String sourceFile;      /* source file */
     private InsnOffsetVisitor offstCntr;
-    private int line;
+    private int line; // TODO: Remove
     
     /**
      * A stack for handling nested NEW-INVOKEVIRTUAL instruction patterns met
@@ -577,7 +577,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
                             .getClass()));
 
             /* Load fullpath of xml output file on stack */
-            mv.visitLdcInsn(Settings.INSTANCE.get(Settings.XML_OUT_SETT));
+            mv.visitLdcInsn(Settings.INSTANCE.getProp(Settings.XML_OUT_SETT));
             
             /* create and load a Breakpoint object on stack */
             mv.visitTypeInsn(Opcodes.NEW,

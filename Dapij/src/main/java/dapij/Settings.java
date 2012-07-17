@@ -4,6 +4,10 @@
  */
 package dapij;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.ProtectionDomain;
 import java.util.HashMap;
 
 /**
@@ -21,6 +25,7 @@ public class Settings {
      * log file (for recording snapshots).
      */
     public static final String XML_OUT_SETT = "xmlOutFile";
+    public static final String CWD = "projectRoot";
     
     /**
      * A HashMap<String, String> structure that allows storing String
@@ -36,9 +41,21 @@ public class Settings {
     private HashMap<Integer, HashMap<String, Breakpoint>> breakpts;
     
     private Settings() {
-        // TODO: Read settings from a file
+        // TODO: support loading settings from a settings file
         settings = new HashMap<String, String>();
         breakpts = new HashMap<Integer, HashMap<String, Breakpoint>>();
+        
+        /* set dweafult root path to current working directory */
+        try {
+            setProp(Settings.CWD, new File(".").getCanonicalPath());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        
+        /* use root path to set a default xml output full path */
+        // TODO: load the relative path suffix from a config file
+        setProp(Settings.XML_OUT_SETT,
+                getProp(Settings.CWD) + "/output.xml");
     }
     
     /**
@@ -48,7 +65,7 @@ public class Settings {
      * @key The name of the setting to look for.
      * @return the xmlOutFile
      */
-    public String get(String key) {
+    public final String getProp(String key) {
         return (settings.containsKey(key)) ? settings.get(key) : null;
     }
 
@@ -58,8 +75,27 @@ public class Settings {
      * @param key A String representing the name of the setting.
      * @param val A String representing the value of the setting.
      */
-    public void set(String key, String val) {
+    public final void setProp(String key, String val) {
         settings.put(key, val);
+    }
+    
+    /**
+     * Given the name of a setting, this function removes that setting from
+     * the settings data structure.
+     * 
+     * @key The name of the setting to remove.
+     * @return Returns true if setting removed and false otherwise.
+     */
+    public boolean unsetProp(String key) {
+        if (settings.containsKey(key)) {
+            settings.remove(key);
+            return true;
+        }
+        return false;
+    }
+    
+    public final boolean isSetProp(String key) {
+        return settings.containsKey(key);
     }
     
     public void addBreakpt(Breakpoint b) {
