@@ -4,10 +4,9 @@
  */
 package dapij;
 
+import comms.EventServer;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.ProtectionDomain;
 import java.util.HashMap;
 
 /**
@@ -19,13 +18,11 @@ public class Settings {
     
     public static final Settings INSTANCE = new Settings();
     
-    /* Settings */
-    /**
-     * The key for the setting representing the absolute path to the XML
-     * log file (for recording snapshots).
-     */
+    /* Constant keys for (internal) properties of the Settings Singleton */
+    /* abs path to the XML log file (for recording snapshots). */
     public static final String XML_OUT_SETT = "xmlOutFile";
-    public static final String CWD = "projectRoot";
+    /* current working dir */
+    public static final String CWD = "cwd";
     
     /**
      * A HashMap<String, String> structure that allows storing String
@@ -40,6 +37,12 @@ public class Settings {
      */
     private HashMap<Integer, HashMap<String, Breakpoint>> breakpts;
     
+    /**
+     * Network server used by agent for notifying external programs for user
+     * program events.
+     */
+    private EventServer eventServer;
+    
     private Settings() {
         // TODO: support loading settings from a settings file
         settings = new HashMap<String, String>();
@@ -52,18 +55,17 @@ public class Settings {
             throw new RuntimeException(e);
         }
         
-        /* use root path to set a default xml output full path */
+        /* use curr working dir to set a default xml output full path */
         // TODO: load the relative path suffix from a config file
         setProp(Settings.XML_OUT_SETT,
                 getProp(Settings.CWD) + "/output.xml");
     }
     
     /**
-     * Returns the value of a setting given its name or null if the setting
-     * id not set.
+     * Retrieves a setting given its name.
      * 
-     * @key The name of the setting to look for.
-     * @return the xmlOutFile
+     * @key The name of the setting to retrieve.
+     * @return The value of the setting (a String) or null if it doesn't exist.
      */
     public final String getProp(String key) {
         return (settings.containsKey(key)) ? settings.get(key) : null;
@@ -80,8 +82,7 @@ public class Settings {
     }
     
     /**
-     * Given the name of a setting, this function removes that setting from
-     * the settings data structure.
+     * Unsets a settings given its name.
      * 
      * @key The name of the setting to remove.
      * @return Returns true if setting removed and false otherwise.
@@ -111,5 +112,13 @@ public class Settings {
     
     public HashMap<Integer, HashMap<String, Breakpoint>> getBreakpts () {
         return breakpts;
+    }
+    
+    public void setEventServer(EventServer es) {
+        this.eventServer = es;
+    }
+    
+    public EventServer getEventServer() {
+        return this.eventServer;
     }
 }

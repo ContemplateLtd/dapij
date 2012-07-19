@@ -8,15 +8,17 @@ id: MS
 Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
 id: NP
 
+V - done
+X - not yet done
 
 	[1]. Architecture
 NP			1.1	Implement a java server that streams *events to a network port
-				* The server is created in a daemon thread that is started in the agent's premain method.
-				* The premain method will block on an accept() call until a client connects (so that
+			V	* The server is created in a daemon thread that is started in the agent's premain method.
+			V	* The premain method will block on an accept() call until a client connects (so that
 					the user program doeasn't start until a client is ready to receive the messages).
-				* The user thread will invoke server method calls that directly send the messages to
+			V	* The user thread will invoke server method calls that directly send the messages to
 					the clients (relying on the OS network buffers) using send()**.
-				* Add a ShutdownHook (a thread object) to Runtime that flushes the queues (perhaps
+			V	* Add a ShutdownHook (a thread object) to Runtime that flushes the queues (perhaps
 					by just calling close() on the connection) to guarantee that all messages are
 					 delivered to the connected client.
 
@@ -44,3 +46,5 @@ NP			1.1	Implement a java server that streams *events to a network port
 			4.1 make it thread save in case needed, e.g.:
 				- use a concurrent HashMap
 				- use synchronised setters
+
+	[5]. Proper logging

@@ -23,7 +23,7 @@ public class HelloAzura {
 
     public int square() {
         int sq = this.i * this.i;
-        System.out.println(sq);
+        System.out.println("Hello Azura::square(): " + sq);
         return sq;
     }
 
@@ -36,6 +36,7 @@ public class HelloAzura {
         System.out.println(new String(String.valueOf(new Integer(5))));
         HelloAzura ha = new HelloAzura('a');  /* create object to test agent */
         ha.azura();
+        ha.square();
         ha.i = 1;
     }
 }

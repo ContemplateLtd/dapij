@@ -7,5 +7,7 @@ hs_err*.log
 *.jar
 *.war
 *.ear
+*.swp
+
 output.xml
 /Dapij/nbproject/private/

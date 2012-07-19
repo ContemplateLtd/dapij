@@ -4,7 +4,6 @@
  */
 package dapij;
 
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Stack;
 import org.objectweb.asm.Label;
@@ -14,7 +13,7 @@ import org.objectweb.asm.Type;
 
 /**
  *
- * @author emszy
+ * @author Marcin Szymczak <mpszymczak@gmail.com>
  */
 public class InstanceCreationVisitor extends MethodVisitor {
 
@@ -22,7 +21,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
     private String creatorMethod;   /* name of method where creation occured */
     private String sourceFile;      /* source file */
     private InsnOffsetVisitor offstCntr;
-    private int line; // TODO: Remove
+    private int line; // TODO: Left for testing, but should perhaps be removed
     
     /**
      * A stack for handling nested NEW-INVOKEVIRTUAL instruction patterns met
@@ -217,6 +216,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
         Breakpoint b = bpts.get(line).get(sourceFile);
         b.setVisited(true);
         
+        /*
         mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(System.class),
                 "out", Type.getDescriptor(PrintStream.class));
         mv.visitLdcInsn("State just before line " + line);
@@ -226,7 +226,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
                         Type.getType(String.class)));
 
         mv.visitFieldInsn(Opcodes.GETSTATIC,
-                Type.getInternalName(InstanceCreationTracker.class), "INSTANCE", 
+                Type.getInternalName(InstanceCreationTracker.class), "INSTANCE",
                 Type.getDescriptor(InstanceCreationTracker.INSTANCE.
                         getClass()));
 
@@ -234,6 +234,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
                 Type.getInternalName(InstanceCreationTracker.class),
                 "displayInfo",
                 Type.getMethodDescriptor(Type.getType(void.class)));
+        */
 
         if(b.isWriteToXML()) {
             mv.visitFieldInsn(Opcodes.GETSTATIC,
@@ -260,7 +261,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
                             Type.getType(boolean.class),
                             Type.getType(boolean.class)));
             
-            /* Export snapshot to XML file */
+            /* Output snapshot to an XML file */
             mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                     Type.getInternalName(InstanceCreationTracker.class),
                     "writeXmlSnapshot",

@@ -5,6 +5,7 @@
 package dapij;
 
 import com.google.common.collect.MapMaker;
+import comms.EventServer;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -30,8 +31,17 @@ public class InstanceCreationTracker {
     
     public void put(Object key, Class clazz, String method, int offset,
             long threadId) {
-        instanceMap.putIfAbsent(key, new InstanceCreationStats(clazz, method,
-                offset, threadId));
+        InstanceCreationStats stats = new InstanceCreationStats(clazz, method,
+                offset, threadId);
+        
+        /* Send message to client if event server started */
+        EventServer es = Settings.INSTANCE.getEventServer();
+        if (es != null) {
+            es.sendEvent(stats.toString()+"\n");
+        }
+        
+        /* Store in concurrent map. */
+        instanceMap.putIfAbsent(key, stats);
     }
   
     public boolean hasKey(Object key) {
