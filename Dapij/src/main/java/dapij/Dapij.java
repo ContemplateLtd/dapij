@@ -110,6 +110,8 @@ public class Dapij implements ClassFileTransformer {
     
     public static void premain(String argString, Instrumentation inst)
             throws IOException {
+        
+        /* Split arglsit on one or more whitespaces */
         if (argString != null) {
 
             /* Split arglsit on one or more whitespaces */

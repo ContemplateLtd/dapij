@@ -66,6 +66,12 @@ public class InstanceCreationVisitor extends MethodVisitor {
     }
     
     @Override
+    public void visitInsn(int opcode) {
+        mv.visitInsn(opcode);
+        System.out.println("insn opc:" + Integer.toHexString(opcode));
+    }
+    
+    @Override
     public void visitTypeInsn(int opcode, String type) {
         
         /* Only intereseted in NEW instructions */
