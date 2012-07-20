@@ -64,13 +64,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
     public void setInsnOffsetCounter(InsnOffsetVisitor offstCntr) {
         this.offstCntr = offstCntr;
     }
-    
-    @Override
-    public void visitInsn(int opcode) {
-        mv.visitInsn(opcode);
-        System.out.println("insn opc:" + Integer.toHexString(opcode));
-    }
-    
+
     @Override
     public void visitTypeInsn(int opcode, String type) {
         
