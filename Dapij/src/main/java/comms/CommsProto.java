@@ -4,6 +4,8 @@
  */
 package comms;
 
+import dapij.Settings;
+
 /**
  * A class taking care of the communication protocol between the event server
  * and the event hub/client running in the agent.
@@ -11,22 +13,24 @@ package comms;
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
 public class CommsProto {
-    /* Network configuration */ // TODO: load from config file?
-    public static final int port = 7890;
-    public static final String host = "localhost";
+    /* Network configuration */
+    public static final int port = 
+            Integer.valueOf(Settings.INSTANCE.getSett(Settings.SETT_EVS_PORT));
+    public static final String host =
+            Settings.INSTANCE.getSett(Settings.SETT_CLI_HOST);
     
     /* Event types */
     public static final int TYP_OBJ = 1;    /* msg is object creation event */
     public static final int TYP_ACC = 2;    /* msg is object access event */
     // add more here if needed ...
     
-    public static void constrObjEventMsg() {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not yet implemented!");
+    public static String constrObjEventMsg(String event) {
+        // TODO: reimplement
+        return event + "\n";
     }
     
-    public static void constrAccEventMsg() {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not yet implemented!");
+    public static String constrAccEventMsg(String event) {
+        // TODO: reimplement
+        return event + "\n";
     }
 }

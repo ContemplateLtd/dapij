@@ -5,6 +5,7 @@
 package dapij;
 
 import com.google.common.collect.MapMaker;
+import comms.CommsProto;
 import comms.EventServer;
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +38,7 @@ public class InstanceCreationTracker {
         /* Send message to client if event server started */
         EventServer es = Settings.INSTANCE.getEventServer();
         if (es != null) {
-            es.sendEvent(stats.toString()+"\n");
+            es.sendEvent(CommsProto.constrAccEventMsg(stats.toString()));
         }
         
         /* Store in concurrent map. */
@@ -72,7 +73,12 @@ public class InstanceCreationTracker {
     
     public void registerAccess(Object ref, long threadId) {
         //dummy implementation for now
-        System.out.println("Object " + ref + " accessed from thread " +
-                threadId);
+        String msg = "Object " + ref + " accessed from thread " + threadId;
+        
+        /* Send message to client if event server started */
+        EventServer es = Settings.INSTANCE.getEventServer();
+        if (es != null) {
+            es.sendEvent(CommsProto.constrAccEventMsg(msg));
+        }
     }
 }

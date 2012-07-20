@@ -33,8 +33,8 @@ NP			1.1	Implement a java server that streams *events to a network port
 			2.1	Test communication architecture & protocol
 
 	[3]. Agent
-			3.1	Implement object identification (either in map or in inserted field)
-			3.2	Research the approach of adding a field to java.lang.Object
+MS			3.1	Implement object identification (either in map or in inserted field)
+MS			3.2	Research the approach of adding a field to java.lang.Object
 				- this is better as it is centralised, but might introduce other problems
 			3.3	Cover the rest of the (currently not handled) cases for object creation
 				which include (but may not be limited to):

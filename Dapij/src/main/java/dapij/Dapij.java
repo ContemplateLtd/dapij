@@ -1,7 +1,6 @@
 package dapij;
 
 import comms.CommsProto;
-import comms.EventClient;
 import comms.EventServer;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
@@ -70,25 +69,34 @@ public class Dapij implements ClassFileTransformer {
         Socket conn = null;
         
         /* Attempt to connect 3 times */
-        for (int i = 0; i <= 3; i++) {
+        for (int i = 1; i <= 3; i++) {
             try {
+                System.out.println("premain: [" + i + "] EventServer: " +
+                        "Binding on port '" + CommsProto.port + "'.");
                 srvSock = new ServerSocket(CommsProto.port);
+                System.out.println("premain: EventServer: Done.");
+                System.out.println("premain: EventServer: Listening for" +
+                        " clients ...");
                 conn = srvSock.accept();
+                System.out.println("premain: EventServer: Client [" +
+                            conn.getRemoteSocketAddress() + "] connected ...");
+                break;
             } catch (IOException ex) {
+                System.out.println("premain: EventServer: Could not connect," +
+                        " trying again ...");
                 continue;
             }
         }
         
         if (srvSock == null || conn == null) {
-            System.out.println("Could not start event server! " +
+            throw new RuntimeException("Could not start event server! " +
                     "Execution abroted.");
-            System.exit(1);
         }
         
         final EventServer es = new EventServer(srvSock, conn);
         es.setDaemon(true);
         Settings.INSTANCE.setEventServer(es);
-        
+
         /* For gracefully shutdown when user program ends. */
         Thread sh = new Thread() {
             @Override
@@ -97,41 +105,21 @@ public class Dapij implements ClassFileTransformer {
             }
         };
         Runtime.getRuntime().addShutdownHook(sh);
-
         es.start(); /* Start server. */
-    }
-    
-    public static void setupEventClient() {
-        final EventClient ec = new EventClient(CommsProto.host,
-                CommsProto.port);
-        ec.setDaemon(true);
-        
-        /* For gracefully shutdown when user program ends. */
-        Thread sh = new Thread() {
-            @Override
-            public void run() {
-                ec.shutdown();
-            }
-        };
-        Runtime.getRuntime().addShutdownHook(sh);
-        
-        ec.start(); /* Start client. */
     }
     
     public static void premain(String argString, Instrumentation inst)
             throws IOException {
-        System.out.println("PREMAIN");
-        int i = 0;
-        
-        /* Split arglsit on one or more whitespaces */
         if (argString != null) {
-                String[] args = argString.split("\\s+", 0);
 
+            /* Split arglsit on one or more whitespaces */
+            String[] args = argString.split("\\s+", 0);
+            int i = 0;
             while (i < args.length) {
                 
                 /* If output XML filename passed. */
                 if (args[i].equals("-o") && i + 1 < args.length) {
-                    Settings.INSTANCE.setProp(Settings.XML_OUT_SETT, args[++i]);
+                    Settings.INSTANCE.setSett(Settings.SETT_XML_OUT, args[++i]);
                 }
                 
                 /* Add more arguments here if needed */
@@ -146,12 +134,9 @@ public class Dapij implements ClassFileTransformer {
         Settings.INSTANCE.addBreakpt(
                 new Breakpoint("HelloAzura.java", 38, true));
         
-        /* Start a client to receive and process events. */
         /* Start a server for receiving & forwarding events to one client. */
-        setupEventClient(); // waits for server to start // TODO: start client independently?
         setupEventServer(); // waits for client to connect
         
         inst.addTransformer(new Dapij());
-        System.out.println("ENDPREMAIN");
     }
 }

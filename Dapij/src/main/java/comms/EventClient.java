@@ -7,7 +7,6 @@ package comms;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 /**
@@ -45,13 +44,16 @@ public class EventClient extends Thread {
         while (allowedToRun) {
             try {
                 if (conn == null || !conn.isConnected()) {
-                    conn = new Socket(CommsProto.host, CommsProto.port);
+                    System.out.println(nm + ": Connectiong to server [" +
+                            host + ":" + port + "] ...");
+                    conn = new Socket(host, port);
                 }
                 inFromServer = new BufferedReader(
                     new InputStreamReader(conn.getInputStream(), "UTF-8"));
+                System.out.println(nm + ": Done.");
                 break;
             } catch (IOException e) {
-                System.out.println( nm + ": Could not connect to '" + host +
+                System.out.println(nm + ": Could not connect to '" + host +
                                     ":" + port + "' ...");
                 throw new RuntimeException(e);
             }
@@ -97,6 +99,10 @@ public class EventClient extends Thread {
                 // TODO: remove this workaround and add nonblocking sockets
                 if (inFromServer.ready()) {
                     event = inFromServer.readLine();
+                    if (event != null) {
+                        System.out.println(nm + ": Received event: " + event);
+                        event = null;
+                    }
                 } else {
                     break;
                 }
@@ -104,12 +110,8 @@ public class EventClient extends Thread {
                 System.out.println(nm + ": Could not read during shutdown ...");
                 throw new RuntimeException(e); // TODO: ignore
             }
-            if (event != null) {
-                System.out.println( nm + ": Received event: " + event);
-                event = null;
-            }
         }
-        System.out.println(nm+": Done.");
+        System.out.println(nm + ": Done.");
     }
     
     /**

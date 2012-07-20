@@ -33,7 +33,8 @@ public class HelloAzura {
     }
 
     public static void main(String args[]) {
-        System.out.println(new String(String.valueOf(new Integer(5))));
+        System.out.println("Hello Azura::main(): " +
+                new String(String.valueOf(new Integer(5))));
         HelloAzura ha = new HelloAzura('a');  /* create object to test agent */
         ha.azura();
         ha.square();

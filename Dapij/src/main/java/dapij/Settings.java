@@ -18,15 +18,19 @@ public class Settings {
     
     public static final Settings INSTANCE = new Settings();
     
-    /* Constant keys for (internal) properties of the Settings Singleton */
-    /* abs path to the XML log file (for recording snapshots). */
-    public static final String XML_OUT_SETT = "xmlOutFile";
-    /* current working dir */
-    public static final String CWD = "cwd";
+    /* Constant keys for (internal) settings of the Settings Singleton */
+    /** Key for absolute path to the XML log file setting. */
+    public static final String SETT_XML_OUT = "xmlOutFile";
+    /** Key for current working dir setting. */
+    public static final String SETT_CWD = "cwd";
+    /** Key for agent's event server port setting. */
+    public static final String SETT_EVS_PORT = "EventSrvPort";
+    /** Key for agent's event test client port setting. */
+    public static final String SETT_CLI_HOST = "EventCliHost";
     
     /**
      * A HashMap<String, String> structure that allows storing String
-     * properties.
+     * settings.
      */
     private HashMap<String, String> settings;
     
@@ -48,17 +52,8 @@ public class Settings {
         settings = new HashMap<String, String>();
         breakpts = new HashMap<Integer, HashMap<String, Breakpoint>>();
         
-        /* set dweafult root path to current working directory */
-        try {
-            setProp(Settings.CWD, new File(".").getCanonicalPath());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        
-        /* use curr working dir to set a default xml output full path */
-        // TODO: load the relative path suffix from a config file
-        setProp(Settings.XML_OUT_SETT,
-                getProp(Settings.CWD) + "/output.xml");
+        initInternalSettings();
+        loadSettings();
     }
     
     /**
@@ -67,7 +62,7 @@ public class Settings {
      * @key The name of the setting to retrieve.
      * @return The value of the setting (a String) or null if it doesn't exist.
      */
-    public final String getProp(String key) {
+    public final String getSett(String key) {
         return (settings.containsKey(key)) ? settings.get(key) : null;
     }
 
@@ -77,7 +72,7 @@ public class Settings {
      * @param key A String representing the name of the setting.
      * @param val A String representing the value of the setting.
      */
-    public final void setProp(String key, String val) {
+    public final void setSett(String key, String val) {
         settings.put(key, val);
     }
     
@@ -87,7 +82,7 @@ public class Settings {
      * @key The name of the setting to remove.
      * @return Returns true if setting removed and false otherwise.
      */
-    public boolean unsetProp(String key) {
+    public boolean unsetSett(String key) {
         if (settings.containsKey(key)) {
             settings.remove(key);
             return true;
@@ -95,7 +90,7 @@ public class Settings {
         return false;
     }
     
-    public final boolean isSetProp(String key) {
+    public final boolean isSetSett(String key) {
         return settings.containsKey(key);
     }
     
@@ -120,5 +115,24 @@ public class Settings {
     
     public EventServer getEventServer() {
         return this.eventServer;
+    }
+
+    private void initInternalSettings() {
+        /* set dweafult root path to current working directory */
+        try {
+            setSett(Settings.SETT_CWD, new File(".").getCanonicalPath());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void loadSettings() {
+        // TODO: load network port from config or chose on the fly
+        setSett(SETT_EVS_PORT, "7836");
+        setSett(SETT_CLI_HOST, "127.0.0.1");
+        
+        /* use curr working dir to set a default xml output full path */
+        setSett(Settings.SETT_XML_OUT,
+                getSett(Settings.SETT_CWD) + "/output.xml");
     }
 }

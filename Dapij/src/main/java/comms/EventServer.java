@@ -87,7 +87,7 @@ public class EventServer extends Thread {
             }
             try {
                 System.out.println(nm + ": " + "[" + String.valueOf(i++) +
-                        "] " + "Attempting to bind ...");
+                        "] " + "Binding on port '" + port + "' ...");
                 srvSock = new ServerSocket(port);
                 srvSock.setSoTimeout(srvSoTimeout);
                 if (srvSock.isBound()) {
@@ -95,13 +95,15 @@ public class EventServer extends Thread {
                     return;
                 }
             } catch (IOException e) {
-                try {
-                    Thread.sleep(attpemtInterval * 1000); /* wait for 5 sec */
-                } catch (InterruptedException ex) {
-                    /* Ignore. */
-                }
-                continue; /* try again */
+                /* Ignore. */
             }
+            try {
+                Thread.sleep(attpemtInterval * 1000); /* wait for 5 sec */
+            } catch (InterruptedException ex) {
+                /* Ignore. */
+            }
+            System.out.println(nm + ": Could not connect, trying again after " +
+                    attpemtInterval + " seconds ...");
         }
         stopped = true;
     }
@@ -119,7 +121,10 @@ public class EventServer extends Thread {
                 
                 /* reset only if not useable */
                 if (conn == null || !conn.isConnected()) {
+                    System.out.println(nm + ": Listening for clients ...");
                     conn = srvSock.accept();
+                    System.out.println(nm + ": Client [" +
+                            conn.getRemoteSocketAddress() + "] connected ...");
                 }
                 
                 /* always try to reset this */
@@ -157,18 +162,18 @@ public class EventServer extends Thread {
         for (int i = 0; !stopped; yield()); /* now wait until stopped. */
         
         /* Shutdown. */
-        System.out.println(nm+": Shutting down server on port " +
+        System.out.println(nm + ": Shutting down server on port " +
                 srvSock.getLocalPort() + " ...");
         closeConn();
         if (srvSock != null && !srvSock.isClosed()) {
             try {
                 srvSock.close();
             } catch (IOException e) { // TODO: Ignore maybe?
-                System.out.println(nm+": "+e.getMessage());
+                System.out.println(nm + ": " + e.getMessage());
             }
         }
         srvSock = null;
-        System.out.println(nm+": "+"Done.");
+        System.out.println(nm + ": " + "Done.");
     }
     
     /**
@@ -203,8 +208,9 @@ public class EventServer extends Thread {
         try {
             outToClient.writeBytes(event);
         } catch (IOException e) {
+            // TODO: improve this exception "handgling"
+            System.out.println("Could not send event: '" + event + "'!");
             throw new RuntimeException(e);
-            //Logger.getLogger(EventServer.class.getName()).log(Level.SEVERE, null, e);
         }
     }
 
