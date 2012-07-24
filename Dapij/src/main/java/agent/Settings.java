@@ -2,9 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package dapij;
+package agent;
 
-import comms.EventServer;
+import comms.AgentEventServer;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -45,7 +45,7 @@ public class Settings {
      * Network server used by agent for notifying external programs for user
      * program events.
      */
-    private EventServer eventServer;
+    private AgentEventServer eventServer;
     
     private Settings() {
         // TODO: support loading settings from a settings file
@@ -109,11 +109,11 @@ public class Settings {
         return breakpts;
     }
     
-    public void setEventServer(EventServer es) {
+    public void setEventServer(AgentEventServer es) {
         this.eventServer = es;
     }
     
-    public EventServer getEventServer() {
+    public AgentEventServer getEventServer() {
         return this.eventServer;
     }
 

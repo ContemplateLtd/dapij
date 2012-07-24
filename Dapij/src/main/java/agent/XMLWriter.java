@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package dapij;
+package agent;
 
+import transform.InstanceCreationStats;
 import java.io.*;
 
 /**
@@ -52,7 +53,7 @@ public class XMLWriter {
 
         /* Write the data for each object */
         for(InstanceCreationStats info :
-                InstanceCreationTracker.INSTANCE.getValues()) {
+                RuntimeEventRegister.INSTANCE.getValues()) {
             pw.println(tab + tagElemOp);
             pw.println(twoTabs + tagClasOp + info.getClazz().getName() +
                     tagClasCl);

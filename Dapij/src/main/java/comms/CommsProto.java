@@ -4,7 +4,7 @@
  */
 package comms;
 
-import dapij.Settings;
+import agent.Settings;
 
 /**
  * A class taking care of the communication protocol between the event server

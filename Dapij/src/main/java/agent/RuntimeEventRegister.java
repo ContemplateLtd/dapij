@@ -1,28 +1,33 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * TODO: doc comment
  */
-package dapij;
+package agent;
 
 import com.google.common.collect.MapMaker;
+import comms.AgentEventServer;
 import comms.CommsProto;
-import comms.EventServer;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
+import transform.EventRegister;
+import transform.InstanceCreationStats;
 
 /**
  *
  * @author Marcin Szymczak <mpszymczak@gmail.com>
  */
-public class InstanceCreationTracker {
-    public static final  InstanceCreationTracker INSTANCE = 
-            new InstanceCreationTracker();
+public class RuntimeEventRegister implements EventRegister {
     
+    public static final  RuntimeEventRegister INSTANCE = 
+            new RuntimeEventRegister();
+    /**
+     * A weak concurrent hash map that registers statistics for created
+     * object instances.
+     */
     private ConcurrentMap<Object, InstanceCreationStats> instanceMap;
     
-    private InstanceCreationTracker() {
+    private RuntimeEventRegister() {
         instanceMap = new MapMaker().weakKeys().makeMap();
     }
     
@@ -30,13 +35,14 @@ public class InstanceCreationTracker {
         return instanceMap.get(key);
     }
     
-    public void put(Object key, Class clazz, String method, int offset,
+    @Override
+    public void regCreation(Object key, Class clazz, String method, int offset,
             long threadId) {
         InstanceCreationStats stats = new InstanceCreationStats(clazz, method,
                 offset, threadId);
         
         /* Send message to client if event server started */
-        EventServer es = Settings.INSTANCE.getEventServer();
+        AgentEventServer es = Settings.INSTANCE.getEventServer();
         if (es != null) {
             es.sendEvent(CommsProto.constrAccEventMsg(stats.toString()));
         }
@@ -57,28 +63,29 @@ public class InstanceCreationTracker {
         return instanceMap.values();
     }
     
-    public void displayInfo() {
-        System.out.println("Objects in use:");
-        for(InstanceCreationStats info : instanceMap.values()) {
-            System.out.println(info);
-        }
-    }
-    
-    /* Write the content of the map to an XML file */
+    /**
+     * Writes the content of the instance map to an XML file
+     */
     public void writeXmlSnapshot(String xmlLogFilePath, Breakpoint b)
             throws IOException {
         File f = new File(xmlLogFilePath);
         XMLWriter.snapshotToXml(f, b);
     }
     
-    public void registerAccess(Object ref, long threadId) {
-        //dummy implementation for now
+    @Override
+    public void regAccess(Object ref, long threadId) {
+        // dummy implementation for now
         String msg = "Object " + ref + " accessed from thread " + threadId;
         
         /* Send message to client if event server started */
-        EventServer es = Settings.INSTANCE.getEventServer();
-        if (es != null) {
-            es.sendEvent(CommsProto.constrAccEventMsg(msg));
+        AgentEventServer aes = Settings.INSTANCE.getEventServer();
+        if (aes != null) {
+            aes.sendEvent(CommsProto.constrAccEventMsg(msg));
         }
+    }
+    
+    @Override
+    public void regBreakpt() {
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 }

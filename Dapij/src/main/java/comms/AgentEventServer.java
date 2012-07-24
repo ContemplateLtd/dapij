@@ -14,7 +14,7 @@ import java.net.SocketException;
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class EventServer extends Thread {
+public class AgentEventServer extends Thread {
     
     private ServerSocket srvSock;
     private int port;
@@ -30,20 +30,20 @@ public class EventServer extends Thread {
     private int connAttempts = 3;       /* number of attempts to bind to port */
     private int attpemtInterval = 5;    /* time btw attempts (in seconds) */
 
-    public EventServer() {
+    public AgentEventServer() {
         this.allowedToRun = true;
         this.srvSoTimeout = 5;
         this.connSoTimeout = 5;
         setName(nm);
     }
     
-    public EventServer(int port) {
+    public AgentEventServer(int port) {
         this.allowedToRun = true;
         this.stopped = false;
         this.port = port;
     }
     
-    public EventServer(ServerSocket srvSock, Socket conn) {
+    public AgentEventServer(ServerSocket srvSock, Socket conn) {
         this(srvSock.getLocalPort());
         this.srvSock = srvSock;
         this.conn = conn;

@@ -13,7 +13,7 @@ import java.net.Socket;
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class EventClient extends Thread {
+public class TestEventClient extends Thread {
 
     private String host;
     private int port;
@@ -26,7 +26,7 @@ public class EventClient extends Thread {
     private BufferedReader inFromServer;
     //private DataOutputStream outToServer;
     
-    public EventClient(String host, int port) {
+    public TestEventClient(String host, int port) {
         this.host = host;
         this.port = port;
         this.allowedToRun = true;

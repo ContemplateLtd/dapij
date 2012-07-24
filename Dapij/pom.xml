@@ -57,7 +57,7 @@
         <configuration>
           <archive>
             <manifestEntries>
-              <Premain-Class>dapij.Dapij</Premain-Class>
+              <Premain-Class>agent.Agent</Premain-Class>
             </manifestEntries>
           </archive>
         </configuration>

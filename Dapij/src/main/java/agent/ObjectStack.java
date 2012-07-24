@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package dapij;
+package agent;
 
 import java.util.Stack;
 
@@ -28,31 +28,31 @@ public class ObjectStack {
     }
     
     public void push(byte i) {
-        stack.push(new Byte(i));
+        stack.push(Byte.valueOf(i));
     }
     
     public void push(char i) {
-        stack.push(new Character(i));
+        stack.push(Character.valueOf(i));
     }
     
     public void push(double i) {
-        stack.push(new Double(i));
+        stack.push(Double.valueOf(i));
     }
     
     public void push(float i) {
-        stack.push(new Float(i));
+        stack.push(Float.valueOf(i));
     }
     
     public void push(int i) {
-        stack.push(new Integer(i));
+        stack.push(Integer.valueOf(i));
     }
     
     public void push(long i) {
-        stack.push(new Long(i));
+        stack.push(Long.valueOf(i));
     }
     
     public void push(short i) {
-        stack.push(new Short(i));
+        stack.push(Short.valueOf(i));
     }
     
     public Object popObj() {
