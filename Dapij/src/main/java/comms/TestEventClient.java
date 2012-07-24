@@ -55,7 +55,8 @@ public class TestEventClient extends Thread {
             } catch (IOException e) {
                 System.out.println(nm + ": Could not connect to '" + host +
                                     ":" + port + "' ...");
-                throw new RuntimeException(e);
+                System.out.println(nm + ": Attempting again ...");
+                continue;
             }
         }
         stopped = true;

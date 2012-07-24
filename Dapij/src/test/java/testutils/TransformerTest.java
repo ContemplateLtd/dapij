@@ -1,14 +1,10 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * TODO: doc comment
  */
-package TestUtil;
+package testutils;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -16,7 +12,7 @@ import java.util.logging.Logger;
  */
 public class TransformerTest {
 
-    protected ClassLoader cl; /* reset to a new custom class loader for each test */
+    protected ClassLoader cl;   /* set to a new instance for each test mwthod */
     private static HashMap<String, PkgLdPolicy> loadPolicy =
             TestClassLoader.genLdPolicyByPkg();
     
@@ -30,25 +26,25 @@ public class TransformerTest {
         cl = new TestClassLoader(loadPolicy);   /* A new cl for each test */
     }
     
-//    protected void runtimeSetup(String name) {
-//        /* Load given class throug the newly created cl */
-//        Class<?> clazz = null;
-//        try {
-//            clazz = cl.loadClass(name);
-//        } catch (ClassNotFoundException e) {
-//            System.out.println("could not load class >>>"); // TODO: remove
-//            throw new RuntimeException(e);
-//        }
-//        
-//        /* Create an instance of the given class */
-//        Runnable rInst = null;
-//        try {
-//            rInst = (Runnable) clazz.newInstance();
-//        } catch (Exception ex) {
-//            throw new RuntimeException(ex);
-//        }
-//        rInst.run();
-//    }
+    protected void runtimeSetup(String name) {
+        /* Load given class throug the newly created cl */
+        Class<?> clazz = null;
+        try {
+            clazz = cl.loadClass(name);
+        } catch (ClassNotFoundException e) {
+            System.out.println("could not load class >>>"); // TODO: remove
+            throw new RuntimeException(e);
+        }
+        
+        /* Create an instance of the given class */
+        Runnable rInst = null;
+        try {
+            rInst = (Runnable) clazz.newInstance();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+        rInst.run();
+    }
     
     protected void runtimeSetup(Runnable r) {
         /* Load given class throug the newly created cl */
@@ -59,16 +55,6 @@ public class TransformerTest {
             System.out.println("could not load class >>>"); // TODO: remove
             throw new RuntimeException(e);
         }
-        
-        /* Create an instance of the given class */
-//        Runnable rInst = null;
-//        try {
-//            rInst = (Runnable) clazz.newInstance();
-//        } catch (Exception ex) {
-//            System.out.println("Could not create/execute runnable.");
-//            throw new RuntimeException(ex);
-//        }
-//        rInst.run();
         
         TransformerTest outerObj = new TransformerTest();
         Constructor constructor;

@@ -1,7 +1,7 @@
 /**
  * TODO: doc comment
  */
-package TestUtil;
+package testutils;
 
 import agent.Agent;
 import comms.CommsProto;
@@ -75,8 +75,8 @@ public class TestClassLoader extends ClassLoader {
                 chld = false;
             }
             //TODO: Remove commet + boolean variable
-            System.out.println("LD in-" + ((chld) ? "child" : "parent") +  ((p != null) ? " trns: "+String.valueOf(p.isInstrumented()) : "") +
-                    " '" + clsBinName + "' ...");
+            //System.out.println("LD in-" + ((chld) ? "child" : "parent") +  ((p != null) ? " trns: "+String.valueOf(p.isInstrumented()) : "") +
+            //        " '" + clsBinName + "' ...");
         }
         
         if (resolve) {

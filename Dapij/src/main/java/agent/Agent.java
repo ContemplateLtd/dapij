@@ -69,7 +69,7 @@ public class Agent {
         
         if (srvSock == null || conn == null) {
             throw new RuntimeException("premain: AgentEventServer: Could not" +
-                    "start! Execution abroted.");
+                    "start! Execution abroted.\n");
         }
         
         final AgentEventServer aes = new AgentEventServer(srvSock, conn);
