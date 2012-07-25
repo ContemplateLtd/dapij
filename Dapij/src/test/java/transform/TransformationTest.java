@@ -4,9 +4,9 @@
 package transform;
 
 import agent.Agent;
-import agent.Breakpoint;
 import agent.RuntimeEventRegister;
 import agent.Settings;
+import comms.AgentEventServer;
 import comms.CommsProto;
 import comms.TestEventClient;
 import java.io.File;
@@ -14,9 +14,19 @@ import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.security.ProtectionDomain;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import org.junit.Assert;
 import org.junit.Test;
 import testutils.TransformerTest;
+
+
+// TODO: test InsnOggsetVisitor, InstanceCreationTracker (for concurrency &
+// consistency), InstanceCreationVisitor (test directly if possible), XMLWriter,
+// Settings (for concurrency).
+
+// TODO: add control over instrumentation of innter callables (all are currently
+// instrumented).
+
 
 /**
  * A class containing tests for the dapij package.
@@ -24,17 +34,6 @@ import testutils.TransformerTest;
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
 public class TransformationTest extends TransformerTest {
-
-// TODO: test InsnOggsetVisitor, InstanceCreationTracker (for concurrency &
-// consistency), InstanceCreationVisitor (test directly if possible), XMLWriter,
-// Settings (for concurrency).
-    
-    public static class ConstructorIsInstrumented implements Runnable {
-        @Override
-        public void run() {
-            new Integer(5); /* create an object to test event registering */
-        }
-    }
     
     /**
      * Tests whether object creations are detected and information about the
@@ -44,54 +43,82 @@ public class TransformationTest extends TransformerTest {
      * @throws Exception
      */
     @Test
-    public void constructorIsInstrumented() throws Exception {
+    public void constructorIsInstumented() throws Exception {
         
-        /* Create an instance of an object */ 
-        runtimeSetup(ConstructorIsInstrumented.class.getName());
+        /* Create some objects, get their refs & test if events registered. */
+        Object[] refs = runtimeSetup(new Callable<Object[]>() {
+            
+            /* create an object using an inner anonymous class */
+            private Runnable anotherMethod() {
+                return new Runnable() {
+                    @Override
+                    public void run() {}    /* empty, just an object needed. */
+                };
+            }
+            
+            @Override
+            public Object[] call() {
+                String.valueOf(5);  /* Insert insn to test offset value. */
+                Integer i = new Integer(5); /* Create another simple object. */
+                return new Object[]{i, anotherMethod()};
+            }
+        });
 
-        /*
-         * Get a reference to the concurrent map that contains info about
-         * objects created by the instrumented program (ObjectInstance class)
-         */
-        Map<Object, InstanceCreationStats> m = getCreationMap();
+        /* Get concurrent map keeping track of instance creations. */
+        Map map = runtimeSetup(new Callable<Map>() {
+            @Override
+            public Map call() throws Exception {
+                Class regCls = RuntimeEventRegister.INSTANCE.getClass();
+                Field f = regCls.getDeclaredField("instanceMap");
+                f.setAccessible(true);
+                return (Map) f.get(RuntimeEventRegister.INSTANCE);
+            }
+        });
         
-        /* Check if there is info in the map for the created object. */
-        Assert.assertEquals("Creation recorded: ", 1, m.size());
+        /* Check if map contains info for the Integer object. */
+        Integer i = (Integer) refs[0];
+        Assert.assertEquals("Intgr map entry exists", true, map.containsKey(i));
+        
+        /* Check if info obj fields correct (one by one). */
+        InstanceCreationStats icsI = (InstanceCreationStats) map.get(i);
+        Assert.assertEquals("Class corretly read & set", Integer.class,
+                icsI.getClazz());
+        Assert.assertEquals("Method name correctly read & set", "call",
+                icsI.getMethod());
+        Assert.assertEquals("Offset correctly read & set", true,
+                icsI.getOffset() == 3);
+        Assert.assertEquals("Thread id correctly read & set", 1,
+                icsI.getThreadId());   /* currently a meaningless assert */
+        
+        /* TODO: test obj ref from the Runnable inner anonymous object. */
+        Runnable r = (Runnable) refs[1];
+        Assert.assertEquals("Rnbl map entry exists", true, map.containsKey(r));
+        
+         /* Check if info obj fields correct (one by one). */
+         InstanceCreationStats icsR = (InstanceCreationStats) map.get(r);
+        // Not testing class as it's some other innter tpye and not Runnable.
+        Assert.assertEquals("Method name correctly read & set", "anotherMethod",
+                icsR.getMethod());
+        Assert.assertEquals("Offset correctly read & set", true,
+                icsR.getOffset() == 0);
+        Assert.assertEquals("Thread id correctly read & set", 1,
+                icsR.getThreadId());   /* currently a meaningless assert */
     }
 
-    private Map<Object, InstanceCreationStats> getCreationMap() {
-        try {
-            Class<?> clazz = 
-                    cl.loadClass(RuntimeEventRegister.class.getName());
-            Field field = clazz.getField("INSTANCE");
-            Object instance = field.get(null);
-            Field mapField = instance.getClass().
-                    getDeclaredField("instanceMap");
-            mapField.setAccessible(true);
-            @SuppressWarnings({"rawtypes", "unchecked"})
-            Map<Object, InstanceCreationStats> map = (Map) mapField.get(
-                    instance);
-            return map;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    public static class AgentEventServerTest implements Runnable {
-        @Override
-        public void run() {
-            /* overwrite xml_out_sett setting */
-            Settings.INSTANCE.setSett(Settings.SETT_XML_OUT,
-                Settings.INSTANCE.getSett(Settings.SETT_CWD) + "/output.xml");
-            
-            /* add a breakpoint */
-            Settings.INSTANCE.addBreakpt(new Breakpoint("HelloAzura.java", 38,
-                true));
-            
-            /* Start a server for receiving & forwarding events to 1 client. */
-            // waits for server to start // TODO: start client independently?
-            Agent.setupEventServer(); // waits for client to connect
-        }
+    public static TestEventClient startEventClient() {
+        final TestEventClient tec = new TestEventClient(CommsProto.host,
+                CommsProto.port);
+        tec.setDaemon(true);
+        
+        /* For gracefully shutdown when user program ends. */
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                tec.shutdown();
+            }
+        });
+        tec.start(); /* Start client. */
+        return tec;
     }
     
     /*
@@ -99,39 +126,27 @@ public class TransformationTest extends TransformerTest {
      */   
     @Test
     public void agentEventServerTest() throws Exception {
-        /* Start a client first to receive and process events. */
-        setupEventClient();
         
-        runtimeSetup(AgentEventServerTest.class.getName());
-        
-        /* TODO:
-         * Supply the server from this class loader's Settings.INSTANCE to
-         * the Settings.INSTANCE available to the HelloAzura::main() method
-         * that is going to be executed in this test.
-         */
+        /* Start a client first to receive and process events & get its ref. */
+        TestEventClient tec = startEventClient();
 
-        Class<?> haCls = cl.loadClass(HelloAzura.class.getName());
-        String args = null;
-        haCls.getMethod("main", String[].class).invoke(null, args);
-        
-        /* TODO: get client ref & check if all event msgs correctly received */
-        Assert.assertEquals("Azura main: ", true, true);  // For now - an empty test
-    }
-
-    public static void setupEventClient() {
-        final TestEventClient ec = new TestEventClient(CommsProto.host,
-                CommsProto.port);
-        ec.setDaemon(true);
-        
-        /* For gracefully shutdown when user program ends. */
-        Thread sh = new Thread() {
+        runtimeSetup(new Callable<Object>() {
             @Override
-            public void run() {
-                ec.shutdown();
+            public Object call() throws Exception {
+                /*
+                 * Start a server to recv & fwd events to a single client.
+                 * This call will block until client connected.
+                 */
+                AgentEventServer aes = Agent.startEventServer();
+                HelloAzura.main(new String[]{});    /* Call with not args. */
+                aes.shutdown();
+                return null;
             }
-        };
-        Runtime.getRuntime().addShutdownHook(sh);
-        ec.start(); /* Start client. */
+        });
+        tec.shutdown();
+
+        /* TODO: get client ref & check if all event msgs correctly received */
+        Assert.assertEquals("Azura main: ", true, true);  //TODO: fix assertions
     }
     
     /**

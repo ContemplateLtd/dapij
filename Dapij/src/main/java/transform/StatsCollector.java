@@ -68,12 +68,20 @@ public class StatsCollector extends ClassVisitor {
                 exceptions);
         
         /* Insert bytecode to track created objectects */
-        if (mv != null) {
-            InstanceCreationVisitor icv =
-                    new InstanceCreationVisitor(mv, name, sourceFile);
-            mv = new InsnOffsetVisitor(icv);
-            icv.setInsnOffsetCounter((InsnOffsetVisitor) mv);
+        if (mv == null) {
+            return mv;
         }
+        
+        /*
+         * CHAIN:
+         * InsnOffsetVisitor -> InstanceCreationVisitor ->
+         *      /" InstanceAccessVisitor "/ -> BreakpointVisitor
+         */
+        BreakpointVisitor bpv = new BreakpointVisitor(mv, sourceFile);
+        //InstanceAccessVisitor iav = new InstanceAccessVisitor(bpv);
+        InstanceCreationVisitor icv = new InstanceCreationVisitor(bpv, name);
+        /* InsnOffsetVisitor */ mv = new InsnOffsetVisitor(icv); /* overwrite */
+        icv.setInsnOffsetCounter((InsnOffsetVisitor) mv);
         
         return mv;
     }

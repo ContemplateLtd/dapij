@@ -5,7 +5,9 @@
 package transform;
 
 /**
- *
+ * Container for info stored upon detection of a newly created instance in the
+ * instrumented code.
+ * 
  * @author Marcin Szymczak <mpszymczak@gmail.com>
  */
 public class InstanceCreationStats {

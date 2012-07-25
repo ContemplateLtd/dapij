@@ -21,7 +21,7 @@ public class TestEventClient extends Thread {
     private boolean allowedToRun;
     private boolean stopped;
     //private int connAttempts = 3;
-    private static final String nm = "dapij-event-cli";   /* thread name */
+    private static final String nm = "TEC";   /* thread name */
     
     private BufferedReader inFromServer;
     //private DataOutputStream outToServer;
@@ -31,7 +31,7 @@ public class TestEventClient extends Thread {
         this.port = port;
         this.allowedToRun = true;
         this.stopped = false;
-        setName(nm);
+        setName("test-event-cli");
     }
 
     /**
@@ -54,8 +54,9 @@ public class TestEventClient extends Thread {
                 break;
             } catch (IOException e) {
                 System.out.println(nm + ": Could not connect to '" + host +
-                                    ":" + port + "' ...");
-                System.out.println(nm + ": Attempting again ...");
+                        ":" + port + "' ..." + "\n" + nm +
+                        ": Attempting again ...");
+                try { Thread.sleep(10); } catch (Exception ex) {} /* Ignore */
                 continue;
             }
         }
@@ -79,7 +80,7 @@ public class TestEventClient extends Thread {
                 throw new RuntimeException(e); // TODO: ignore?
             }
             if (event != null) {
-                System.out.println(nm + ": Received event: " + event);
+                System.out.println(nm + ": RCV: " + event);
             }
             event = null;
         }
@@ -89,7 +90,7 @@ public class TestEventClient extends Thread {
     public void shutdown() {
         /* Stop main loop. */
         allowedToRun = false;
-        for (int i = 0; !stopped; yield()); /* now wait until stopped. */
+        for (; !stopped; yield());  /* now wait until stopped. */
         
         /* Shutdown. */
         String event = null;
@@ -101,7 +102,7 @@ public class TestEventClient extends Thread {
                 if (inFromServer.ready()) {
                     event = inFromServer.readLine();
                     if (event != null) {
-                        System.out.println(nm + ": Received event: " + event);
+                        System.out.println(nm + ": RCV: " + event);
                         event = null;
                     }
                 } else {
@@ -144,7 +145,7 @@ public class TestEventClient extends Thread {
             }
         }
         
-        /* Uncomment when sending msgs to server supported
+        /* Uncomment when sending msgs to server needed/supported
         if (outToServer != null) {
             try {
                 outToServer.flush();

@@ -75,8 +75,7 @@ public class TestClassLoader extends ClassLoader {
                 chld = false;
             }
             //TODO: Remove commet + boolean variable
-            //System.out.println("LD in-" + ((chld) ? "child" : "parent") +  ((p != null) ? " trns: "+String.valueOf(p.isInstrumented()) : "") +
-            //        " '" + clsBinName + "' ...");
+//            /System.out.println("LD in-"+((chld) ? "child" : "parent")+((p != null && p.isInstrumented()) ? " [inst] " : " ")+clsBinName);
         }
         
         if (resolve) {
@@ -164,44 +163,37 @@ public class TestClassLoader extends ClassLoader {
     public static HashMap<String, PkgLdPolicy> genLdPolicyByPkg() {
         HashMap<String, PkgLdPolicy> pkgLdPolicies =
                 new HashMap<String, PkgLdPolicy>();
-        
-        
         try {
-        
-            /* Main classes */
-            /* Get package full path & set policy - child-fst, don't instr */
+            /* MAIN CLASSES, do not transform. */
+            /* agent package - child-fst, don't instr */
             File pkgFP = new File(mainClsRt, binNmToPth(Agent.class.getName()))
                     .getParentFile();
             pkgLdPolicies.put(pkgFP.getPath(),
-                    new PkgLdPolicy("agent", pkgFP, true, false));
+                    new PkgLdPolicy(true, false));
 
-            /* Get package full path & set policy - child-fst, instr */
+            /* comms package - child-fst, don't instr */
             pkgFP = new File(mainClsRt, binNmToPth(CommsProto.class.getName()))
                     .getParentFile();
             pkgLdPolicies.put(pkgFP.getPath(),
-                    new PkgLdPolicy("comms", pkgFP, true, false));
+                    new PkgLdPolicy(true, false));
 
-            /* TODO: CURRENTLY NOT USED, KEEP IN MIND in the future. */
-            /* Get package full path & set policy - child-fst, instr */
+            /* NOTE: currently not used, change in future */
+            /* Get package full path & set policy - child-fst, don't instr */
             pkgFP = new File(mainClsRt, binNmToPth(PluginIJ.class.getName()))
                     .getParentFile();
-            pkgLdPolicies.put(pkgFP.getPath(),
-                    new PkgLdPolicy("plugin", pkgFP, true, true));
+            pkgLdPolicies.put(pkgFP.getPath(), new PkgLdPolicy(true, false));
 
-            /* Get package full path & set policy - parent-fst, don't instr */
+            /* transform package - parent-fst, don't instr */
             pkgFP = new File(mainClsRt,
                     binNmToPth(StatsCollector.class.getName())).getParentFile();
-            pkgLdPolicies.put(pkgFP.getPath(),
-                    new PkgLdPolicy("transform", pkgFP, false, false));
+            pkgLdPolicies.put(pkgFP.getPath(), new PkgLdPolicy(false, false));
 
-            /* Test classes, transform only them. */
+            /* TEST CLASSES, transform. */
             /* Get package full path & set policy - parent-fst, don't instr */
             pkgFP = new File(tstClsRt,
                             binNmToPth(TransformationTest.class.getName())
                     ).getParentFile();
-            
-            pkgLdPolicies.put(pkgFP.getPath(),
-                    new PkgLdPolicy("transform", pkgFP, true, true));
+            pkgLdPolicies.put(pkgFP.getPath(), new PkgLdPolicy(true, true));
         
         } catch (Exception e) {
             throw new RuntimeException(e);

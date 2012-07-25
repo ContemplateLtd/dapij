@@ -20,7 +20,7 @@ public class AgentEventServer extends Thread {
     private int port;
     private Socket conn;                /* connection to the (single) client */
     DataOutputStream outToClient;       /* stream to client */
-    private static final String nm = "dapij-event-srv";   /* thread name */
+    public static final String nm = "AES";   /* thread name */
     
     private int srvSoTimeout;           /* timeout for srvSock.accept() */
     private int connSoTimeout;          /* timeout for recv on client conn */
@@ -34,7 +34,7 @@ public class AgentEventServer extends Thread {
         this.allowedToRun = true;
         this.srvSoTimeout = 5;
         this.connSoTimeout = 5;
-        setName(nm);
+        setName("agent-event-srv");
     }
     
     public AgentEventServer(int port) {
@@ -159,7 +159,7 @@ public class AgentEventServer extends Thread {
     public void shutdown() {
         /* Stop main loop. */
         allowedToRun = false;
-        for (int i = 0; !stopped; yield()); /* now wait until stopped. */
+        for (; !stopped; yield());  /* now wait until stopped. */
         
         /* Shutdown. */
         System.out.println(nm + ": Shutting down server on port " +
@@ -204,6 +204,7 @@ public class AgentEventServer extends Thread {
         }
     }
     
+    // TODO: perhaps return a bool to check if successfull?
     public synchronized void sendEvent(String event) {
         try {
             outToClient.writeBytes(event);

@@ -4,10 +4,16 @@
 package testutils;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.Callable;
 
 /**
- *
+ * A parent class providing a miniature test framework for testing
+ * code that uses an agent to perform instrumentation.
+ * 
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
 public class TransformerTest {
@@ -17,12 +23,12 @@ public class TransformerTest {
             TestClassLoader.genLdPolicyByPkg();
     
     /**
-     * Prepares a custom class loader for each test so that each test can have
-     * a new clean environment.
+     * Resets the class loader field to provide a new one for each test
+     * resulting in a new test environment per test method.
      */
-    // TODO: Test whether cl is different if test run concurrently.
+    // TODO: Test if cl is different for each test when they run concurrently.
     @org.junit.Before
-    public void provideChildCL() {
+    public void setupPerTestCl() {
         cl = new TestClassLoader(loadPolicy);   /* A new cl for each test */
     }
     
@@ -46,35 +52,52 @@ public class TransformerTest {
         rInst.run();
     }
     
-    protected void runtimeSetup(Runnable r) {
-        /* Load given class throug the newly created cl */
-        Class<?> clazz = null;
+    /**
+     * TODO: Is type safe?
+     * Provides an convenient way to config a per-test-method runtime setup
+     * by loading a Runnable implementation into the newly created classloader
+     * for the test (created by setupPerTestCl). Achieved by creating an
+     * instance and executing its run using reflection.
+     * @param r the Runnable implementation. Can be an anonymous inner class.
+     */
+    protected <T extends Object> T runtimeSetup(Callable<T> clbl) {
         try {
-            clazz = cl.loadClass(r.getClass().getName());
-        } catch (ClassNotFoundException e) {
-            System.out.println("could not load class >>>"); // TODO: remove
-            throw new RuntimeException(e);
-        }
-        
-        TransformerTest outerObj = new TransformerTest();
-        Constructor constructor;
-        
-        try {
-            System.out.println(clazz);
-            System.out.println(clazz.getDeclaredConstructors());
-            System.out.println(clazz.getDeclaredConstructors().length);
-            constructor = clazz.getDeclaredConstructors()[0];
-            constructor.setAccessible(true);
-
+            /* Load given class throug the cl. */
+            Class<?> clazz = cl.loadClass(clbl.getClass().getName());
+            
+            /* Get (default) constructor. */
+            Constructor cnstr = clazz.getDeclaredConstructors()[0];
+            cnstr.setAccessible(true);
+            
+            if (cnstr.getParameterTypes().length > 1) {
+                throw new RuntimeException("Test inner callables do not " +
+                        "allow local variable argument passing due to " +
+                        "type incompatibility between classloaders.");
+            /*
+             TODO: recreate newClbl instance with arguments from clbl
+            ArrayList<Object> args = new ArrayList<Object>();
+            for (int i = 0; i < cnstr.getParameterTypes().length; i++) {
+                args.add(null);
+            }
+            // Set instance fields
+            System.out.println("FIELDS:");
+            for (Field f: newClbl.getClass().getDeclaredFields()) {
+                System.out.print(f.getName()+", ");
+                
+                Field newF = clazz.getField(f.getName());
+                Class<?> type = f.getType();
+                newF.set(newClbl, type.cast(f.get(clbl)));
+            }
+            System.out.println();
+            */
+            }
+            
+            /* Create new instance passing null for the outer object arg. */
+            Callable newClbl = (Callable) cnstr.newInstance(new Object[]{null});
+            
+            return (T) newClbl.call();  /* Execute setup. */
         } catch (Exception e) {
             e.printStackTrace(System.out);
-            throw new RuntimeException(e);
-        }
-        try {
-            /*  */
-            Runnable innerObj = (Runnable) constructor.newInstance(new Object[]{null});
-            innerObj.run();
-        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
