@@ -19,14 +19,12 @@ import org.junit.Assert;
 import org.junit.Test;
 import testutils.TransformerTest;
 
-
 // TODO: test InsnOggsetVisitor, InstanceCreationTracker (for concurrency &
 // consistency), InstanceCreationVisitor (test directly if possible), XMLWriter,
 // Settings (for concurrency).
 
 // TODO: add control over instrumentation of innter callables (all are currently
 // instrumented).
-
 
 /**
  * A class containing tests for the dapij package.
@@ -105,31 +103,23 @@ public class TransformationTest extends TransformerTest {
                 icsR.getThreadId());   /* currently a meaningless assert */
     }
 
-    public static TestEventClient startEventClient() {
+    public static TestEventClient setupEventClient() {
         final TestEventClient tec = new TestEventClient(CommsProto.host,
                 CommsProto.port);
         tec.setDaemon(true);
-        
-        /* For gracefully shutdown when user program ends. */
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                tec.shutdown();
-            }
-        });
-        tec.start(); /* Start client. */
         return tec;
     }
     
     /*
      * Test agent's EventServer with a test EventClient on HelloAzura::main();.
-     */   
+     */
     @Test
     public void agentEventServerTest() throws Exception {
         
         /* Start a client first to receive and process events & get its ref. */
-        TestEventClient tec = startEventClient();
-
+        TestEventClient tec = setupEventClient();
+        tec.start(); /* Start client. */
+        
         runtimeSetup(new Callable<Object>() {
             @Override
             public Object call() throws Exception {
@@ -137,7 +127,8 @@ public class TransformationTest extends TransformerTest {
                  * Start a server to recv & fwd events to a single client.
                  * This call will block until client connected.
                  */
-                AgentEventServer aes = Agent.startEventServer();
+                AgentEventServer aes = Agent.setupEventServer();
+                aes.start();
                 HelloAzura.main(new String[]{});    /* Call with not args. */
                 aes.shutdown();
                 return null;

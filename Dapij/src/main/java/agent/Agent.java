@@ -16,7 +16,15 @@ public class Agent {
     public static void premain(String argString, Instrumentation inst)
             throws IOException {
         handleArgs(argString);  /* format, read & processs arguments */
-        startEventServer();
+        final AgentEventServer aes = setupEventServer();
+        /* For gracefully shutdown when user program ends. */
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                aes.shutdown();
+            }
+        });
+        aes.start(); /* Start server. */
         inst.addTransformer(new transform.Transformer());
     }
 
@@ -46,7 +54,7 @@ public class Agent {
      * Blocks until a client connects & starts, in a different thread, a server 
      * passing to it the created sockets.
      */
-    public static AgentEventServer startEventServer() {
+    public static AgentEventServer setupEventServer() {
         ServerSocket srvSock = null;
         Socket conn = null;
         String nm = AgentEventServer.nm;
@@ -75,18 +83,10 @@ public class Agent {
                     " not start! Execution abroted.\n");
         }
         
-        final AgentEventServer aes = new AgentEventServer(srvSock, conn);
+        AgentEventServer aes = new AgentEventServer(srvSock, conn);
         aes.setDaemon(true);
         Settings.INSTANCE.setEventServer(aes);
-
-        /* For gracefully shutdown when user program ends. */
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                aes.shutdown();
-            }
-        });
-        aes.start(); /* Start server. */
+        
         return aes;
     }
 }

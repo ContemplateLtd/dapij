@@ -1,10 +1,9 @@
 package transform;
 
-
 /*
- * TODO: enter meaningful info
+ * TODO: This class is no longer needed, remove when a substitute is written
+ * as a test
  */
-
 
 /**
  *
