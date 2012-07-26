@@ -80,9 +80,7 @@ public class StatsCollector extends ClassVisitor {
         BreakpointVisitor bpv = new BreakpointVisitor(mv, sourceFile);
         //InstanceAccessVisitor iav = new InstanceAccessVisitor(bpv);
         InstanceCreationVisitor icv = new InstanceCreationVisitor(bpv, name);
-        /* InsnOffsetVisitor */ mv = new InsnOffsetVisitor(icv); /* overwrite */
-        icv.setInsnOffsetCounter((InsnOffsetVisitor) mv);
-        
+        mv = new InsnOfstProvider(icv); /* create the provider icv requires */
         return mv;
     }
 }

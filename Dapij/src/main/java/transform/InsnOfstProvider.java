@@ -17,12 +17,13 @@ import org.objectweb.asm.Opcodes;
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class InsnOffsetVisitor extends MethodVisitor {
+public class InsnOfstProvider extends MethodVisitor {
   
     private int insnOfst = -1;
 
-    public InsnOffsetVisitor(MethodVisitor mv) {
-        super(Opcodes.ASM4, mv);
+    public InsnOfstProvider(InsnOfstReader mvIof) {
+        super(Opcodes.ASM4, mvIof);
+        mvIof.setInsnOfsetProvider(this);
     }
 
     /**
@@ -31,7 +32,7 @@ public class InsnOffsetVisitor extends MethodVisitor {
      * @return An integer value representing the number of instructions in
      * the visited method before the current instruction being visited.
      */
-    public int getInsnOffset() {
+    public int getInsnOfst() {
         return insnOfst;
     }
     

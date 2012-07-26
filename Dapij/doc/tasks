@@ -2,37 +2,61 @@
 # a particular task can notify other people by putting his id at the beginning of the
 # same line where the task specification begins.
 
+DEVELOPERS:
+
 Marcin Szymczak <mpszymczak@gmail.com>
 id: MS
 
 Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
 id: NP
 
-V - done
-X - not yet done
+NOTATION GUIDE:
+
+	[x]. Section
+		x.x[prio] Subsection
+			- comment
+			* task
+
+Priorities:
+r - urgent important features
+y - could be delayed, by eventually needed
+g - not urgent, additional features
+
+Completeness:
+X	- not yet implemented
+~	- in development
+~V	- working, but needs improvement (functionality/performance)
+V	- implemented
+
+TASKS:
 
 	[1]. Architecture
-NP			1.1	Implement a java server that streams *events to a network port
+NP			1.1	Implement a agent server that streams *events to a network port
 			V	* The server is created in a daemon thread that is started in the agent's premain method.
 			V	* The premain method will block on an accept() call until a client connects (so that
-					the user program doeasn't start until a client is ready to receive the messages).
+					the user program doesn't start until a client is ready to receive the messages).
 			V	* The user thread will invoke server method calls that directly send the messages to
 					the clients (relying on the OS network buffers) using send()**.
 			V	* Add a ShutdownHook (a thread object) to Runtime that flushes the queues (perhaps
 					by just calling close() on the connection) to guarantee that all messages are
 					 delivered to the connected client.
 
-				** Carefully choose the send function (to guarantee ordered messages).
+			~V	** Implement send function properly (to guarantee ordered messages).
 
 			1.2	Implement a consumer API (e.g. using the Visitor pattern)
+				* A client that accepts events from the agent event server (an event reader).
+				* Event visitors for processing different events.
 			1.3	Establish a protocol (message format) for the events
 
 			*events - object creation, thread accesses to objects (class method invocation, filed access)
 
 	[2]. Testing
-			2.1	Test communication architecture & protocol
+NP			2.1. Fix testing framework
+			~V	* Provide support for loading & instrumenting policies per package (test/main).
+			
+NP			2.2	Test communication architecture & protocol
 
-	[3]. Agent
+	[3]. Agent features
 MS			3.1	Implement object identification (either in map or in inserted field)
 MS			3.2	Research the approach of adding a field to java.lang.Object
 				- this is better as it is centralised, but might introduce other problems
@@ -47,4 +71,4 @@ MS			3.2	Research the approach of adding a field to java.lang.Object
 				- use a concurrent HashMap
 				- use synchronised setters
 
-	[5]. Proper logging
+	[5]. Proper logging?

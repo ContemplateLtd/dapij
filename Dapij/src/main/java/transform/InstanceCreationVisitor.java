@@ -13,11 +13,10 @@ import org.objectweb.asm.Type;
  *
  * @author Marcin Szymczak <mpszymczak@gmail.com>
  */
-public class InstanceCreationVisitor extends MethodVisitor {
+public class InstanceCreationVisitor extends InsnOfstReader {
 
     /* Stats for the object creation currently detected */
     private String creatorMethod;   /* name of method where creation occured */
-    private InsnOffsetVisitor offsetCounter;
     
     /**
      * A stack for handling nested NEW-INVOKEVIRTUAL instruction patterns met
@@ -28,38 +27,46 @@ public class InstanceCreationVisitor extends MethodVisitor {
 
     /**
      * A wrapper of object creation information. Used to compose the
-     * entries of objectCreationStack.
+     * entries of instanceCreationStack.
      */
-    private class StackElement {
-        public Type type;
-        public String method;
-        public int offset;
+    private final class StackElement {
+        private Type type;
+        private String method;
+        private int offset;
         
         public StackElement(Type type, String method, int offset) {
             this.type = type;
             this.method = method;
             this.offset = offset;
         }
+        
+        public Type getType() {
+            return type;
+        }
+        public String getMethod() {
+            return method;
+        }
+        public int getOfst() {
+            return offset;
+        }
     }
  
     public InstanceCreationVisitor(MethodVisitor mv, String name) {
-        super(Opcodes.ASM4, mv);
+        super(mv);
         this.creatorMethod = name;
         objectCreationStack = new Stack<StackElement>();
     }
     
     /**
-     * A reference to a InsnOffsetVisitor has to be passed to each object of
-     * this type before any other of it's methods are called. This creates
-     * backward access in the chain of visitors.
+     * Collects information, pushes it on a objectCreationStack & loads the 
+     * necessary refs on the stack. This provides the necessary data for an
+     * object creation detection when the matching INVOKEVIRTUAL instruction
+     * is visited (i.e. when the created instance has been initialised).
      * 
-     * @offstCntr The method visitor that calculates the correct instruction
-     * offsets prior to delegating to an instance of this class.
+     * instruction until .
+     * @param opcode
+     * @param type 
      */
-    public void setInsnOffsetCounter(InsnOffsetVisitor offsetCounter) {
-        this.offsetCounter = offsetCounter;
-    }
-
     @Override
     public void visitTypeInsn(int opcode, String type) {
         
@@ -75,7 +82,7 @@ public class InstanceCreationVisitor extends MethodVisitor {
          */
         Type t = Type.getObjectType(type);
         objectCreationStack.push(new StackElement(t, creatorMethod,
-                offsetCounter.getInsnOffset()));
+                getInsnOfst()));
 
         /* create reference of object being created */
         mv.visitTypeInsn(opcode, type);
@@ -84,6 +91,10 @@ public class InstanceCreationVisitor extends MethodVisitor {
         mv.visitInsn(Opcodes.DUP);
     }
     
+    /**
+     * Pops information from objectCreationStack & injects code to create an
+     * event that registers the a newly created & instantiated instance.
+     */
     @Override
     public void visitMethodInsn(int opcode, String owner, String name,
             String desc) {

@@ -73,23 +73,6 @@ public class TransformerTest {
                 throw new RuntimeException("Test inner callables do not " +
                         "allow local variable argument passing due to " +
                         "type incompatibility between classloaders.");
-            /*
-             TODO: recreate newClbl instance with arguments from clbl
-            ArrayList<Object> args = new ArrayList<Object>();
-            for (int i = 0; i < cnstr.getParameterTypes().length; i++) {
-                args.add(null);
-            }
-            // Set instance fields
-            System.out.println("FIELDS:");
-            for (Field f: newClbl.getClass().getDeclaredFields()) {
-                System.out.print(f.getName()+", ");
-                
-                Field newF = clazz.getField(f.getName());
-                Class<?> type = f.getType();
-                newF.set(newClbl, type.cast(f.get(clbl)));
-            }
-            System.out.println();
-            */
             }
             
             /* Create new instance passing null for the outer object arg. */
