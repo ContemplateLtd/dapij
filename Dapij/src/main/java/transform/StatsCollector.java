@@ -1,5 +1,5 @@
 /*
- * TODO: enter meaningful info
+ * TODO: doc comment
  */
 package transform;
 
@@ -9,13 +9,14 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
- *
+ * A class visitor for instrumenting client programs that allows the agent to
+ * collect various data during execution of these programs for the purpose of 
+ * dynamic analysis.
+ * 
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
 public class StatsCollector extends ClassVisitor {
     
-    private String sourceFile;    
-
     public StatsCollector(ClassVisitor cv) {
         super(Opcodes.ASM4, cv);
     }
@@ -40,7 +41,7 @@ public class StatsCollector extends ClassVisitor {
          * diff file are available in ${basedir}/doc/class-constants-issue
          * directory.
          * 
-         * TODO: This fix might be the case of additional (unforeseen) errors.
+         * TODO: This fix might be the case of additional unforeseen errors.
          */
         ArrayList<Integer> javaVersions = new ArrayList<Integer>();
         javaVersions.add(Integer.valueOf(Opcodes.V1_1));
@@ -50,16 +51,9 @@ public class StatsCollector extends ClassVisitor {
         if (javaVersions.contains(version)) {
             version = Opcodes.V1_5;
         }
-        
         cv.visit(version, access, name, signature, superName, interfaces);
     }
-    
-    @Override
-    public void visitSource(String source, String debug) {
-        sourceFile = source;    /* Obtain name of source file */
-        cv.visitSource(source, debug);
-    }
-    
+
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc,
             String signature, String[] exceptions) {
@@ -77,10 +71,10 @@ public class StatsCollector extends ClassVisitor {
          * InsnOffsetVisitor -> InstanceCreationVisitor ->
          *      /" InstanceAccessVisitor "/ -> BreakpointVisitor
          */
-        BreakpointVisitor bpv = new BreakpointVisitor(mv, sourceFile);
         //InstanceAccessVisitor iav = new InstanceAccessVisitor(bpv);
-        InstanceCreationVisitor icv = new InstanceCreationVisitor(bpv, name);
-        mv = new InsnOfstProvider(icv); /* create the provider icv requires */
+        InstCreatVistr icv = new InstCreatVistr(mv, name);
+        mv = new InsnOfstProvdr(icv); /* create the provider icv requires */
+        
         return mv;
     }
 }

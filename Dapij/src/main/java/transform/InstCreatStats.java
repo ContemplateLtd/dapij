@@ -1,23 +1,22 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * TODO: doc comment
  */
 package transform;
 
 /**
- * Container for info stored upon detection of a newly created instance in the
- * instrumented code.
+ * Container for info stored upon detection of newly created instances during
+ * execution of instrumented client programs.
  * 
  * @author Marcin Szymczak <mpszymczak@gmail.com>
  */
-public class InstanceCreationStats {
+public class InstCreatStats {
     
     private Class clazz;
     private String method;
     private int offset;
     private long threadId;
     
-    public InstanceCreationStats(Class clazz, String method, int offset,
+    public InstCreatStats(Class clazz, String method, int offset,
             long threadId) {
         this.clazz = clazz;
         this.method = method;

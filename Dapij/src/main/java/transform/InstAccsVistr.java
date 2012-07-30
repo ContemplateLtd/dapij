@@ -1,25 +1,25 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * TODO: doc comment
  */
 package transform;
 
-import agent.ObjectStack;
-import agent.RuntimeEventRegister;
+import agent.ArgStack;
+import agent.RuntmEventSrc;
 import java.util.HashMap;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * Injects code for generating events when instances are accessed across
- * threads.
+ * Injects code for generating events when instances are being accessed. The
+ * events contain a thread identifier for later (concurrency) analysis that
+ * allows identifying instances accessed from threads that did not create them.
  * 
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class InstanceAccessVisitor extends MethodVisitor {
+public class InstAccsVistr extends MethodVisitor {
     
-    public InstanceAccessVisitor(MethodVisitor mv) {
+    public InstAccsVistr(MethodVisitor mv) {
         super(Opcodes.ASM4, mv);
     }
     
@@ -57,8 +57,8 @@ public class InstanceAccessVisitor extends MethodVisitor {
             for (int i = argTypes.length - 1; i >= 0; i--) {
                 Type argType = argTypes[i];
                 mv.visitFieldInsn(Opcodes.GETSTATIC,
-                        Type.getInternalName(ObjectStack.class), "INSTANCE",
-                        Type.getDescriptor(ObjectStack.INSTANCE.getClass()));
+                        Type.getInternalName(ArgStack.class), "INSTANCE",
+                        Type.getDescriptor(ArgStack.INSTANCE.getClass()));
                 
                 if (twoSlotArgFuncMap.containsKey(argType)) {
                     mv.visitInsn(Opcodes.DUP_X2);   /* fancy swap if 2 slots */
@@ -73,18 +73,18 @@ public class InstanceAccessVisitor extends MethodVisitor {
                 }
                 
                 mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                        Type.getInternalName(ObjectStack.class), "push",
+                        Type.getInternalName(ArgStack.class), "push",
                         Type.getMethodDescriptor(Type.VOID_TYPE, argType));
             }
             mv.visitInsn(Opcodes.DUP);
             
-            injectRegAccessCall();  /* Register this access. */
+            injectFireAccsEvent();  /* Register this access. */
             
             /* Push the arguments back on the stack */
             for (Type argType : argTypes) {
                 mv.visitFieldInsn(Opcodes.GETSTATIC,
-                        Type.getInternalName(ObjectStack.class), "INSTANCE",
-                        Type.getDescriptor(ObjectStack.INSTANCE.getClass()));
+                        Type.getInternalName(ArgStack.class), "INSTANCE",
+                        Type.getDescriptor(ArgStack.INSTANCE.getClass()));
                 
                 boolean supportedType = true;
                 String func = "popObj";
@@ -97,7 +97,7 @@ public class InstanceAccessVisitor extends MethodVisitor {
                 }
 
                 mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                        Type.getInternalName(ObjectStack.class), func,
+                        Type.getInternalName(ArgStack.class), func,
                         Type.getMethodDescriptor((supportedType) ?
                                 argType : Type.getType(Object.class)));
                 
@@ -116,7 +116,7 @@ public class InstanceAccessVisitor extends MethodVisitor {
             String desc) {
         if (opcode == Opcodes.GETFIELD) {
             mv.visitInsn(Opcodes.DUP);      /* Dup if arg is an obj ref. */
-            injectRegAccessCall();
+            injectFireAccsEvent();
 
         } else if (opcode == Opcodes.PUTFIELD) {
             Type type = Type.getType(desc);
@@ -127,25 +127,30 @@ public class InstanceAccessVisitor extends MethodVisitor {
                 mv.visitInsn(Opcodes.DUP2_X1);
                 mv.visitInsn(Opcodes.POP2);
                 mv.visitInsn(Opcodes.DUP_X2);
-                injectRegAccessCall();
+                injectFireAccsEvent();
             } else {
                 mv.visitInsn(Opcodes.SWAP); /* Swap value and obj ref. */
                 mv.visitInsn(Opcodes.DUP);  /* Dup obj ref to pass as arg. */
-                injectRegAccessCall();
+                injectFireAccsEvent();
                 mv.visitInsn(Opcodes.SWAP); /* swap back */
             }
         }
         mv.visitFieldInsn(opcode, owner, name, desc);
     }
     
-    private void injectRegAccessCall() {
+    private void injectFireAccsEvent() {
         /* 
          * Get a reference to InstanceCreationTracker and put it on the
          * bottom
          */
         mv.visitFieldInsn(Opcodes.GETSTATIC,
-                Type.getInternalName(RuntimeEventRegister.class), "INSTANCE",
-                Type.getDescriptor(RuntimeEventRegister.INSTANCE.getClass()));
+                Type.getInternalName(RuntmEventSrc.class), "INSTANCE",
+                Type.getDescriptor(RuntmEventSrc.INSTANCE.getClass()));
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                Type.getInternalName(RuntmEventSrc.INSTANCE.getClass()),
+                "getAccsEventSrc",
+                Type.getMethodDescriptor(Type.getType(CreatEventSrc.class)));
+        
         mv.visitInsn(Opcodes.SWAP);
 
         /* get the thread ID */
@@ -158,7 +163,7 @@ public class InstanceAccessVisitor extends MethodVisitor {
 
         /* register object access */
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                Type.getInternalName(RuntimeEventRegister.class), "regAccess",
+                Type.getInternalName(RuntmEventSrc.class), "regAccess",
                 Type.getMethodDescriptor(Type.getType(void.class),
                         Type.getType(Object.class),
                         Type.getType(long.class)));

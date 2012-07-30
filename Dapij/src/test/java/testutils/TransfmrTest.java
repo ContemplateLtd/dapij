@@ -4,19 +4,19 @@
 package testutils;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 
 /**
- * A parent class providing a miniature test framework for testing
- * code that uses an agent to perform instrumentation.
+ * A class that provides utilities (via subclassing) to test methods to test
+ * classes for easier testing of agent code that performs instrumentation. As
+ * a part of a small testing framework for testing agent code that performs
+ * instrumentation, this class allows creating & customising a clean isolated
+ * test environment for each test method of a test class.
  * 
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class TransformerTest {
+public class TransfmrTest {
 
     protected ClassLoader cl;   /* set to a new instance for each test mwthod */
     private static HashMap<String, PkgLdPolicy> loadPolicy =
@@ -38,7 +38,6 @@ public class TransformerTest {
         try {
             clazz = cl.loadClass(name);
         } catch (ClassNotFoundException e) {
-            System.out.println("could not load class >>>"); // TODO: remove
             throw new RuntimeException(e);
         }
         
@@ -53,7 +52,6 @@ public class TransformerTest {
     }
     
     /**
-     * TODO: Is type safe?
      * Provides an convenient way to config a per-test-method runtime setup
      * by loading a Runnable implementation into the newly created classloader
      * for the test (created by setupPerTestCl). Achieved by creating an
@@ -74,11 +72,11 @@ public class TransformerTest {
                         "allow local variable argument passing due to " +
                         "type incompatibility between classloaders.");
             }
-            
+
             /* Create new instance passing null for the outer object arg. */
             Callable newClbl = (Callable) cnstr.newInstance(new Object[]{null});
             
-            return (T) newClbl.call();  /* Execute setup. */
+            return (T) newClbl.call();  /* Execute test setup. */
         } catch (Exception e) {
             e.printStackTrace(System.out);
             throw new RuntimeException(e);

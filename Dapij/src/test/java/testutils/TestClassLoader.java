@@ -13,12 +13,14 @@ import java.util.HashMap;
 import org.apache.commons.io.FileUtils;
 import plugin.PluginIJ;
 import transform.StatsCollector;
+import static transform.Transfmr.transformClass;
 import transform.TransformationTest;
-import static transform.Transformer.transformClass;
-
 
 /**
- * TODO: doc comment
+ * A custom classloader for loading & instrumenting classes based on predefined
+ * load policies. As a part of a small testing framework for testing agent code
+ * that performs instrumentation, this class provides the ability to clean
+ * isolated test environments for the test methods of a test class.
  */
 public class TestClassLoader extends ClassLoader {
     
@@ -26,11 +28,10 @@ public class TestClassLoader extends ClassLoader {
     private static File mainClsRt = classpathRoot(Agent.class);
     
     /* Test classes root */
-    private static File tstClsRt = classpathRoot(TransformerTest.class);
+    private static File tstClsRt = classpathRoot(TransfmrTest.class);
     
     /* proj pkg dirs & flags indicating wheter to instument their classes */
     private HashMap<String, PkgLdPolicy> pkgLdPolicies;
-
 
     public TestClassLoader(HashMap<String, PkgLdPolicy> pkgLdPolicies) {
         this.pkgLdPolicies = pkgLdPolicies;
@@ -67,17 +68,12 @@ public class TestClassLoader extends ClassLoader {
              * If not found or load policy specifies parent-first loading,
              * use parent or system cl (if no parent available) to load class.
              */
-            boolean chld = true;    // TODO: remove + usages
             if (c == null) {
                 ClassLoader cl = (getParent() != null) ?
                         getParent() : getSystemClassLoader();
                 c = cl.loadClass(clsBinName);
-                chld = false;
             }
-            //TODO: Remove commet + boolean variable
-//            /System.out.println("LD in-"+((chld) ? "child" : "parent")+((p != null && p.isInstrumented()) ? " [inst] " : " ")+clsBinName);
         }
-        
         if (resolve) {
           resolveClass(c);
         }
@@ -133,6 +129,7 @@ public class TestClassLoader extends ClassLoader {
         if (testCls.exists()) {
             pkgFP = testCls.getParentFile(); /* Return package full path. */
         }
+        
         return pkgFP;
     }
     
@@ -144,6 +141,7 @@ public class TestClassLoader extends ClassLoader {
      * @returns The package loading policy or null if no policy found.
      */
     private PkgLdPolicy getClsLdPolicy(File pkgFP) {
+        
         /* If in project classes, search & return policy (or null if none). */
         return (pkgFP != null && pkgLdPolicies.containsKey(pkgFP.getPath())) ?
                 pkgLdPolicies.get(pkgFP.getPath()) : null;
@@ -168,14 +166,12 @@ public class TestClassLoader extends ClassLoader {
             /* agent package - child-fst, don't instr */
             File pkgFP = new File(mainClsRt, binNmToPth(Agent.class.getName()))
                     .getParentFile();
-            pkgLdPolicies.put(pkgFP.getPath(),
-                    new PkgLdPolicy(true, false));
+            pkgLdPolicies.put(pkgFP.getPath(), new PkgLdPolicy(true, false));
 
             /* comms package - child-fst, don't instr */
             pkgFP = new File(mainClsRt, binNmToPth(CommsProto.class.getName()))
                     .getParentFile();
-            pkgLdPolicies.put(pkgFP.getPath(),
-                    new PkgLdPolicy(true, false));
+            pkgLdPolicies.put(pkgFP.getPath(), new PkgLdPolicy(false, false));
 
             /* NOTE: currently not used, change in future */
             /* Get package full path & set policy - child-fst, don't instr */
@@ -198,6 +194,7 @@ public class TestClassLoader extends ClassLoader {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        
         return pkgLdPolicies;
     }
     
@@ -209,7 +206,8 @@ public class TestClassLoader extends ClassLoader {
     private static File classpathRoot(Class<?> clazz) {
         try {
             ProtectionDomain pd = clazz.getProtectionDomain();
-            return new File(pd.getCodeSource().getLocation().toURI());// getCodeSource().getLocation().toURI());
+            
+            return new File(pd.getCodeSource().getLocation().toURI());
         } catch (URISyntaxException ex) {
             throw new RuntimeException(ex);
         }

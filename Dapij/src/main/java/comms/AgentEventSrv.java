@@ -11,39 +11,39 @@ import java.net.Socket;
 import java.net.SocketException;
 
 /**
- *
+ * A server that allows the agent to communicate runtime information to one
+ * external client on the network.
+ * 
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class AgentEventServer extends Thread {
+public class AgentEventSrv extends Thread {
     
-    private ServerSocket srvSock;
-    private int port;
-    private Socket conn;                /* connection to the (single) client */
+    public static final String nm = "AES";
     DataOutputStream outToClient;       /* stream to client */
-    public static final String nm = "AES";   /* thread name */
-    
+    private ServerSocket srvSock;
+    private Socket conn;                /* connection to the (single) client */
+    private int port;
     private int srvSoTimeout;           /* timeout for srvSock.accept() */
     private int connSoTimeout;          /* timeout for recv on client conn */
-    
-    private boolean allowedToRun;       /* true while main loop loops */
-    private boolean stopped;            /* becomes true when main loop ends */
     private int connAttempts = 3;       /* number of attempts to bind to port */
     private int attpemtInterval = 5;    /* time btw attempts (in seconds) */
+    private boolean allowedToRun;       /* true while main loop loops */
+    private boolean stopped;            /* becomes true when main loop ends */
 
-    public AgentEventServer() {
+    public AgentEventSrv() {
         this.allowedToRun = true;
         this.srvSoTimeout = 5;
         this.connSoTimeout = 5;
         setName("agent-event-srv");
     }
     
-    public AgentEventServer(int port) {
+    public AgentEventSrv(int port) {
         this.allowedToRun = true;
         this.stopped = false;
         this.port = port;
     }
     
-    public AgentEventServer(ServerSocket srvSock, Socket conn) {
+    public AgentEventSrv(ServerSocket srvSock, Socket conn) {
         this(srvSock.getLocalPort());
         this.srvSock = srvSock;
         this.conn = conn;
@@ -147,8 +147,8 @@ public class AgentEventServer extends Thread {
     public void run() {
         while (allowedToRun) {
             if (conn != null && conn.isConnected()) {
-                // read (with timeout) from conn & do something with msg
-                yield(); // TODO: remove when receiving implemented
+                // TODO: read (with timeout) from conn & do something with msg
+                yield();
                 continue;
             }
             accept();   /* Wait for client if current conn dropped / not set */
@@ -168,8 +168,8 @@ public class AgentEventServer extends Thread {
         if (srvSock != null && !srvSock.isClosed()) {
             try {
                 srvSock.close();
-            } catch (IOException e) { // TODO: Ignore maybe?
-                System.out.println(nm + ": " + e.getMessage());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
         srvSock = null;
@@ -204,7 +204,6 @@ public class AgentEventServer extends Thread {
         }
     }
     
-    // TODO: perhaps return a bool to check if successfull?
     public synchronized void sendEvent(String event) {
         try {
             outToClient.writeBytes(event);

@@ -3,17 +3,19 @@
  */
 package transform;
 
-import agent.RuntimeEventRegister;
+import agent.RuntmEventSrc;
 import java.util.Stack;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- *
+ * A class for instrumenting client programs that allows the agent to detect
+ * newly created instances during execution of these programs.
+ * 
  * @author Marcin Szymczak <mpszymczak@gmail.com>
  */
-public class InstanceCreationVisitor extends InsnOfstReader {
+public class InstCreatVistr extends InsnOfstReader {
 
     /* Stats for the object creation currently detected */
     private String creatorMethod;   /* name of method where creation occured */
@@ -51,7 +53,7 @@ public class InstanceCreationVisitor extends InsnOfstReader {
         }
     }
  
-    public InstanceCreationVisitor(MethodVisitor mv, String name) {
+    public InstCreatVistr(MethodVisitor mv, String name) {
         super(mv);
         this.creatorMethod = name;
         objectCreationStack = new Stack<StackElement>();
@@ -84,11 +86,8 @@ public class InstanceCreationVisitor extends InsnOfstReader {
         objectCreationStack.push(new StackElement(t, creatorMethod,
                 getInsnOfst()));
 
-        /* create reference of object being created */
-        mv.visitTypeInsn(opcode, type);
-
-        /* duplicate to supply the map key for the regCreation method call */
-        mv.visitInsn(Opcodes.DUP);
+        mv.visitTypeInsn(opcode, type); /* create ref of object being created */
+        mv.visitInsn(Opcodes.DUP);  /* supply map key to fireEvent call */
     }
     
     /**
@@ -118,13 +117,17 @@ public class InstanceCreationVisitor extends InsnOfstReader {
         StackElement currentElem = objectCreationStack.pop();
         
         /*
-         * Push a reference to the InstanceCreationTracker singleton object
-         * to allow for calling it's put instance method (just after visiting
-         * the INVOKESPECIAL that corresponds to the detected NEW).
+         * Push a reference to the CreationEventGenerator object to allow for
+         * calling it's fireEvent instance method (just after visiting
+         * the INVOKESPECIAL insn corresponding to the previously detected NEW).
          */
         mv.visitFieldInsn(Opcodes.GETSTATIC,
-                Type.getInternalName(RuntimeEventRegister.class), "INSTANCE", 
-                Type.getDescriptor(RuntimeEventRegister.INSTANCE.getClass()));
+                Type.getInternalName(RuntmEventSrc.class), "INSTANCE",
+                Type.getDescriptor(RuntmEventSrc.INSTANCE.getClass()));
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                Type.getInternalName(RuntmEventSrc.INSTANCE.getClass()),
+                "getCreatEventSrc",
+                Type.getMethodDescriptor(Type.getType(CreatEventSrc.class)));
         mv.visitInsn(Opcodes.SWAP);
         
         /* push remaining arguments on stack */
@@ -141,8 +144,7 @@ public class InstanceCreationVisitor extends InsnOfstReader {
                 Type.getMethodDescriptor(Type.getType(long.class)));
         
         /*
-         * Put an entry into the (singleton) identity map containing
-         * the created instances info objects to mark this creation.
+         * Put an entry into the concurrent map to record this creation.
          * 
          * TODO: Could the following be a problem - what if the constructor
          * passes a reference to the created object to another thread and
@@ -154,7 +156,7 @@ public class InstanceCreationVisitor extends InsnOfstReader {
                 Type.getType(int.class), Type.getType(long.class));
 
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                Type.getInternalName(RuntimeEventRegister.class),
-                "regCreation", descriptor);
+                Type.getInternalName(CreatEventSrc.class),
+                "fireEvent", descriptor);
     }
 }

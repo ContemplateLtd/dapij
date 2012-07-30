@@ -1,5 +1,5 @@
 /*
- * TODO: Doc comment
+ * TODO: doc comment
  */
 package transform;
 
@@ -11,10 +11,12 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
 /**
- *
+ * A ClassFileTransformer used by the agent to instrument user program classes
+ * upon loading. The classes of this project are filtered and not transformed.
+ * 
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class Transformer implements ClassFileTransformer {
+public class Transfmr implements ClassFileTransformer {
         
     @Override
     public byte[] transform(ClassLoader loader, String className,
@@ -35,10 +37,11 @@ public class Transformer implements ClassFileTransformer {
                 className.startsWith("sun/net/") ||
                 className.startsWith("java/util/")) {
             System.out.println("Did not instument " + className + "!");
+            
             return classfileBuffer;
         }
-        
         System.out.println("Instrumenting " + className + " ...");
+        
         return transformClass(classfileBuffer);
     }
 

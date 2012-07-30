@@ -3,12 +3,14 @@
  */
 package transform;
 
-import agent.Agent;
-import agent.RuntimeEventRegister;
+import static agent.Agent.setupEventSrv;
+import agent.CreatEventNetSndr;
+import agent.InstCreatTracker;
+import agent.RuntmEventSrc;
 import agent.Settings;
-import comms.AgentEventServer;
+import comms.AgentEventSrv;
 import comms.CommsProto;
-import comms.TestEventClient;
+import comms.TestEventClnt;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URISyntaxException;
@@ -17,21 +19,19 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import org.junit.Assert;
 import org.junit.Test;
-import testutils.TransformerTest;
+import testutils.TransfmrTest;
 
-// TODO: test InsnOggsetVisitor, InstanceCreationTracker (for concurrency &
-// consistency), InstanceCreationVisitor (test directly if possible), XMLWriter,
-// Settings (for concurrency).
-
-// TODO: add control over instrumentation of innter callables (all are currently
-// instrumented).
+// TODO: test InsnOfstVisitor, InstanceCreationTracker (for concurrency &
+// consistency), Settings (for concurrency).
+// TODO: add control over instrumentation of innter Callable classes (all
+// are currently instrumented).
 
 /**
- * A class containing tests for the dapij package.
+ * A class containing tests for the dapij.transform package.
  * 
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class TransformationTest extends TransformerTest {
+public class TransformationTest extends TransfmrTest {
     
     /**
      * Tests whether object creations are detected and information about the
@@ -42,6 +42,20 @@ public class TransformationTest extends TransformerTest {
      */
     @Test
     public void constructorIsInstumented() throws Exception {
+        
+        /* Create & get the concurr map keeping track of instance creations. */
+        Map map = runtimeSetup(new Callable<Map>() {
+            @Override
+            public Map call() throws Exception {
+                InstCreatTracker ict = new InstCreatTracker();
+                RuntmEventSrc.INSTANCE.getCreatEventSrc()
+                        .addListener(ict);
+                Field f = ict.getClass().getDeclaredField("instanceMap");
+                f.setAccessible(true);
+                
+                return (Map) f.get(ict);
+            }
+        });
         
         /* Create some objects, get their refs & test if events registered. */
         Object[] refs = runtimeSetup(new Callable<Object[]>() {
@@ -62,110 +76,115 @@ public class TransformationTest extends TransformerTest {
             }
         });
 
-        /* Get concurrent map keeping track of instance creations. */
-        Map map = runtimeSetup(new Callable<Map>() {
-            @Override
-            public Map call() throws Exception {
-                Class regCls = RuntimeEventRegister.INSTANCE.getClass();
-                Field f = regCls.getDeclaredField("instanceMap");
-                f.setAccessible(true);
-                return (Map) f.get(RuntimeEventRegister.INSTANCE);
-            }
-        });
-        
         /* Check if map contains info for the Integer object. */
         Integer i = (Integer) refs[0];
         Assert.assertEquals("Intgr map entry exists", true, map.containsKey(i));
         
         /* Check if info obj fields correct (one by one). */
-        InstanceCreationStats icsI = (InstanceCreationStats) map.get(i);
+        InstCreatStats icsInt = (InstCreatStats) map.get(i);
         Assert.assertEquals("Class corretly read & set", Integer.class,
-                icsI.getClazz());
+                icsInt.getClazz());
         Assert.assertEquals("Method name correctly read & set", "call",
-                icsI.getMethod());
+                icsInt.getMethod());
         Assert.assertEquals("Offset correctly read & set", true,
-                icsI.getOffset() == 3);
+                icsInt.getOffset() == 3);
         Assert.assertEquals("Thread id correctly read & set", 1,
-                icsI.getThreadId());   /* currently a meaningless assert */
+                icsInt.getThreadId());  /* currently a meaningless assert */
         
-        /* TODO: test obj ref from the Runnable inner anonymous object. */
+        /* Check if map contains info for the inner anonymous Runnable obj. */
         Runnable r = (Runnable) refs[1];
         Assert.assertEquals("Rnbl map entry exists", true, map.containsKey(r));
         
          /* Check if info obj fields correct (one by one). */
-         InstanceCreationStats icsR = (InstanceCreationStats) map.get(r);
-        // Not testing class as it's some other innter tpye and not Runnable.
+         InstCreatStats icsRnbl = (InstCreatStats) map.get(r);
+        // Not testing class constant as it's an inner tpye and not Runnable.
         Assert.assertEquals("Method name correctly read & set", "anotherMethod",
-                icsR.getMethod());
+                icsRnbl.getMethod());
         Assert.assertEquals("Offset correctly read & set", true,
-                icsR.getOffset() == 0);
+                icsRnbl.getOffset() == 0);
         Assert.assertEquals("Thread id correctly read & set", 1,
-                icsR.getThreadId());   /* currently a meaningless assert */
+                icsRnbl.getThreadId()); /* currently a meaningless assert */
     }
 
-    public static TestEventClient setupEventClient() {
-        final TestEventClient tec = new TestEventClient(CommsProto.host,
+    /* Starts a test client for receiving events from the agent's server. */
+    public static TestEventClnt setupEventClnt() {
+        final TestEventClnt tec = new TestEventClnt(CommsProto.host,
                 CommsProto.port);
         tec.setDaemon(true);
+        
         return tec;
     }
     
-    /*
-     * Test agent's EventServer with a test EventClient on HelloAzura::main();.
-     */
+    /* Test agent's event server with a test EventClient. */
+    // TODO: move to comms test package
     @Test
     public void agentEventServerTest() throws Exception {
         
         /* Start a client first to receive and process events & get its ref. */
-        TestEventClient tec = setupEventClient();
+        TestEventClnt tec = setupEventClnt();
         tec.start(); /* Start client. */
         
-        runtimeSetup(new Callable<Object>() {
+        AgentEventSrv aes = runtimeSetup(new Callable<AgentEventSrv>() {
             @Override
-            public Object call() throws Exception {
+            public AgentEventSrv call() {
+                
                 /*
-                 * Start a server to recv & fwd events to a single client.
-                 * This call will block until client connected.
+                 * Start a srv to recv & fwd events to a single client. Call
+                 * blocks until client connected.
                  */
-                AgentEventServer aes = Agent.setupEventServer();
+                AgentEventSrv aes = setupEventSrv();
+                
+                /* Add a listener to send events to the server. */
+                RuntmEventSrc.INSTANCE.getCreatEventSrc()
+                        .addListener(new CreatEventNetSndr(aes));
                 aes.start();
-                HelloAzura.main(new String[]{});    /* Call with not args. */
-                aes.shutdown();
-                return null;
+                
+                return aes;
             }
         });
+        
+        /* Perform random actions to generate events. */
+        runtimeSetup(new Callable<Object>() {
+            @Override
+            public Object call() {
+               new String("Random test string: " +
+                       new String(String.valueOf(new Integer(5))));
+               
+               return null;
+            }
+        });
+        
+        aes.shutdown();
         tec.shutdown();
-
-        /* TODO: get client ref & check if all event msgs correctly received */
-        Assert.assertEquals("Azura main: ", true, true);  //TODO: fix assertions
+        // TODO: check if all event msgs correctly received.
+        Assert.assertEquals("Azura main: ", true, true);
     }
     
     /**
-     * A test of the Settings singleton class
+     * Tests the Settings singleton class
      * @throws Exception
      */
     @Test
     public void settingsTest() throws Exception {
         Settings s = Settings.INSTANCE;
-        
         String settNm1 = "s1", settVl1 = "v1", settVl2 = "v2";
-        s.setSett(settNm1, settVl1);
+        s.set(settNm1, settVl1);
         
         /* Test wheter setting inserted and can obtain same value2. */
         Assert.assertEquals("Setterly inserted: ", true,
-                s.getSett(settNm1).equals(settVl1));
+                s.get(settNm1).equals(settVl1));
         
         /* Test wheter setting successfully overwritten. */
-        s.setSett(settNm1, settVl2);
+        s.set(settNm1, settVl2);
         Assert.assertEquals("Setterly overwritten: ", true,
-                s.getSett(settNm1).equals(settVl2));
+                s.get(settNm1).equals(settVl2));
         
         /* Test wheter root proejct path is correct. */
         ProtectionDomain pd = this.getClass().getProtectionDomain();
         try {
             File pkgDir = new File(pd.getCodeSource().getLocation().toURI());
             Assert.assertEquals("Is root path valid: ", true,
-                    s.getSett(Settings.SETT_CWD).equals(
+                    s.get(Settings.SETT_CWD).equals(
                             pkgDir.getParentFile().getParent()));
         } catch (URISyntaxException e) {
             System.out.println("Could not obtain project root path.");
@@ -173,9 +192,9 @@ public class TransformationTest extends TransformerTest {
         }
         
         /* Test whether unsetSett properly removes a setting. */
-        s.setSett(settNm1, settVl1);
-        s.unsetSett(settNm1);
+        s.set(settNm1, settVl1);
+        s.rm(settNm1);
         Assert.assertEquals("Settings successfully removed: ", true,
-                s.isSetSett(settNm1) == false);
+                s.isSet(settNm1) == false);
     }
 }

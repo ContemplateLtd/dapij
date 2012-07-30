@@ -10,23 +10,22 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 
 /**
- *
+ * A network client used for testing the agent's network server.
+ * 
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class TestEventClient extends Thread {
+public class TestEventClnt extends Thread {
 
+    private static final String nm = "TEC";
+    private Socket conn;
     private String host;
     private int port;
-    private Socket conn;
     private boolean allowedToRun;
     private boolean stopped;
-    //private int connAttempts = 3;
-    private static final String nm = "TEC";   /* thread name */
-    
     private BufferedReader inFromServer;
     //private DataOutputStream outToServer;
     
-    public TestEventClient(String host, int port) {
+    public TestEventClnt(String host, int port) {
         this.host = host;
         this.port = port;
         this.allowedToRun = true;
@@ -110,7 +109,7 @@ public class TestEventClient extends Thread {
                 }
             } catch (IOException e) {
                 System.out.println(nm + ": Could not read during shutdown ...");
-                throw new RuntimeException(e); // TODO: ignore
+                throw new RuntimeException(e);
             }
         }
         System.out.println(nm + ": Done.");
@@ -136,7 +135,6 @@ public class TestEventClient extends Thread {
         /* Always close inFromServer */
         if (inFromServer != null) {
             try {
-                // TODO: need to read remaining messages from server?
                 inFromServer.close();
             } catch (IOException e) {
                 /* Ignore. */

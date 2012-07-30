@@ -1,6 +1,6 @@
 package agent;
 
-import comms.AgentEventServer;
+import comms.AgentEventSrv;
 import comms.CommsProto;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
@@ -8,7 +8,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 /**
- *
+ * An agent that instruments user programs for the purpose of collecting
+ * runtime data & sending it to external clients for further processing.
+ * 
  * @author Nikolay Pulev
  */
 public class Agent {
@@ -16,7 +18,16 @@ public class Agent {
     public static void premain(String argString, Instrumentation inst)
             throws IOException {
         handleArgs(argString);  /* format, read & processs arguments */
-        final AgentEventServer aes = setupEventServer();
+        final AgentEventSrv aes = setupEventSrv();
+        
+        RuntmEventSrc.INSTANCE.getAccsEventSrc().addListener(
+                new AccsEventNetSndr(aes));
+        RuntmEventSrc.INSTANCE.getCreatEventSrc().addListener(
+                new CreatEventNetSndr(aes));
+        
+        RuntmEventSrc.INSTANCE.getCreatEventSrc().addListener(
+                new InstCreatTracker());
+        
         /* For gracefully shutdown when user program ends. */
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -25,7 +36,7 @@ public class Agent {
             }
         });
         aes.start(); /* Start server. */
-        inst.addTransformer(new transform.Transformer());
+        inst.addTransformer(new transform.Transfmr());
     }
 
     private static void handleArgs(String argString) {
@@ -36,13 +47,8 @@ public class Agent {
             int i = 0;
             while (i < args.length) {
                 
-                /* Set output XML filename if provided. */
-                if (args[i].equals("-o") && i + 1 < args.length) {
-                    Settings.INSTANCE.setSett(Settings.SETT_XML_OUT, args[++i]);
-                }
-                
-                /* If needed, add more arguments here. */
-                //else if (args[i].equals(...)) {
+                /* If needed, add arguments here. */
+                //if (args[i].equals(...)) {
                 //...
                 //}
                 i++;
@@ -54,10 +60,10 @@ public class Agent {
      * Blocks until a client connects & starts, in a different thread, a server 
      * passing to it the created sockets.
      */
-    public static AgentEventServer setupEventServer() {
+    public static AgentEventSrv setupEventSrv() {
         ServerSocket srvSock = null;
         Socket conn = null;
-        String nm = AgentEventServer.nm;
+        String nm = AgentEventSrv.nm;
         /* Attempt to connect 3 times */ // TODO: load from config
         for (int i = 1; i <= 3; i++) {
             try {
@@ -83,9 +89,8 @@ public class Agent {
                     " not start! Execution abroted.\n");
         }
         
-        AgentEventServer aes = new AgentEventServer(srvSock, conn);
+        AgentEventSrv aes = new AgentEventSrv(srvSock, conn);
         aes.setDaemon(true);
-        Settings.INSTANCE.setEventServer(aes);
         
         return aes;
     }

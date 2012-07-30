@@ -1,9 +1,7 @@
 /*
- * TODO: Doc comment.
+ * TODO: doc comment.
  */
 package testutils;
-
-import java.io.File;
 
 /**
  * This is a container for package settings regarding loading and instrumenting
@@ -17,22 +15,14 @@ public class PkgLdPolicy {
     private boolean isChldFst;
     private boolean isInstrum;
     
-    /* TODO: Consider adding this field to allow full pkg identification. */
-    // private File pkgFullPath; // or a field of type Package.
-
     /**
-     * 
-     * @param fullPath A File object that contains the full path of the
-     * package.
      * @param ldInChild A boolean that indicates whether to load in a
      * child-first or parent (or system if no parent) class loader.
      * @param instrument A boolean that indicates whether to instrument or not.
      */
     public PkgLdPolicy(boolean ldInChild, boolean isInstrum) {
         this.isChldFst = ldInChild;     /* true - child; false - parent/sys */
-        
-        /* true - instrument; false - don't */
-        this.isInstrum = isInstrum;
+        this.isInstrum = isInstrum;     /* true - instrument; false - don't */
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * TODO: count instruction offset with a clever approach if possible
+ * TODO: doc comment
  */
 package transform;
 
@@ -17,11 +17,11 @@ import org.objectweb.asm.Opcodes;
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class InsnOfstProvider extends MethodVisitor {
+public class InsnOfstProvdr extends MethodVisitor {
   
     private int insnOfst = -1;
 
-    public InsnOfstProvider(InsnOfstReader mvIof) {
+    public InsnOfstProvdr(InsnOfstReader mvIof) {
         super(Opcodes.ASM4, mvIof);
         mvIof.setInsnOfsetProvider(this);
     }

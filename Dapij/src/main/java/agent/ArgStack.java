@@ -7,15 +7,17 @@ package agent;
 import java.util.Stack;
 
 /**
- *
+ * A stack that temporarily stores stack elements during instrumentation. Used
+ * to provide access to stack entries that are difficult to access.
+ * 
  * @author Marcin Szymczak <mpszymczak@gmail.com>
  */
-public class ObjectStack {
+public class ArgStack {
     
-    public final static ObjectStack INSTANCE = new ObjectStack();
+    public final static ArgStack INSTANCE = new ArgStack();
     private Stack stack;
     
-    private ObjectStack() {
+    private ArgStack() {
         stack = new Stack();
     }
     
