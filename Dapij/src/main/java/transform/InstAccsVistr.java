@@ -19,8 +19,11 @@ import org.objectweb.asm.Type;
  */
 public class InstAccsVistr extends MethodVisitor {
     
-    public InstAccsVistr(MethodVisitor mv) {
+    private String methodName;
+    
+    public InstAccsVistr(MethodVisitor mv, String name) {
         super(Opcodes.ASM4, mv);
+        methodName = name;
     }
     
     @Override
@@ -107,32 +110,45 @@ public class InstAccsVistr extends MethodVisitor {
                 }
             }
         }
-        
+
         mv.visitMethodInsn(opcode, owner, name, desc);
     }
     
     @Override
     public void visitFieldInsn(int opcode, String owner, String name,
             String desc) {
-        if (opcode == Opcodes.GETFIELD) {
-            mv.visitInsn(Opcodes.DUP);      /* Dup if arg is an obj ref. */
-            injectFireAccsEvent();
-
-        } else if (opcode == Opcodes.PUTFIELD) {
-            Type type = Type.getType(desc);
+        
+        /*Register field accesses */
+        /* 
+         * This "if" statement is used to make the agent ignore cases when 
+         * object is accessed from within its own constructor, as they caused 
+         * errors.
+         * See the doc folder for details.
+         */
+        if(!((methodName.equals("<init>"))&&((name.equals("this"))||
+                (name.startsWith("this$"))  ))) {
             
-            /* If 2-slot value on stack, can't just swap. Do this instad. */
-            if (type.equals(Type.LONG_TYPE) ||
-                    type.equals(Type.DOUBLE_TYPE)) {
-                mv.visitInsn(Opcodes.DUP2_X1);
-                mv.visitInsn(Opcodes.POP2);
-                mv.visitInsn(Opcodes.DUP_X2);
+            if (opcode == Opcodes.GETFIELD) {
+                mv.visitInsn(Opcodes.DUP);      /* Dup if arg is an obj ref. */
                 injectFireAccsEvent();
-            } else {
-                mv.visitInsn(Opcodes.SWAP); /* Swap value and obj ref. */
-                mv.visitInsn(Opcodes.DUP);  /* Dup obj ref to pass as arg. */
-                injectFireAccsEvent();
-                mv.visitInsn(Opcodes.SWAP); /* swap back */
+
+            } else if (opcode == Opcodes.PUTFIELD) {
+                Type type = Type.getType(desc);
+                
+                /* If 2-slot value on stack, can't just swap. Do this instad. */
+                if (type.equals(Type.LONG_TYPE) ||
+                        type.equals(Type.DOUBLE_TYPE)) {
+                    mv.visitInsn(Opcodes.DUP2_X1);
+                    mv.visitInsn(Opcodes.POP2);
+                    mv.visitInsn(Opcodes.DUP_X2);
+                    injectFireAccsEvent();
+                } else {
+                    
+                    /* Put a copy of object reference on top*/
+                    mv.visitInsn(Opcodes.DUP2);
+                    mv.visitInsn(Opcodes.POP);
+                    injectFireAccsEvent();
+                }
             }
         }
         mv.visitFieldInsn(opcode, owner, name, desc);
@@ -149,8 +165,7 @@ public class InstAccsVistr extends MethodVisitor {
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                 Type.getInternalName(RuntmEventSrc.INSTANCE.getClass()),
                 "getAccsEventSrc",
-                Type.getMethodDescriptor(Type.getType(CreatEventSrc.class)));
-        
+                Type.getMethodDescriptor(Type.getType(AccsEventSrc.class)));
         mv.visitInsn(Opcodes.SWAP);
 
         /* get the thread ID */
@@ -163,7 +178,7 @@ public class InstAccsVistr extends MethodVisitor {
 
         /* register object access */
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                Type.getInternalName(RuntmEventSrc.class), "regAccess",
+                Type.getInternalName(AccsEventSrc.class), "fireEvent",
                 Type.getMethodDescriptor(Type.getType(void.class),
                         Type.getType(Object.class),
                         Type.getType(long.class)));

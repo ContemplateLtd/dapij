@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 /**
  * A class visitor for instrumenting client programs that allows the agent to
@@ -17,6 +18,8 @@ import org.objectweb.asm.Opcodes;
  */
 public class StatsCollector extends ClassVisitor {
     
+    private String sourceFile;
+
     public StatsCollector(ClassVisitor cv) {
         super(Opcodes.ASM4, cv);
     }
@@ -69,12 +72,18 @@ public class StatsCollector extends ClassVisitor {
         /*
          * CHAIN:
          * InsnOffsetVisitor -> InstanceCreationVisitor ->
-         *      /" InstanceAccessVisitor "/ -> BreakpointVisitor
+         *      InstanceAccessVisitor
          */
-        //InstanceAccessVisitor iav = new InstanceAccessVisitor(bpv);
-        InstCreatVistr icv = new InstCreatVistr(mv, name);
+        InstAccsVistr iav = new InstAccsVistr(mv, name);
+        InstCreatVistr icv = new InstCreatVistr(iav, name);
         mv = new InsnOfstProvdr(icv); /* create the provider icv requires */
-        
         return mv;
+    }
+    
+    @Override
+    public void visitEnd() {
+            cv.visitField(Opcodes.ACC_PUBLIC, "__DAPIJ_ID", Type.INT_TYPE.
+                    getDescriptor(), null, null);
+            cv.visitEnd();
     }
 }
