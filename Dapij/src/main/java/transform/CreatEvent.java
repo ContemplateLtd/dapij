@@ -13,23 +13,14 @@ import java.util.EventObject;
  */
 public class CreatEvent extends EventObject {
     
-    private InstCreatStats stats;
-    private Object ref;
+    private InstCreatData stats;
     
-    public CreatEvent(Object eventSrc, Object ref,
-            InstCreatStats stats) {
+    public CreatEvent(Object eventSrc, InstCreatData stats) {
         super(eventSrc);
-        this.ref = ref;
         this.stats = stats;
     }
 
-    public InstCreatStats getStats() {
+    public InstCreatData getObjData() {
         return stats;
     }
-    
-    public Object getRef() {
-        return ref;
-    }
-
-
 }

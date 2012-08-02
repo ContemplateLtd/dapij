@@ -18,8 +18,6 @@ import org.objectweb.asm.Type;
  */
 public class StatsCollector extends ClassVisitor {
     
-    private String sourceFile;
-
     public StatsCollector(ClassVisitor cv) {
         super(Opcodes.ASM4, cv);
     }
@@ -70,9 +68,7 @@ public class StatsCollector extends ClassVisitor {
         }
         
         /*
-         * CHAIN:
-         * InsnOffsetVisitor -> InstanceCreationVisitor ->
-         *      InstanceAccessVisitor
+         * CHAIN:       InsnOfstVistr -> InstCreatVistr -> InstAccsVistr
          */
         InstAccsVistr iav = new InstAccsVistr(mv, name);
         InstCreatVistr icv = new InstCreatVistr(iav, name);
@@ -82,8 +78,9 @@ public class StatsCollector extends ClassVisitor {
     
     @Override
     public void visitEnd() {
-            cv.visitField(Opcodes.ACC_PUBLIC, "__DAPIJ_ID", Type.INT_TYPE.
-                    getDescriptor(), null, null);
-            cv.visitEnd();
+        // TODO: check for existing field
+        cv.visitField(Opcodes.ACC_PUBLIC, "__DAPIJ_ID",
+                Type.INT_TYPE.getDescriptor(), null, null);
+        cv.visitEnd();
     }
 }

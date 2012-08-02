@@ -1,6 +1,5 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * TODO: doc ocmment
  */
 package agent;
 
@@ -17,22 +16,17 @@ import transform.CreatEventLisnr;
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
 public class CreatEventNetSndr implements CreatEventLisnr {
-        
+    
     AgentEventSrv aes;
     
     public CreatEventNetSndr(AgentEventSrv aes) {
         this.aes = aes;
     }
 
-    /* TODO: Implement, a dummy implementation for now. */
     @Override
     public void handleCreationEvent(CreatEvent e) {
-        /* Compose & send a message over the network to other subscribers. */
-        String msg = CommsProto.constructMsg(e.getStats().toString());
         
-        /* If running, use server to send msg to client. */
-        if (aes != null) {
-            aes.sendEvent(msg);
-        }
+        /* Compose & send a message over to external subscribers. */
+        aes.sendEvent(CommsProto.constructCreatMsg(e.getObjData()));
     }
 }

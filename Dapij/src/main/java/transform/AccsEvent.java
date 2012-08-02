@@ -13,17 +13,17 @@ import java.util.EventObject;
  */
 public class AccsEvent extends EventObject {
     
-    private Object ref;
+    private int objId;
     private long threadId;
     
-    public AccsEvent(Object src, Object ref, long threadId) {
+    public AccsEvent(Object src, int objId, long threadId) {
         super(src);
-        this.ref = ref;
+        this.objId = objId;
         this.threadId = threadId;
     }
 
-    public Object getRef() {
-        return ref;
+    public int getObjId() {
+        return objId;
     }
 
     public long getThreadId() {

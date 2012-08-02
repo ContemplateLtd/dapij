@@ -9,28 +9,43 @@ package transform;
  * 
  * @author Marcin Szymczak <mpszymczak@gmail.com>
  */
-public class InstCreatStats {
+public class InstCreatData {
     
+    private int objId;
     private Class clazz;
     private String method;
     private int offset;
     private long threadId;
     
-    public InstCreatStats(Class clazz, String method, int offset,
+    public InstCreatData(int objId, Class clazz, String method, int offset,
             long threadId) {
+        this.objId = objId;
         this.clazz = clazz;
         this.method = method;
         this.offset = offset;
-        this.threadId = threadId;
+        this.threadId = threadId;/* TODO: Use other data to identify threads? */
     }
     
     @Override
     public String toString() {
-        return ("[cls: " + clazz.getName() + "; mtd: " + method + "; ofs: " +
-                String.valueOf(offset) + "; tId: " + String.valueOf(threadId) +
-                "]");
+        return ("[id: " + getObjId() + "; cls: " + clazz.getName() + "; mtd: " +
+                method + "; ofs: " + offset + "; tId: " + threadId + "]");
     }
 
+    /**
+     * @return the objId
+     */
+    public int getObjId() {
+        return objId;
+    }
+
+    /**
+     * @param objId the objId to set
+     */
+    public void setObjId(int objId) {
+        this.objId = objId;
+    }
+    
     /**
      * @return the clazz
      */

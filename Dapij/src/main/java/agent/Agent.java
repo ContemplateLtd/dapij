@@ -25,9 +25,6 @@ public class Agent {
         RuntmEventSrc.INSTANCE.getCreatEventSrc().addListener(
                 new CreatEventNetSndr(aes));
         
-        RuntmEventSrc.INSTANCE.getCreatEventSrc().addListener(
-                new InstCreatTracker());
-        
         /* For gracefully shutdown when user program ends. */
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -83,12 +80,10 @@ public class Agent {
                 continue;
             }
         }
-        
         if (srvSock == null || conn == null) {
             throw new RuntimeException(nm + ": AgentEventServer: Could" +
                     " not start! Execution abroted.\n");
         }
-        
         AgentEventSrv aes = new AgentEventSrv(srvSock, conn);
         aes.setDaemon(true);
         

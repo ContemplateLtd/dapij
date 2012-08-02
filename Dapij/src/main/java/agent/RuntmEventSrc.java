@@ -16,20 +16,19 @@ public class RuntmEventSrc {
     
     public static final RuntmEventSrc INSTANCE = new RuntmEventSrc();
     
-    private CreatEventSrc ceg;
-    private AccsEventSrc aeg;
+    private CreatEventSrc ces;
+    private AccsEventSrc aes;
     
     private RuntmEventSrc() {
-        ceg = new CreatEventSrc();
-        aeg = new AccsEventSrc();
+        ces = new CreatEventSrc();
+        aes = new AccsEventSrc();
     }
     
     public CreatEventSrc getCreatEventSrc() {
-        return ceg;
+        return ces;
     }
   
     public AccsEventSrc getAccsEventSrc() {
-        /* create objects */
-        return aeg;
+        return aes;
     }
 }

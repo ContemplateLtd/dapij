@@ -27,13 +27,13 @@ public class CreatEventSrc {
         return listeners.remove(l);
     }
 
-    public void fireEvent(Object ref, Class clazz, String method, int offset,
+    public void fireEvent(int objId, Class clazz, String method, int offset,
             long threadId) {
         
         /* Create event */
-        CreatEvent e = new CreatEvent(this, ref,
-                new InstCreatStats(clazz, method, offset, threadId));
-        
+        CreatEvent e = new CreatEvent(this,
+                new InstCreatData(objId, clazz, method, offset, threadId));
+
         /* Notify subscribers. */
         for (CreatEventLisnr el : listeners) {
             el.handleCreationEvent(e);

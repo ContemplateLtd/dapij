@@ -5,7 +5,6 @@ package agent;
 
 import comms.AgentEventSrv;
 import comms.CommsProto;
-import java.lang.reflect.Modifier;
 import transform.AccsEvent;
 import transform.AccsEventLisnr;
 
@@ -24,27 +23,11 @@ public class AccsEventNetSndr implements AccsEventLisnr {
         this.aes = aes;
     }
 
-    /* TODO: Implement, a dummy implementation for now. */
     @Override
     public void handleAccessEvent(AccsEvent e) {
-        int objId;
-        Object ref = e.getRef();
-        long threadId = e.getThreadId();
         
-        objId = ObjectCounter.getId(ref);
-        
-        if(objId == -1) {
-            System.out.println("Error: creation of " + ref + 
-                    " had not been registered");
-            return;
-        }
-        
-        String msg = CommsProto.constructMsg("Object " + objId +
-                " accessed from thread " + threadId);
-        
-        /* Send message to client if event server started */
-        if (aes != null) {
-            aes.sendEvent(msg);
-        }
+        /* Send message to client if event server started. */
+        aes.sendEvent(CommsProto.constructAccsMsg(e.getObjId(),
+                e.getThreadId()));
     }
 }

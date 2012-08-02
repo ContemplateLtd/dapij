@@ -102,8 +102,8 @@ public class AgentEventSrv extends Thread {
             } catch (InterruptedException ex) {
                 /* Ignore. */
             }
-            System.out.println(nm + ": Could not connect, trying again after " +
-                    attpemtInterval + " seconds ...");
+            System.out.println(nm + ": Could not connect, trying again " +
+                    " after " + attpemtInterval + " seconds ...");
         }
         stopped = true;
     }
@@ -204,12 +204,12 @@ public class AgentEventSrv extends Thread {
         }
     }
     
-    public synchronized void sendEvent(String event) {
+    public synchronized void sendEvent(byte[] msg) {
         try {
-            outToClient.writeBytes(event);
+            outToClient.write(msg);
         } catch (IOException e) {
-            // TODO: improve this exception "handgling"
-            System.out.println("Could not send event: '" + event + "'!");
+            // TODO: improve this exception handler
+            System.out.println("Could not send message!");
             throw new RuntimeException(e);
         }
     }

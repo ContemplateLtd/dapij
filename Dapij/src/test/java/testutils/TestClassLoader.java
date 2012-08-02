@@ -5,6 +5,7 @@ package testutils;
 
 import agent.Agent;
 import comms.CommsProto;
+import comms.CommsTest;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -185,9 +186,15 @@ public class TestClassLoader extends ClassLoader {
             pkgLdPolicies.put(pkgFP.getPath(), new PkgLdPolicy(false, false));
 
             /* TEST CLASSES, transform. */
-            /* Get package full path & set policy - parent-fst, don't instr */
+            /* Get package full path & set policy - child-fst, instr */
             pkgFP = new File(tstClsRt,
                             binNmToPth(TransformationTest.class.getName())
+                    ).getParentFile();
+            pkgLdPolicies.put(pkgFP.getPath(), new PkgLdPolicy(true, true));
+            
+            /* Get package full path & set policy - child-fst, instr */
+            pkgFP = new File(tstClsRt,
+                            binNmToPth(CommsTest.class.getName())
                     ).getParentFile();
             pkgLdPolicies.put(pkgFP.getPath(), new PkgLdPolicy(true, true));
         

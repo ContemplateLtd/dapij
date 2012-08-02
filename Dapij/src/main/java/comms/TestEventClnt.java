@@ -4,9 +4,8 @@
  */
 package comms;
 
-import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.Socket;
 
 /**
@@ -22,7 +21,7 @@ public class TestEventClnt extends Thread {
     private int port;
     private boolean allowedToRun;
     private boolean stopped;
-    private BufferedReader inFromServer;
+    private DataInputStream inFromServer;
     //private DataOutputStream outToServer;
     
     public TestEventClnt(String host, int port) {
@@ -43,12 +42,11 @@ public class TestEventClnt extends Thread {
         while (allowedToRun) {
             try {
                 if (conn == null || !conn.isConnected()) {
-                    System.out.println(nm + ": Connectiong to server [" +
+                    System.out.println(nm + ": Connecting to server [" +
                             host + ":" + port + "] ...");
                     conn = new Socket(host, port);
                 }
-                inFromServer = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream(), "UTF-8"));
+                inFromServer = new DataInputStream(conn.getInputStream());
                 System.out.println(nm + ": Done.");
                 break;
             } catch (IOException e) {
@@ -69,8 +67,8 @@ public class TestEventClnt extends Thread {
         while (allowedToRun) {
             try {
                 // TODO: remove this workaround and use a nonblocking socket
-                if (inFromServer.ready()) {
-                    event = inFromServer.readLine();
+                if (inFromServer.available() > 5) {
+                    event = readEvent();
                 } else {
                     try { Thread.sleep(5); } catch (InterruptedException ex) {}
                     continue;
@@ -98,8 +96,8 @@ public class TestEventClnt extends Thread {
         while (true) {
             try {
                 // TODO: remove this workaround and add nonblocking sockets
-                if (inFromServer.ready()) {
-                    event = inFromServer.readLine();
+                if (inFromServer.available() > 5) {
+                    event = readEvent();
                     if (event != null) {
                         System.out.println(nm + ": RCV: " + event);
                         event = null;
@@ -155,5 +153,23 @@ public class TestEventClnt extends Thread {
             }
         }
         */
+    }
+
+    private String readEvent() {
+        String event = null;
+        try {
+            byte type = inFromServer.readByte();
+            int rest = inFromServer.readInt();
+            byte [] msg = new byte[rest];
+            inFromServer.readFully(msg);
+            if (type == CommsProto.TYP_CRT) {
+                event = CommsProto.deconstCreatMsg(msg);
+            } else if (type == CommsProto.TYP_ACC) {
+                event = CommsProto.deconstAccsMsg(msg);
+            }
+        } catch (Exception e) {
+        } finally {
+            return event;
+        }
     }
 }

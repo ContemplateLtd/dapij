@@ -3,7 +3,7 @@
  */
 package transform;
 
-import agent.ObjectCounter;
+import agent.InstIdentifier;
 import agent.RuntmEventSrc;
 import java.util.Stack;
 import org.objectweb.asm.MethodVisitor;
@@ -89,7 +89,6 @@ public class InstCreatVistr extends InsnOfstReader {
 
         mv.visitTypeInsn(opcode, type); /* create ref of object being created */
         mv.visitInsn(Opcodes.DUP);  /* supply map key to fireEvent call */
-        mv.visitInsn(Opcodes.DUP); /* Additional reference for setting ID */
     }
     
     /**
@@ -117,14 +116,6 @@ public class InstCreatVistr extends InsnOfstReader {
                 !top.type.getInternalName().equals(owner)) {
             return;
         }
-        StackElement currentElem = objectCreationStack.pop();
-        
-        mv.visitInsn(Opcodes.SWAP);
-        
-        mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-                Type.getInternalName(ObjectCounter.class), "assignId",
-                Type.getMethodDescriptor(Type.VOID_TYPE,
-                Type.getType(Object.class)));
          
         /*
          * Push a reference to the CreationEventGenerator object to allow for
@@ -138,14 +129,25 @@ public class InstCreatVistr extends InsnOfstReader {
                 Type.getInternalName(RuntmEventSrc.INSTANCE.getClass()),
                 "getCreatEventSrc",
                 Type.getMethodDescriptor(Type.getType(CreatEventSrc.class)));
-        mv.visitInsn(Opcodes.SWAP);
         
-        /* push remaining arguments on stack */
+        /* Get Obj unique id & push. */
+        mv.visitInsn(Opcodes.SWAP); /* Swap to keep obj ref on top. */
+        mv.visitFieldInsn(Opcodes.GETSTATIC,
+                Type.getInternalName(InstIdentifier.class), "INSTANCE",
+                Type.getDescriptor(InstIdentifier.class));
+        mv.visitInsn(Opcodes.SWAP); /* Swap to keep obj ref on top. */
+        
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+        Type.getInternalName(InstIdentifier.class), "getId",
+        Type.getMethodDescriptor(Type.INT_TYPE, Type.getType(Object.class)));
+        
+        /* Push remaining arguments on stack. */
+        StackElement currentElem = objectCreationStack.pop();
         mv.visitLdcInsn(currentElem.type);
         mv.visitLdcInsn(currentElem.method);
         mv.visitLdcInsn(currentElem.offset);
         
-        /* get thread ID & push it */
+        /* Get thread ID & push. */
         mv.visitMethodInsn(Opcodes.INVOKESTATIC,
                 Type.getInternalName(Thread.class), "currentThread",
                 Type.getMethodDescriptor(Type.getType(Thread.class)));
@@ -160,13 +162,13 @@ public class InstCreatVistr extends InsnOfstReader {
          * passes a reference to the created object to another thread and
          * that thread deletes the object (leaked reference)?
          */
-        String descriptor = Type.getMethodDescriptor(
-                Type.getType(void.class), Type.getType(Object.class),
-                Type.getType(Class.class), Type.getType(String.class),
-                Type.getType(int.class), Type.getType(long.class));
+        String descriptor = Type.getMethodDescriptor(Type.getType(void.class),
+                Type.getType(int.class), Type.getType(Class.class),
+                Type.getType(String.class), Type.getType(int.class),
+                Type.getType(long.class));
 
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                Type.getInternalName(CreatEventSrc.class),
-                "fireEvent", descriptor);
+                Type.getInternalName(CreatEventSrc.class), "fireEvent",
+                descriptor);
     }
 }

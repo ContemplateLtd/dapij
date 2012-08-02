@@ -3,6 +3,8 @@
  */
 package testutils;
 
+import comms.CommsProto;
+import comms.TestEventClnt;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
@@ -81,5 +83,14 @@ public class TransfmrTest {
             e.printStackTrace(System.out);
             throw new RuntimeException(e);
         }
+    }
+    
+    /* Starts a test client for receiving events from the agent's server. */
+    public static TestEventClnt setupEventClnt() {
+        final TestEventClnt tec = new TestEventClnt(CommsProto.host,
+                CommsProto.port);
+        tec.setDaemon(true);
+        
+        return tec;
     }
 }

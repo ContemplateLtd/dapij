@@ -4,6 +4,7 @@
 package transform;
 
 import agent.ArgStack;
+import agent.InstIdentifier;
 import agent.RuntmEventSrc;
 import java.util.HashMap;
 import org.objectweb.asm.MethodVisitor;
@@ -25,7 +26,7 @@ public class InstAccsVistr extends MethodVisitor {
         super(Opcodes.ASM4, mv);
         methodName = name;
     }
-    
+
     @Override
     public void visitMethodInsn(int opcode, String owner, String name,
             String desc) {
@@ -36,9 +37,8 @@ public class InstAccsVistr extends MethodVisitor {
             
             /* 
              * To access the object reference, all the arguments have to be
-             * removed first.
+             * removed first. Create useful data structures:
              */
-            /* Create useful data structures */
             HashMap<Type, String> oneSlotArgFuncMap =
                     new HashMap<Type, String>();
             oneSlotArgFuncMap.put(Type.getType(Object.class), "popObj");
@@ -64,8 +64,8 @@ public class InstAccsVistr extends MethodVisitor {
                         Type.getDescriptor(ArgStack.INSTANCE.getClass()));
                 
                 if (twoSlotArgFuncMap.containsKey(argType)) {
-                    mv.visitInsn(Opcodes.DUP_X2);   /* fancy swap if 2 slots */
-                    mv.visitInsn(Opcodes.POP);      /* fancy swap if 2 slots */
+                    mv.visitInsn(Opcodes.DUP_X2);   /* fancy swap if arg */
+                    mv.visitInsn(Opcodes.POP);      /* takes 2 slots */
                 } else {
                     
                     /* Use Object type if argType not supported */
@@ -83,7 +83,7 @@ public class InstAccsVistr extends MethodVisitor {
             
             injectFireAccsEvent();  /* Register this access. */
             
-            /* Push the arguments back on the stack */
+            /* Push the arguments back on the stack. */
             for (Type argType : argTypes) {
                 mv.visitFieldInsn(Opcodes.GETSTATIC,
                         Type.getInternalName(ArgStack.class), "INSTANCE",
@@ -118,15 +118,15 @@ public class InstAccsVistr extends MethodVisitor {
     public void visitFieldInsn(int opcode, String owner, String name,
             String desc) {
         
-        /*Register field accesses */
+        /* Register field accesses */
         /* 
          * This "if" statement is used to make the agent ignore cases when 
          * object is accessed from within its own constructor, as they caused 
          * errors.
          * See the doc folder for details.
          */
-        if(!((methodName.equals("<init>"))&&((name.equals("this"))||
-                (name.startsWith("this$"))  ))) {
+        if(!(methodName.equals("<init>") &&
+                (name.equals("this") || name.startsWith("this$")) )) {
             
             if (opcode == Opcodes.GETFIELD) {
                 mv.visitInsn(Opcodes.DUP);      /* Dup if arg is an obj ref. */
@@ -144,7 +144,7 @@ public class InstAccsVistr extends MethodVisitor {
                     injectFireAccsEvent();
                 } else {
                     
-                    /* Put a copy of object reference on top*/
+                    /* Put a copy of object reference on top. */
                     mv.visitInsn(Opcodes.DUP2);
                     mv.visitInsn(Opcodes.POP);
                     injectFireAccsEvent();
@@ -166,7 +166,17 @@ public class InstAccsVistr extends MethodVisitor {
                 Type.getInternalName(RuntmEventSrc.INSTANCE.getClass()),
                 "getAccsEventSrc",
                 Type.getMethodDescriptor(Type.getType(AccsEventSrc.class)));
-        mv.visitInsn(Opcodes.SWAP);
+        
+                /* Get Obj unique id & push. */
+        mv.visitInsn(Opcodes.SWAP); /* Swap to keep obj ref on top. */
+        mv.visitFieldInsn(Opcodes.GETSTATIC,
+                Type.getInternalName(InstIdentifier.class), "INSTANCE",
+                Type.getDescriptor(InstIdentifier.class));
+        mv.visitInsn(Opcodes.SWAP); /* Swap to keep obj ref on top. */
+        
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+        Type.getInternalName(InstIdentifier.class), "getId",
+        Type.getMethodDescriptor(Type.INT_TYPE, Type.getType(Object.class)));
 
         /* get the thread ID */
         mv.visitMethodInsn(Opcodes.INVOKESTATIC,
@@ -180,7 +190,6 @@ public class InstAccsVistr extends MethodVisitor {
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                 Type.getInternalName(AccsEventSrc.class), "fireEvent",
                 Type.getMethodDescriptor(Type.getType(void.class),
-                        Type.getType(Object.class),
-                        Type.getType(long.class)));
+                        Type.getType(int.class), Type.getType(long.class)));
     }
 }

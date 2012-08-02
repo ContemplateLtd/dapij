@@ -43,8 +43,7 @@ public class Settings {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        
-        //TODO: support loading from config
+        // TODO: support loading from config
         loadSettings(); /* load the rest of the settings */
     }
     

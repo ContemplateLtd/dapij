@@ -26,9 +26,10 @@ public class AccsEventSrc {
         return listeners.remove(l);
     }
 
-    public void fireEvent(Object ref, long threadId) {
+    public void fireEvent(int objId, long threadId) {
+
         /* Create event */
-        AccsEvent e = new AccsEvent(this, ref, threadId);
+        AccsEvent e = new AccsEvent(this, objId, threadId);
         
         for (AccsEventLisnr el : listeners) {
             el.handleAccessEvent(e);

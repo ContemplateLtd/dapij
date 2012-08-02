@@ -3,19 +3,21 @@
  */
 package transform;
 
-import agent.*;
 import static agent.Agent.setupEventSrv;
+import agent.CreatEventNetSndr;
+import agent.InstIdentifier;
+import agent.RuntmEventSrc;
+import agent.Settings;
 import comms.AgentEventSrv;
-import comms.CommsProto;
 import comms.TestEventClnt;
 import java.io.File;
-import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.security.ProtectionDomain;
-import java.util.Map;
+import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import testutils.TransfmrTest;
 
@@ -42,124 +44,88 @@ public class TransformationTest extends TransfmrTest {
     public void constructorIsInstumented() throws Exception {
         
         /* Create & get the concurr map keeping track of instance creations. */
-        Map map = runtimeSetup(new Callable<Map>() {
+        HashMap<Integer, InstCreatData> map = runtimeSetup(
+                new Callable<HashMap<Integer, InstCreatData>>() {
+            
             @Override
-            public Map call() throws Exception {
-                InstCreatTracker ict = new InstCreatTracker();
-                RuntmEventSrc.INSTANCE.getCreatEventSrc()
-                        .addListener(ict);
-                Field f = ict.getClass().getDeclaredField("instanceMap");
-                f.setAccessible(true);
+            public HashMap<Integer, InstCreatData> call() throws Exception {
+                CreatEventLisnr l = new CreatEventLisnr() {
+                    
+                    public HashMap<Integer, InstCreatData> map =
+                            new HashMap<Integer, InstCreatData>();
+                    
+                    @Override
+                    public void handleCreationEvent(CreatEvent e) {
+                        /* Collect creation events' data in a map. */
+                        map.put(e.getObjData().getObjId(), e.getObjData());
+                    }
+                };
+                RuntmEventSrc.INSTANCE.getCreatEventSrc().addListener(l);
                 
-                return (Map) f.get(ict);
+                return (HashMap<Integer, InstCreatData>)
+                        l.getClass().getField("map").get(l);
             }
         });
         
         /* Create some objects, get their refs & test if events registered. */
         Object[] refs = runtimeSetup(new Callable<Object[]>() {
             
-            /* create an object using an inner anonymous class */
+            /* Create & return an annon class instance in a private method. */
             private Runnable anotherMethod() {
                 return new Runnable() {
                     @Override
-                    public void run() {}    /* empty, just an object needed. */
+                    public void run() {}
                 };
             }
             
             @Override
             public Object[] call() {
-                String.valueOf(5);  /* Insert insn to test offset value. */
-                Integer i = new Integer(5); /* Create another simple object. */
+                String.valueOf(5);          /* Insert insn to change ofst. */
+                Integer i = new Integer(5); /* Create object Int. */
+                
                 return new Object[]{i, anotherMethod()};
             }
         });
-
+        
+        Identifier idfr = runtimeSetup(new Callable<Identifier>() {
+            @Override
+            public Identifier call() {
+                return InstIdentifier.INSTANCE;
+            }
+        });
+        
         /* Check if map contains info for the Integer object. */
-        Integer i = (Integer) refs[0];
-        Assert.assertEquals("Intgr map entry exists", true, map.containsKey(i));
+        int i = idfr.getId(refs[0]);
+        assertEquals("Intger map entry exists", true, map.containsKey(i));
         
         /* Check if info obj fields correct (one by one). */
-        InstCreatStats icsInt = (InstCreatStats) map.get(i);
-        Assert.assertEquals("Class corretly read & set", Integer.class,
+        InstCreatData icsInt = (InstCreatData) map.get(i);
+        assertEquals("Class corretly read & set", Integer.class,
                 icsInt.getClazz());
-        Assert.assertEquals("Method name correctly read & set", "call",
+        assertEquals("Method name correctly read & set", "call",
                 icsInt.getMethod());
-        Assert.assertEquals("Offset correctly read & set", true,
+        assertEquals("Offset correctly read & set", true,
                 icsInt.getOffset() == 3);
-        Assert.assertEquals("Thread id correctly read & set", 1,
-                icsInt.getThreadId());  /* currently a meaningless assert */
+        assertEquals("Thread id correctly read & set", 1, icsInt.getThreadId());
         
         /* Check if map contains info for the inner anonymous Runnable obj. */
-        Runnable r = (Runnable) refs[1];
-        Assert.assertEquals("Rnbl map entry exists", true, map.containsKey(r));
+        int r = idfr.getId(refs[1]);
+        assertEquals("Rnbl map entry exists", true, map.containsKey(r));
         
          /* Check if info obj fields correct (one by one). */
-         InstCreatStats icsRnbl = (InstCreatStats) map.get(r);
+         InstCreatData icsRnbl = (InstCreatData) map.get(r);
         // Not testing class constant as it's an inner tpye and not Runnable.
-        Assert.assertEquals("Method name correctly read & set", "anotherMethod",
+        assertEquals("Method name correctly read & set", "anotherMethod",
                 icsRnbl.getMethod());
-        Assert.assertEquals("Offset correctly read & set", true,
+        assertEquals("Offset correctly read & set", true,
                 icsRnbl.getOffset() == 0);
-        Assert.assertEquals("Thread id correctly read & set", 1,
-                icsRnbl.getThreadId()); /* currently a meaningless assert */
+        assertEquals("Thread id correctly read & set", 1,
+                icsRnbl.getThreadId());
     }
 
-    /* Starts a test client for receiving events from the agent's server. */
-    public static TestEventClnt setupEventClnt() {
-        final TestEventClnt tec = new TestEventClnt(CommsProto.host,
-                CommsProto.port);
-        tec.setDaemon(true);
-        
-        return tec;
-    }
-    
-    /* Test agent's event server with a test EventClient. */
-    // TODO: move to comms test package
-    @Test
-    public void agentEventServerTest() throws Exception {
-        
-        /* Start a client first to receive and process events & get its ref. */
-        TestEventClnt tec = setupEventClnt();
-        tec.start(); /* Start client. */
-        
-        AgentEventSrv aes = runtimeSetup(new Callable<AgentEventSrv>() {
-            @Override
-            public AgentEventSrv call() {
-                
-                /*
-                 * Start a srv to recv & fwd events to a single client. Call
-                 * blocks until client connected.
-                 */
-                AgentEventSrv aes = setupEventSrv();
-                
-                /* Add a listener to send events to the server. */
-                RuntmEventSrc.INSTANCE.getCreatEventSrc()
-                        .addListener(new CreatEventNetSndr(aes));
-                aes.start();
-                
-                return aes;
-            }
-        });
-        
-        /* Perform random actions to generate events. */
-        runtimeSetup(new Callable<Object>() {
-            @Override
-            public Object call() {
-               new String("Random test string: " +
-                       new String(String.valueOf(new Integer(5))));
-               
-               return null;
-            }
-        });
-        
-        aes.shutdown();
-        tec.shutdown();
-        // TODO: check if all event msgs correctly received.
-        Assert.assertEquals("Azura main: ", true, true);
-    }
-    
     /**
      * Tests the Settings singleton class
+     * TODO: move to agent test package
      * @throws Exception
      */
     @Test
@@ -235,9 +201,9 @@ public class TransformationTest extends TransfmrTest {
         });
         
         /* Perform random actions to generate events. */
-        runtimeSetup(new Callable<Object>() {
+        Integer[] objIds = runtimeSetup(new Callable<Integer[]>() {
             @Override
-            public Object call() {
+            public Integer[] call() {
                 
                 /*Check whether all objects are assigned unique identifiers */
                 /* Create some objects */
@@ -248,34 +214,27 @@ public class TransformationTest extends TransfmrTest {
                 MickeyMaus mickey = new MickeyMaus(2); /* an inner class */
 
                 /* Create an array of object identifiers */
-                int[] objIDs = new int[5];
-                IDMap.INSTANCE.put(obj, ObjectCounter.getNextID());
+                Integer[] objIds = new Integer[5];
+                //InstIdentifier.INSTANCE.put(obj, InstIdentifier.getNextID());
 
-                objIDs[0] =  ObjectCounter.getId(obj);
-                System.out.println("ID: " + objIDs[0]);
-                objIDs[1] =  ObjectCounter.getId(str);
-                System.out.println("ID: " + objIDs[1]);
-                objIDs[2] =  ObjectCounter.getId(itg);
-                System.out.println("ID: " + objIDs[2]);
-                objIDs[3] =  ObjectCounter.getId(hash);
-                System.out.println("ID: " + objIDs[3]);
-                objIDs[4] =  ObjectCounter.getId(mickey);
-                System.out.println("ID: " + objIDs[4]);
-
-                /* The IDs should be non-negative and unique */
-                for(int i=0; i<5; i++) {
-                    //System.out.println("ID: " + objIDs[i]);
-                    Assert.assertTrue(objIDs[i] >= 0);
-                    for(int j=0; j<i; j++) {
-                        Assert.assertFalse(objIDs[i] == objIDs[j]);
-                    }
-                }
-               return null;
+                objIds[0] =  InstIdentifier.INSTANCE.getId(obj);
+                objIds[1] =  InstIdentifier.INSTANCE.getId(str);
+                objIds[2] =  InstIdentifier.INSTANCE.getId(itg);
+                objIds[3] =  InstIdentifier.INSTANCE.getId(hash);
+                objIds[4] =  InstIdentifier.INSTANCE.getId(mickey);
+                
+                return objIds;
             }
         });
         
+        /* The IDs should be non-negative and unique */
+        for (int i = 0; i < 5; i++) {
+            Assert.assertTrue(objIds[i] >= 1);
+            for (int j = 0; j < i; j++) {
+                Assert.assertFalse(objIds[i] == objIds[j]);
+            }
+        }
         aes.shutdown();
         tec.shutdown();
-        
     }
 }
