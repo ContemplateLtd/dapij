@@ -26,19 +26,17 @@ public class IDMap {
     public void put(Object key, int id) {
         
         /* Store in the concurrent map. */
-        System.out.println("Inserting new " + key.getClass().getCanonicalName()
-                + " to the map"); //debug message- to be removed
         idMap.putIfAbsent(key, new Integer(id));
     }
     
     public int get(Object key) {
-        
         /* Get the ID of the given object stored in the map */
         if(idMap.containsKey(key)) {
             return idMap.get(key).intValue();
         }
         
         /* If object not found in the map- return -1 */
+        System.out.println("Lookup failed: " + key);
         return -1;
     }
 }

@@ -3,11 +3,8 @@
  */
 package transform;
 
+import agent.*;
 import static agent.Agent.setupEventSrv;
-import agent.CreatEventNetSndr;
-import agent.InstCreatTracker;
-import agent.RuntmEventSrc;
-import agent.Settings;
 import comms.AgentEventSrv;
 import comms.CommsProto;
 import comms.TestEventClnt;
@@ -17,6 +14,7 @@ import java.net.URISyntaxException;
 import java.security.ProtectionDomain;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import org.junit.Assert;
 import org.junit.Test;
 import testutils.TransfmrTest;
@@ -196,5 +194,88 @@ public class TransformationTest extends TransfmrTest {
         s.rm(settNm1);
         Assert.assertEquals("Settings successfully removed: ", true,
                 s.isSet(settNm1) == false);
+    }
+    
+    public class MickeyMaus {
+        int field;
+        
+        public MickeyMaus(int field) {
+            this.field = field;
+        }
+        
+        public int getTheField() {
+            return field;
+        }
+    }
+    
+    @Test
+    public void objectIDTest() throws Exception {
+        
+        /* Start a client first to receive and process events & get its ref. */
+        TestEventClnt tec = setupEventClnt();
+        tec.start(); /* Start client. */
+        
+        AgentEventSrv aes = runtimeSetup(new Callable<AgentEventSrv>() {
+            @Override
+            public AgentEventSrv call() {
+                
+                /*
+                 * Start a srv to recv & fwd events to a single client. Call
+                 * blocks until client connected.
+                 */
+                AgentEventSrv aes = setupEventSrv();
+                
+                /* Add a listener to send events to the server. */
+                RuntmEventSrc.INSTANCE.getCreatEventSrc()
+                        .addListener(new CreatEventNetSndr(aes));
+                aes.start();
+                
+                return aes;
+            }
+        });
+        
+        /* Perform random actions to generate events. */
+        runtimeSetup(new Callable<Object>() {
+            @Override
+            public Object call() {
+                
+                /*Check whether all objects are assigned unique identifiers */
+                /* Create some objects */
+                Object obj = new Object();
+                String str = new String("A string");
+                Integer itg = new Integer(1);
+                ConcurrentHashMap hash = new ConcurrentHashMap();
+                MickeyMaus mickey = new MickeyMaus(2); /* an inner class */
+
+                /* Create an array of object identifiers */
+                int[] objIDs = new int[5];
+                IDMap.INSTANCE.put(obj, ObjectCounter.getNextID());
+
+                objIDs[0] =  ObjectCounter.getId(obj);
+                System.out.println("ID: " + objIDs[0]);
+                objIDs[1] =  ObjectCounter.getId(str);
+                System.out.println("ID: " + objIDs[1]);
+                objIDs[2] =  ObjectCounter.getId(itg);
+                System.out.println("ID: " + objIDs[2]);
+                objIDs[3] =  ObjectCounter.getId(hash);
+                System.out.println("ID: " + objIDs[3]);
+                objIDs[4] =  ObjectCounter.getId(mickey);
+                System.out.println("ID: " + objIDs[4]);
+
+                /* The IDs should be non-negative and unique */
+                for(int i=0; i<5; i++) {
+                    //System.out.println("ID: " + objIDs[i]);
+                    Assert.assertTrue(objIDs[i] >= 0);
+                    for(int j=0; j<i; j++) {
+                        Assert.assertFalse(objIDs[i] == objIDs[j]);
+                    }
+                }
+               return null;
+            }
+        });
+        
+        aes.shutdown();
+        tec.shutdown();
+        
     }
 }

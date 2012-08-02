@@ -3,6 +3,7 @@
  */
 package transform;
 
+import agent.ObjectCounter;
 import agent.RuntmEventSrc;
 import java.util.Stack;
 import org.objectweb.asm.MethodVisitor;
@@ -52,7 +53,7 @@ public class InstCreatVistr extends InsnOfstReader {
             return offset;
         }
     }
- 
+    
     public InstCreatVistr(MethodVisitor mv, String name) {
         super(mv);
         this.creatorMethod = name;
@@ -88,6 +89,7 @@ public class InstCreatVistr extends InsnOfstReader {
 
         mv.visitTypeInsn(opcode, type); /* create ref of object being created */
         mv.visitInsn(Opcodes.DUP);  /* supply map key to fireEvent call */
+        mv.visitInsn(Opcodes.DUP); /* Additional reference for setting ID */
     }
     
     /**
@@ -97,6 +99,7 @@ public class InstCreatVistr extends InsnOfstReader {
     @Override
     public void visitMethodInsn(int opcode, String owner, String name,
             String desc) {
+        
         mv.visitMethodInsn(opcode, owner, name, desc);
         
         /* Inject code to detect object creations here. */
@@ -116,6 +119,13 @@ public class InstCreatVistr extends InsnOfstReader {
         }
         StackElement currentElem = objectCreationStack.pop();
         
+        mv.visitInsn(Opcodes.SWAP);
+        
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                Type.getInternalName(ObjectCounter.class), "assignId",
+                Type.getMethodDescriptor(Type.VOID_TYPE,
+                Type.getType(Object.class)));
+         
         /*
          * Push a reference to the CreationEventGenerator object to allow for
          * calling it's fireEvent instance method (just after visiting
