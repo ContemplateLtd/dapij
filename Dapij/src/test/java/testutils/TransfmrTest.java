@@ -1,6 +1,3 @@
-/*
- * TODO: doc comment
- */
 package testutils;
 
 import comms.CommsProto;
@@ -11,8 +8,8 @@ import java.util.concurrent.Callable;
 
 /**
  * A class that provides utilities (via subclassing) to test methods to test
- * classes for easier testing of agent code that performs instrumentation. As
- * a part of a small testing framework for testing agent code that performs
+ * classes for easier testing of agent code that performs instrumentation. As a
+ * part of a small testing framework for testing agent code that performs
  * instrumentation, this class allows creating & customising a clean isolated
  * test environment for each test method of a test class.
  * 
@@ -20,21 +17,21 @@ import java.util.concurrent.Callable;
  */
 public class TransfmrTest {
 
-    protected ClassLoader cl;   /* set to a new instance for each test mwthod */
-    private static HashMap<String, PkgLdPolicy> loadPolicy =
-            TestClassLoader.genLdPolicyByPkg();
-    
+    protected ClassLoader cl; /* set to a new instance for each test mwthod */
+    private static HashMap<String, PkgLdPolicy> loadPolicy = TestClassLoader.genLdPolicyByPkg();
+
     /**
      * Resets the class loader field to provide a new one for each test
-     * resulting in a new test environment per test method.
+     * resulting in a new test environment per test method. TODO: Test if cl is
+     * different for each test when they run concurrently.
      */
-    // TODO: Test if cl is different for each test when they run concurrently.
     @org.junit.Before
     public void setupPerTestCl() {
-        cl = new TestClassLoader(loadPolicy);   /* A new cl for each test */
+        cl = new TestClassLoader(loadPolicy); /* A new cl for each test */
     }
-    
+
     protected void runtimeSetup(String name) {
+
         /* Load given class throug the newly created cl */
         Class<?> clazz = null;
         try {
@@ -42,7 +39,7 @@ public class TransfmrTest {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        
+
         /* Create an instance of the given class */
         Runnable rInst = null;
         try {
@@ -52,45 +49,42 @@ public class TransfmrTest {
         }
         rInst.run();
     }
-    
+
     /**
-     * Provides an convenient way to config a per-test-method runtime setup
-     * by loading a Runnable implementation into the newly created classloader
-     * for the test (created by setupPerTestCl). Achieved by creating an
-     * instance and executing its run using reflection.
-     * @param r the Runnable implementation. Can be an anonymous inner class.
+     * Provides an convenient way to config a per-test-method runtime setup by
+     * loading a Runnable implementation into the newly created classloader for
+     * the test (created by setupPerTestCl). Achieved by creating an instance
+     * and executing its run using reflection.
+     * 
+     * @param clbl
+     *            the Callable implementation - usually an anonymous inner
+     *            class. Pasing of local parameters not currently supported.
      */
+    @SuppressWarnings("unchecked")
     protected <T extends Object> T runtimeSetup(Callable<T> clbl) {
         try {
-            /* Load given class throug the cl. */
-            Class<?> clazz = cl.loadClass(clbl.getClass().getName());
-            
-            /* Get (default) constructor. */
-            Constructor cnstr = clazz.getDeclaredConstructors()[0];
+            Class<?> clazz = cl.loadClass(clbl.getClass().getName());   /* Load in cl. */
+            Constructor<?> cnstr = clazz.getDeclaredConstructors()[0];  /* Get default */
             cnstr.setAccessible(true);
-            
             if (cnstr.getParameterTypes().length > 1) {
-                throw new RuntimeException("Test inner callables do not " +
-                        "allow local variable argument passing due to " +
-                        "type incompatibility between classloaders.");
+                throw new RuntimeException("Test inner callables do not allow local variable"
+                        + " argument passing due to type incompatibility between classloaders.");
             }
 
             /* Create new instance passing null for the outer object arg. */
-            Callable newClbl = (Callable) cnstr.newInstance(new Object[]{null});
-            
-            return (T) newClbl.call();  /* Execute test setup. */
+            Callable<?> newClbl = (Callable<?>) cnstr.newInstance(new Object[] { null });
+
+            return (T) newClbl.call(); /* Execute test setup. */
         } catch (Exception e) {
-            e.printStackTrace(System.out);
             throw new RuntimeException(e);
         }
     }
-    
+
     /* Starts a test client for receiving events from the agent's server. */
     public static TestEventClnt setupEventClnt() {
-        final TestEventClnt tec = new TestEventClnt(CommsProto.host,
-                CommsProto.port);
+        final TestEventClnt tec = new TestEventClnt(CommsProto.HOST, CommsProto.PORT);
         tec.setDaemon(true);
-        
+
         return tec;
     }
 }

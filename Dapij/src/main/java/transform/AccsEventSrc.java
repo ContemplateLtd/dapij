@@ -1,6 +1,3 @@
-/*
- * TODO: doc comment
- */
 package transform;
 
 import java.util.ArrayList;
@@ -8,7 +5,7 @@ import java.util.ArrayList;
 /**
  * An class that provides registering service for instance access event
  * listeners.
- * 
+ *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
 public class AccsEventSrc {
@@ -27,10 +24,9 @@ public class AccsEventSrc {
     }
 
     public void fireEvent(int objId, long threadId) {
+        AccsEvent e = new AccsEvent(this, objId, threadId); /* Create event */
 
-        /* Create event */
-        AccsEvent e = new AccsEvent(this, objId, threadId);
-        
+        /* Notify subscribers. */
         for (AccsEventLisnr el : listeners) {
             el.handleAccessEvent(e);
         }

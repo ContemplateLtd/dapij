@@ -1,6 +1,3 @@
-/*
- * TODO: doc comment
- */
 package transform;
 
 import java.util.ArrayList;
@@ -8,7 +5,7 @@ import java.util.ArrayList;
 /**
  * An class that provides registering service for instance creation event
  * listeners.
- * 
+ *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
 public class CreatEventSrc {
@@ -27,12 +24,9 @@ public class CreatEventSrc {
         return listeners.remove(l);
     }
 
-    public void fireEvent(int objId, Class clazz, String method, int offset,
-            long threadId) {
-        
-        /* Create event */
-        CreatEvent e = new CreatEvent(this,
-                new InstCreatData(objId, clazz, method, offset, threadId));
+    public void fireEvent(int objId, Class<?> clazz, String method, int offset, long threadId) {
+        CreatEvent e = new CreatEvent(this, new InstCreatData(objId, clazz, method, offset,
+                threadId)); /* Create event */
 
         /* Notify subscribers. */
         for (CreatEventLisnr el : listeners) {
