@@ -8,6 +8,8 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
 
+import agent.Settings;
+
 /**
  * A network client used for testing the agent's network server.
  *
@@ -16,6 +18,7 @@ import java.net.Socket;
 public class TestEventClnt extends Thread {
 
     private static final String NM = "TEC";
+    private static boolean quiet = shouldBeQuiet();
     private Socket conn;
     private String host;
     private int port;
@@ -44,15 +47,15 @@ public class TestEventClnt extends Thread {
         while (allowedToRun) {
             try {
                 if (conn == null || !conn.isConnected()) {
-                    System.out.println(NM + ": Connecting to server [" + host + ":" + port
+                    stdoutPrintln(NM + ": Connecting to server [" + host + ":" + port
                             + "] ...");
                     conn = new Socket(host, port);
                 }
                 inFromServer = new DataInputStream(conn.getInputStream());
-                System.out.println(NM + ": Done.");
+                stdoutPrintln(NM + ": Done.");
                 break;
             } catch (IOException e) {
-                System.out.println(NM + ": Could not connect to '" + host + ":" + port + "' ..."
+                stdoutPrintln(NM + ": Could not connect to '" + host + ":" + port + "' ..."
                         + "\n" + NM + ": Attempting again ...");
                 try {
                     Thread.sleep(10);
@@ -71,7 +74,7 @@ public class TestEventClnt extends Thread {
         String event = null;
         while (allowedToRun) {
             try {
-                // TODO: remove this workaround and use a nonblocking socket
+                // TODO: remove this workaround and use nonblocking sockets
                 if (inFromServer.available() > 5) {
                     event = readEvent();
                 } else {
@@ -82,7 +85,7 @@ public class TestEventClnt extends Thread {
                 throw new RuntimeException(e); // TODO: ignore?
             }
             if (event != null) {
-                System.out.println(NM + ": RCV: " + event);
+                stdoutPrintln(NM + ": RCV: " + event);
             }
             event = null;
         }
@@ -99,25 +102,25 @@ public class TestEventClnt extends Thread {
 
         /* Shutdown. */
         String event = null;
-        System.out.println(NM + ": Shutting down, fetching last messages ...");
+        stdoutPrintln(NM + ": Shutting down, fetching last messages ...");
         while (true) {
             try {
-                // TODO: remove this workaround and add nonblocking sockets
+                // TODO: remove this workaround and use nonblocking sockets
                 if (inFromServer.available() > 5) {
                     event = readEvent();
                     if (event != null) {
-                        System.out.println(NM + ": RCV: " + event);
+                        stdoutPrintln(NM + ": RCV: " + event);
                         event = null;
                     }
                 } else {
                     break;
                 }
             } catch (IOException e) {
-                System.out.println(NM + ": Could not read during shutdown ...");
+                stdoutPrintln(NM + ": Could not read during shutdown ...");
                 throw new RuntimeException(e);
             }
         }
-        System.out.println(NM + ": Done.");
+        stdoutPrintln(NM + ": Done.");
     }
 
     /**
@@ -177,6 +180,19 @@ public class TestEventClnt extends Thread {
             return event;
         } catch (Exception e) {
             return event;
+        }
+    }
+
+    private static boolean shouldBeQuiet() {
+        String q = Settings.INSTANCE.get(Settings.SETT_QUIET_NET);
+
+        /* By default no messages are sent to stdout. */
+        return (q == null || (q != null && !q.equals("false"))) ? true : false;
+    }
+
+    private static void stdoutPrintln(String msg) {
+        if (!quiet) {
+            System.out.println(msg);
         }
     }
 }

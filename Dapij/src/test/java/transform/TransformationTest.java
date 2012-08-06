@@ -150,7 +150,7 @@ public class TransformationTest extends TransfmrTest {
         Assert.assertEquals("Settings successfully removed: ", true, s.isSet(settNm1) == false);
     }
 
-    public class MickeyMaus {
+    public static class MickeyMaus {
         int field;
 
         public MickeyMaus(int field) {

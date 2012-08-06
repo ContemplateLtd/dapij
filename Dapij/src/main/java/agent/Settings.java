@@ -14,13 +14,16 @@ public final class Settings {
     public static final Settings INSTANCE = new Settings();
 
     /* Constant keys for (internal) settings of the Settings Singleton */
-    /** Key for current working dir setting. */
+    /** Current working dir setting name. */
     public static final String SETT_CWD = "cwd";
 
-    /** Key for agent's event server port setting. */
+    /** Verbose network messages setting name. */
+    public static final String SETT_QUIET_NET = "quietNet";
+
+    /** Agent's event server port setting name. */
     public static final String SETT_EVS_PORT = "EventSrvPort";
 
-    /** Key for agent's event test client port setting. */
+    /** Agent's event test client port setting name. */
     public static final String SETT_CLI_HOST = "EventCliHost";
 
     /** A HashMap<String, String> structure that allows storing String settings. */

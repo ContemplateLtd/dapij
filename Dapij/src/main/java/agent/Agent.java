@@ -38,33 +38,18 @@ public final class Agent {
     /**
      * Blocks until a client connects & starts, in a different thread, a server
      * passing to it the created sockets.
+     * @throws IOException
      */
     public static AgentEventSrv setupEventSrv() {
-        ServerSocket srvSock = null;
-        Socket conn = null;
-        String nm = AgentEventSrv.NM;
+        ServerSocket srvSock;
+        try {
+            srvSock = new ServerSocket(CommsProto.PORT);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
-        /* Attempt to connect 3 times */// TODO: load from config
-        for (int i = 1; i <= 3; i++) {
-            try {
-                System.out.println(nm + ": [" + i + "] AgentEventServer: Binding on port '"
-                        + CommsProto.PORT + "'.");
-                srvSock = new ServerSocket(CommsProto.PORT);
-                System.out.println(nm + ": AgentEventServer: Done.");
-                System.out.println(nm + ": AgentEventServer: Listening for clients ...");
-                conn = srvSock.accept();
-                System.out.println(nm + ": AgentEventServer: Client ["
-                        + conn.getRemoteSocketAddress() + "] connected ...");
-                break;
-            } catch (IOException ex) {
-                System.out.println(nm + ": AgentEventServer: Could not connect, trying again ...");
-                continue;
-            }
-        }
-        if (srvSock == null || conn == null) {
-            throw new RuntimeException(nm + ": AgentEventServer: Could not start! Execution"
-                    + " abroted.\n");
-        }
+        /* Attempt to connect '3' times */ // TODO: load from Settings
+        Socket conn = AgentEventSrv.blockingConnect(srvSock, 3, 5);
         AgentEventSrv aes = new AgentEventSrv(srvSock, conn);
         aes.setDaemon(true);
 

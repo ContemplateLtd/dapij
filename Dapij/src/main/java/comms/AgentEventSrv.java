@@ -10,6 +10,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
+import agent.Settings;
+
 /**
  * A server that allows the agent to communicate runtime information to one
  * external client on the network.
@@ -19,7 +21,8 @@ import java.net.SocketException;
 public class AgentEventSrv extends Thread {
 
     public static final String NM = "AES";
-    private DataOutputStream outToClient;   /* stream to client */
+    private static boolean quiet = shouldBeQuiet();
+    private DataOutputStream outToClient;   /* output stream to client */
     private ServerSocket srvSock;
     private Socket conn;                    /* connection to the (single) client */
     private int port;
@@ -32,14 +35,14 @@ public class AgentEventSrv extends Thread {
 
     public AgentEventSrv() {
         this.allowedToRun = true;
+        this.stopped = false;
         this.srvSoTimeout = 5;
         this.connSoTimeout = 5;
-        setName("agent-event-srv");
     }
 
     public AgentEventSrv(int port) {
-        this.allowedToRun = true;
-        this.stopped = false;
+        this();
+        setName("agent-event-srv");
         this.port = port;
     }
 
@@ -88,12 +91,12 @@ public class AgentEventSrv extends Thread {
                 throw new RuntimeException(NM + ": Couldn't bind to port '" + port + "' ...");
             }
             try {
-                System.out.println(NM + ": " + "[" + String.valueOf(i++) + "] Binding on port '"
+                stdoutPrintln(NM + ": " + "[" + String.valueOf(i++) + "] Binding on port '"
                         + port + "' ...");
                 srvSock = new ServerSocket(port);
                 srvSock.setSoTimeout(srvSoTimeout);
                 if (srvSock.isBound()) {
-                    System.out.println(NM + ": Done ...");
+                    stdoutPrintln(NM + ": Done ...");
 
                     return;
                 }
@@ -105,7 +108,7 @@ public class AgentEventSrv extends Thread {
             } catch (InterruptedException ex) {
                 /* Ignore. */
             }
-            System.out.println(NM + ": Could not connect, trying again after " + attpemtInterval
+            stdoutPrintln(NM + ": Could not connect, trying again after " + attpemtInterval
                     + " seconds ...");
         }
         stopped = true;
@@ -124,9 +127,9 @@ public class AgentEventSrv extends Thread {
 
                 /* reset only if not useable */
                 if (conn == null || !conn.isConnected()) {
-                    System.out.println(NM + ": Listening for clients ...");
+                    stdoutPrintln(NM + ": Listening for clients ...");
                     conn = srvSock.accept();
-                    System.out.println(NM + ": Client [" + conn.getRemoteSocketAddress()
+                    stdoutPrintln(NM + ": Client [" + conn.getRemoteSocketAddress()
                             + "] connected ...");
                 }
 
@@ -134,11 +137,9 @@ public class AgentEventSrv extends Thread {
                 outToClient = new DataOutputStream(conn.getOutputStream());
 
                 return;
-
-                /* could enter due to a timeout exception */
-            } catch (IOException e) {
-                bind(); /* Rebind srvSock if not usable. */
-                closeConn(); /* Reset conn & outToClient if not usable. */
+            } catch (IOException e) {   /* could enter due to a timeout exception */
+                bind();                 /* Rebind srvSock if not usable. */
+                closeConn();            /* Reset conn & outToClient if not usable. */
             }
         }
         stopped = true;
@@ -169,8 +170,7 @@ public class AgentEventSrv extends Thread {
         }
 
         /* Shutdown. */
-        System.out.println(NM + ": Shutting down server on port " + srvSock.getLocalPort()
-                + " ...");
+        stdoutPrintln(NM + ": Shutting down server on port " + srvSock.getLocalPort() + " ...");
         closeConn();
         if (srvSock != null && !srvSock.isClosed()) {
             try {
@@ -180,7 +180,7 @@ public class AgentEventSrv extends Thread {
             }
         }
         srvSock = null;
-        System.out.println(NM + ": " + "Done.");
+        stdoutPrintln(NM + ": " + "Done.");
     }
 
     /**
@@ -216,7 +216,7 @@ public class AgentEventSrv extends Thread {
             outToClient.write(msg);
         } catch (IOException e) {
             // TODO: improve this exception handler
-            System.out.println("Could not send message!");
+            stdoutPrintln("Could not send message!");
             throw new RuntimeException(e);
         }
     }
@@ -249,5 +249,54 @@ public class AgentEventSrv extends Thread {
      */
     public void setConnSoTimeout(int connSoTimeout) {
         this.connSoTimeout = connSoTimeout;
+    }
+
+    /**
+     * Attempts to bind and accept (in a blocking manner with a timeout) a
+     * client connection.
+     *
+     * @param srvSock
+     *            An initialised ServerSocket object.
+     * @param port
+     *            Port to bind the server socket to.
+     * @param attempts
+     *            Number of times to wait for a client with timeout soTimeout.
+     * @param soTimeout
+     *            The timeout to wait for a client.
+     * @return The a Socket of a successful client connection.
+     */
+    public static Socket blockingConnect(ServerSocket srvSock, int attempts,
+            int soTimeout) {
+        Socket sock = null;
+        for (int i = 1; i <= attempts; i++) {
+            try {
+                stdoutPrintln(NM + ": [" + i + "] AgentEventServer: Binding on port '"
+                        + CommsProto.PORT + "'.");
+                srvSock.setSoTimeout(soTimeout);
+                stdoutPrintln(NM + ": AgentEventServer: Done.");
+                stdoutPrintln(NM + ": AgentEventServer: Listening for clients ...");
+                sock = srvSock.accept();
+                stdoutPrintln(NM + ": AgentEventServer: Client ["
+                        + sock.getRemoteSocketAddress() + "] connected ...");
+                break;
+            } catch (IOException ex) {
+                stdoutPrintln(NM + ": AgentEventServer: Could not connect, trying again ...");
+                continue;
+            }
+        }
+        return sock;
+    }
+
+    private static boolean shouldBeQuiet() {
+        String q = Settings.INSTANCE.get(Settings.SETT_QUIET_NET);
+
+        /* By default no messages are sent to stdout. */
+        return (q == null || (q != null && !q.equals("false"))) ? true : false;
+    }
+
+    private static void stdoutPrintln(String msg) {
+        if (!quiet) {
+            System.out.println(msg);
+        }
     }
 }

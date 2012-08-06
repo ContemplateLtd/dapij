@@ -12,13 +12,13 @@ import java.util.concurrent.Callable;
  * part of a small testing framework for testing agent code that performs
  * instrumentation, this class allows creating & customising a clean isolated
  * test environment for each test method of a test class.
- * 
+ *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
 public class TransfmrTest {
 
+    private static HashMap<Package, PkgLdPolicy> loadPolicy = TestClassLoader.getPkgLoadPolicy();
     protected ClassLoader cl; /* set to a new instance for each test mwthod */
-    private static HashMap<String, PkgLdPolicy> loadPolicy = TestClassLoader.genLdPolicyByPkg();
 
     /**
      * Resets the class loader field to provide a new one for each test
@@ -55,7 +55,7 @@ public class TransfmrTest {
      * loading a Runnable implementation into the newly created classloader for
      * the test (created by setupPerTestCl). Achieved by creating an instance
      * and executing its run using reflection.
-     * 
+     *
      * @param clbl
      *            the Callable implementation - usually an anonymous inner
      *            class. Pasing of local parameters not currently supported.
@@ -72,7 +72,7 @@ public class TransfmrTest {
             }
 
             /* Create new instance passing null for the outer object arg. */
-            Callable<?> newClbl = (Callable<?>) cnstr.newInstance(new Object[] { null });
+            Callable<?> newClbl = (Callable<?>) cnstr.newInstance(new Object[] {null});
 
             return (T) newClbl.call(); /* Execute test setup. */
         } catch (Exception e) {

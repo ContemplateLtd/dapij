@@ -1,24 +1,19 @@
 package testutils;
 
 import agent.Agent;
-import comms.CommsProto;
 import comms.CommsTest;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.ProtectionDomain;
 import java.util.HashMap;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.FileUtils;
-import plugin.PluginIJ;
-import transform.StatsCollector;
 import static transform.Transfmr.transformClass;
-import transform.TransformationTest;
 
 /*
  * TODO: add control over instrumentation of innter Callable classes (all are
  * currently instrumented).
- * 
- * TODO: review/reimplement package loading (& policies).
  */
 
 /**
@@ -29,13 +24,13 @@ import transform.TransformationTest;
  */
 public class TestClassLoader extends ClassLoader {
 
-    private static File mainClsRt = classpathRoot(Agent.class);         /* Main classes root */
-    private static File tstClsRt = classpathRoot(TransfmrTest.class);   /* Test classes root */
+    private static File mainClsRt = classpathRoot(Agent.class);     /* Main classes root */
+    private static File tstClsRt = classpathRoot(CommsTest.class);  /* Test classes root */
 
     /* proj pkg dirs & flags indicating whether to instrument their classes */
-    private HashMap<String, PkgLdPolicy> pkgLdPolicies;
+    private HashMap<Package, PkgLdPolicy> pkgLdPolicies;
 
-    public TestClassLoader(HashMap<String, PkgLdPolicy> pkgLdPolicies) {
+    public TestClassLoader(HashMap<Package, PkgLdPolicy> pkgLdPolicies) {
         this.pkgLdPolicies = pkgLdPolicies;
     }
 
@@ -46,35 +41,20 @@ public class TestClassLoader extends ClassLoader {
 
         /* If not, search class in appropriate CL (this/parent/System CL). */
         if (c == null) {
-
-            /*
-             * Look for a package (in the project) that contains the class and
-             * has a defined load policy and retrieve that policy.
-             */
-            File pkg = getPkgFullPath(clsBinName);
-            PkgLdPolicy p = getClsLdPolicy(pkg); /* get policy if exists */
-
-            /*
-             * If found, load class with child class loader according to the
-             * load policy for the package of that class
-             */
-            if (p != null && p.isChildFirst()) {
-                try {
-                    c = findClass(clsBinName, new File(pkg, getNmFromPth(binNmToPth(clsBinName))),
-                            p.isInstrumented());
-                } catch (ClassNotFoundException е) {
-                    /* Ignore. */
-                }
+            try {
+                c = findClass(clsBinName);
+            } catch (ClassNotFoundException e) {
+                /* Ignore. */
             }
+        }
 
-            /*
-             * If not found or load policy specifies parent-first loading, use
-             * parent or system cl (if no parent available) to load class.
-             */
-            if (c == null) {
-                ClassLoader cl = (getParent() != null) ? getParent() : getSystemClassLoader();
-                c = cl.loadClass(clsBinName);
-            }
+        /*
+         * If not found or load policy specifies parent-first loading, use
+         * parent or system cl (if no parent available) to load class.
+         */
+        if (c == null) {
+            ClassLoader cl = (getParent() != null) ? getParent() : getSystemClassLoader();
+            c = cl.loadClass(clsBinName);
         }
         if (resolve) {
             resolveClass(c);
@@ -86,15 +66,41 @@ public class TestClassLoader extends ClassLoader {
     /**
      * Search for class in local project and load it if present and transform it
      * according to the package load policy for its package (if any).
-     * 
+     *
      * @param binClsName
      *            the binary class name of the class to be loaded
      */
-    protected Class<?> findClass(String clsBinName, File clsFullPath, boolean transform)
-            throws ClassNotFoundException {
+    protected Class<?> findClass(String clsBinName) throws ClassNotFoundException {
+
+        /*
+         * Get pkg for class (if pkg exists) and return its load policy if such
+         * exists.
+         */
+        PkgLdPolicy p = getLdPolicy(getPkg(clsBinName));
+
+        String clsRelPath = binNmToPth(clsBinName);
+        File clsFullPath = new File(mainClsRt, clsRelPath);
+
+        /*
+         * If no load policy, a parent-fst main class or class not found - try
+         * system cls ldr.
+         */
+        if (p == null || (clsFullPath.exists() && !p.isMainChldFst())) {
+            return null; /* This handles cases when class does not exist. */
+        }
+        boolean instr;
+        if (clsFullPath.exists()) {
+            instr = false; /* Do not instrument a child-fst main class. */
+        } else {
+            clsFullPath = new File(tstClsRt, clsRelPath);
+            if (clsFullPath.exists() && !p.isTstChldFst()) {
+                return null; /* Delegate to parent/system if test class parent-fst. */
+            }
+            instr = p.isTstInstr();
+        }
         byte[] clsBytes = readClass(clsBinName, clsFullPath);
-        
-        return defineClass(clsBinName, (transform) ? transformClass(clsBytes) : clsBytes);
+
+        return defineClass(clsBinName, (instr) ? transformClass(clsBytes) : clsBytes);
     }
 
     private Class<?> defineClass(String clsBinName, byte[] bytecode) {
@@ -112,88 +118,56 @@ public class TestClassLoader extends ClassLoader {
     /**
      * For a given class name, returns a File representing the full path to the
      * package of that class.
-     * 
+     *
      * @param clsBinName
      *            the binary name of the class
-     * @return The package direc as a or null if the class is not a part of the
-     *         project packages.
+     * @return A Package object representing the package or null if it is
+     *         unknown.
      */
-    private File getPkgFullPath(String clsBinName) {
-        File pkgFP = null;
-        String clsRelPath = binNmToPth(clsBinName);
-        File mainCls = new File(mainClsRt, clsRelPath);
-        if (mainCls.exists()) {
-            pkgFP = mainCls.getParentFile(); /* Return package full path. */
-        }
-
-        File testCls = new File(tstClsRt, clsRelPath);
-        if (testCls.exists()) {
-            pkgFP = testCls.getParentFile(); /* Return package full path. */
-        }
-
-        return pkgFP;
+    private Package getPkg(String clsBinName) {
+        return Package.getPackage(getPgkName(clsBinName));
     }
 
     /**
      * Given a full path File object for a package, retrieves a load policy for
      * the class files contained in this package.
-     * 
-     * @param pkgFP
-     *            A file object representing the full path to the package.
+     *
+     * @param p
+     *            A Package object representing the package.
      * @returns The package loading policy or null if no policy found.
      */
-    private PkgLdPolicy getClsLdPolicy(File pkgFP) {
+    private PkgLdPolicy getLdPolicy(Package p) {
 
         /* If in project classes, search & return policy (or null if none). */
-        return (pkgFP != null && pkgLdPolicies.containsKey(pkgFP.getPath())) ? pkgLdPolicies
-                .get(pkgFP.getPath()) : null;
+        return (p != null && pkgLdPolicies.containsKey(p)) ? pkgLdPolicies.get(p) : null;
     }
 
     /**
      * Constructs a configuration (conditioned on package) for lading and
-     * instrumenting the classes of the project. This configuration is hardcoded
-     * and needs to be changed by hand in the future.
-     * 
-     * NOTE: can be done automatically, but policies still have to be set
-     * manually, so not much improvement can be introduced.
-     * 
+     * instrumenting main package classes. This configuration is hardcoded and
+     * needs to be changed by hand in the future.
+     *
+     * NOTE: Main classes are never instrumented, test classes are always child
+     * first
+     * TODO: improvement - load from a config file.
+     *
      * @return A HashMap<File, PkgLoadConf> containing the load/instrument
      *         policies for the project's classes conditioned on the packages.
      */
-    public static HashMap<String, PkgLdPolicy> genLdPolicyByPkg() {
-        HashMap<String, PkgLdPolicy> pkgLdPolicies = new HashMap<String, PkgLdPolicy>();
-        try {
-            /* MAIN CLASSES, do not transform. */
-            /* agent package - child-fst, don't instr */
-            File pkgFP = new File(mainClsRt, binNmToPth(Agent.class.getName())).getParentFile();
-            pkgLdPolicies.put(pkgFP.getPath(), new PkgLdPolicy(true, false));
+    public static HashMap<Package, PkgLdPolicy> getPkgLoadPolicy() {
+        HashMap<Package, PkgLdPolicy> pkgLdPolicies = new HashMap<Package, PkgLdPolicy>();
 
-            /* comms package - child-fst, don't instr */
-            pkgFP = new File(mainClsRt, binNmToPth(CommsProto.class.getName())).getParentFile();
-            pkgLdPolicies.put(pkgFP.getPath(), new PkgLdPolicy(false, false));
+        /* main-chld-fst (contains state, refreshed in tst), tst-chld-fst, tst-instr */
+        pkgLdPolicies.put(Package.getPackage("agent"), new PkgLdPolicy(true, true, true));
 
-            /* NOTE: currently not used, change in future */
-            /* Get package full path & set policy - child-fst, don't instr */
-            pkgFP = new File(mainClsRt, binNmToPth(PluginIJ.class.getName())).getParentFile();
-            pkgLdPolicies.put(pkgFP.getPath(), new PkgLdPolicy(true, false));
+        /* main-parent-fst, tst-chld-fst, tst-instr */
+        pkgLdPolicies.put(Package.getPackage("comms"), new PkgLdPolicy(false, true, true));
 
-            /* transform package - parent-fst, don't instr */
-            pkgFP = new File(mainClsRt, binNmToPth(StatsCollector.class.getName())).getParentFile();
-            pkgLdPolicies.put(pkgFP.getPath(), new PkgLdPolicy(false, false));
+        /* main-parent-fst, tst-chld-fst, tst-instr */
+        pkgLdPolicies.put(Package.getPackage("transform"), new PkgLdPolicy(false, true, true));
 
-            /* TEST CLASSES, transform. */
-            /* Get package full path & set policy - child-fst, instr */
-            pkgFP = new File(tstClsRt, binNmToPth(TransformationTest.class.getName()))
-                    .getParentFile();
-            pkgLdPolicies.put(pkgFP.getPath(), new PkgLdPolicy(true, true));
-
-            /* Get package full path & set policy - child-fst, instr */
-            pkgFP = new File(tstClsRt, binNmToPth(CommsTest.class.getName())).getParentFile();
-            pkgLdPolicies.put(pkgFP.getPath(), new PkgLdPolicy(true, true));
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        /* main-parent-fst, tst-parent-fst, tst-no-instr */
+        pkgLdPolicies.put(Package.getPackage("testutils"), new PkgLdPolicy(false, false, false));
 
         return pkgLdPolicies;
     }
@@ -208,18 +182,18 @@ public class TestClassLoader extends ClassLoader {
         }
     }
 
-    private static String binNmToPth(String clsBinName) {
-        return clsBinName.replace('.', '/') + ".class";
+    /**
+     * Gets the package name for a class.
+     *
+     * @param clsBinName
+     *            The binary name for the given class.
+     * @return The package name for the given binary class name.
+     */
+    private String getPgkName(String clsBinName) {
+        return FilenameUtils.removeExtension(clsBinName);
     }
 
-    /**
-     * Used to get the file or directory name pointed by the given path.
-     * 
-     * @param path
-     *            a relative of full path
-     * @return a String representing the name.
-     */
-    private static String getNmFromPth(String path) {
-        return new File(path).getName();
+    private static String binNmToPth(String clsBinName) {
+        return clsBinName.replace('.', '/') + ".class";
     }
 }

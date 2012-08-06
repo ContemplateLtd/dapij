@@ -40,21 +40,23 @@ NP			1.1	Implement a agent server that streams *events to a network port
 			V	* Add a ShutdownHook (a thread object) to Runtime that flushes the queues (perhaps
 					by just calling close() on the connection) to guarantee that all messages are
 					 delivered to the connected client.
-
+			~V	* Fully test server
 (needs tst)	~V	** Implement send function properly (to guarantee ordered messages).
 
-			1.2	[r] Implement a consumer API (e.g. using the Visitor pattern)
+			1.2	[y] Implement a consumer API (e.g. using the Visitor pattern)
 				* A client that accepts events from the agent event server (an event reader).
 				* Event visitors for processing different events.
-			1.3	[r] Establish a protocol (message format) for the events
+			1.3	[y] Establish a protocol (message format) for the events
 
-			*events - object creation, thread accesses to objects (class method invocation, filed access)
+			*events - object creation, thread accesses to objects (class method invocation, field access)
 
 	[2]. Testing
 NP			2.1. [r] Fix testing framework
 			~V	* Provide support for loading & instrumenting policies per package (test/main).
+			~V	* Review TestClassLoader implementation and verify that it works
+					- improve package load policies
 			
-NP		X	2.2	[r] Test communication architecture & protocol
+MS		~V	2.2	[r] Test communication architecture & protocol
 
 	[3]. Agent features
 MS			3.1	[r] Implement object identification (either in map or in inserted field)
@@ -67,8 +69,9 @@ MS			3.2	Research the approach of adding a field to java.lang.Object
 				- deal with unknown instances (i.e. without known origin)
 
 	[4]. [y] Settings Singleton
-			4.1 [y] make it thread save in case needed, e.g.:
+			4.1 [y] make it thread safe, e.g.:
 				- use a concurrent HashMap
 				- use synchronised setters
+				* test it for thread safety
 
 	[5]. [g] Proper logging?
