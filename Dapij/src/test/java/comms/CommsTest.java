@@ -48,7 +48,7 @@ public class CommsTest extends TransfmrTest {
             @Override
             public Object call() {
                 new String(new String(String.valueOf(new Integer(5)))); /* Create objects. */
-                this.toString();                                        /* TODO: Generate access? */
+                this.toString(); /* TODO: Generate access? */
 
                 return null;
             }

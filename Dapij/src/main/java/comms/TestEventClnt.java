@@ -7,6 +7,7 @@ package comms;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import agent.Settings;
 
@@ -25,6 +26,7 @@ public class TestEventClnt extends Thread {
     private boolean allowedToRun;
     private boolean stopped;
     private DataInputStream inFromServer;
+    private ArrayList<EventRecord> eventLog = new ArrayList<EventRecord>();
 
     /* private DataOutputStream outToServer; */
 
@@ -34,6 +36,10 @@ public class TestEventClnt extends Thread {
         this.allowedToRun = true;
         this.stopped = false;
         setName("test-event-cli");
+    }
+
+    public EventRecord[] getEventLog() {
+        return eventLog.toArray(new EventRecord[eventLog.size()]);
     }
 
     /**
@@ -71,7 +77,8 @@ public class TestEventClnt extends Thread {
     @Override
     public void run() {
         connect(true);
-        String event = null;
+        eventLog.clear();
+        EventRecord event = null;
         while (allowedToRun) {
             try {
                 // TODO: remove this workaround and use nonblocking sockets
@@ -86,6 +93,7 @@ public class TestEventClnt extends Thread {
             }
             if (event != null) {
                 stdoutPrintln(NM + ": RCV: " + event);
+                eventLog.add(event);
             }
             event = null;
         }
@@ -101,7 +109,7 @@ public class TestEventClnt extends Thread {
         }
 
         /* Shutdown. */
-        String event = null;
+        EventRecord event = null;
         stdoutPrintln(NM + ": Shutting down, fetching last messages ...");
         while (true) {
             try {
@@ -110,6 +118,7 @@ public class TestEventClnt extends Thread {
                     event = readEvent();
                     if (event != null) {
                         stdoutPrintln(NM + ": RCV: " + event);
+                        eventLog.add(event);
                         event = null;
                     }
                 } else {
@@ -165,8 +174,8 @@ public class TestEventClnt extends Thread {
         //}
     }
 
-    private String readEvent() {
-        String event = null;
+    private EventRecord readEvent() {
+        EventRecord event = null;
         try {
             byte type = inFromServer.readByte();
             int rest = inFromServer.readInt();

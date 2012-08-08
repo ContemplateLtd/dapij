@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
+
+import transform.InstAccsData;
 import transform.InstCreatData;
 
 /**
@@ -23,7 +25,8 @@ import transform.InstCreatData;
 public final class CommsProto {
 
     /* Network configuration */
-    public static final int PORT = Integer.valueOf(Settings.INSTANCE.get(Settings.SETT_EVS_PORT));
+    public static final int PORT =
+            Integer.valueOf(Settings.INSTANCE.get(Settings.SETT_EVS_PORT));
     public static final String HOST = Settings.INSTANCE.get(Settings.SETT_CLI_HOST);
 
     /* Event types */
@@ -42,13 +45,13 @@ public final class CommsProto {
         return bf.array();
     }
 
-    public static String deconstAccsMsg(byte[] b) {
+    public static InstAccsData deconstAccsMsg(byte[] b) {
         ByteBuffer bf = ByteBuffer.wrap(b);
         int objId = bf.getInt();
         long thdId = bf.getLong();
 
         /* TODO: fix function. */
-        return "[ACC: id:" + String.valueOf(objId) + ", thd:" + String.valueOf(thdId) + "]";
+        return new InstAccsData(objId, thdId);
     }
 
     public static byte[] constructCreatMsg(InstCreatData stats) {
@@ -76,7 +79,7 @@ public final class CommsProto {
         }
     }
 
-    public static String deconstCreatMsg(byte[] b) {
+    public static InstCreatData deconstCreatMsg(byte[] b) {
         ByteArrayInputStream bis = new ByteArrayInputStream(b);
         ObjectInputStream ois = null;
         try {
@@ -89,7 +92,7 @@ public final class CommsProto {
             bis.close();
             ois.close();
 
-            return new InstCreatData(objId, objCls, method, ofst, thdId).toString();
+            return new InstCreatData(objId, objCls, method, ofst, thdId);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

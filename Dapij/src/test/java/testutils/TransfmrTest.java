@@ -17,7 +17,8 @@ import java.util.concurrent.Callable;
  */
 public class TransfmrTest {
 
-    private static HashMap<Package, PkgLdPolicy> loadPolicy = TestClassLoader.getPkgLoadPolicy();
+    private static HashMap<Package, PkgLdPolicy> loadPolicy =
+            TestClassLoader.getPkgLoadPolicy();
     protected ClassLoader cl; /* set to a new instance for each test mwthod */
 
     /**

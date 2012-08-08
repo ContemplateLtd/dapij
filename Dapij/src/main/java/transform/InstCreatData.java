@@ -1,12 +1,14 @@
 package transform;
 
+import comms.EventRecord;
+
 /**
  * Container for info stored upon detection of newly created instances during
  * execution of instrumented client programs.
  *
  * @author Marcin Szymczak <mpszymczak@gmail.com>
  */
-public class InstCreatData {
+public class InstCreatData implements EventRecord {
 
     private int objId;
     private Class<?> clazz;
