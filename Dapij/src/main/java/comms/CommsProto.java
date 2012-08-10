@@ -8,6 +8,7 @@ import agent.Settings;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -93,6 +94,31 @@ public final class CommsProto {
             ois.close();
 
             return new InstCreatData(objId, objCls, method, ofst, thdId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static EventRecord deconstMsg(byte[] b) {
+        ByteArrayInputStream bis = new ByteArrayInputStream(b);
+        DataInputStream dis = new DataInputStream(bis);
+        EventRecord event = null;
+        try {
+            //ois = new ObjectInputStream(bis);
+            //System.out.println("here!!!");
+            byte type = dis.readByte();
+            int rest = dis.readInt();
+            byte[] msg = new byte[rest];
+            dis.readFully(msg);
+            if (type == TYP_CRT) {
+                event = deconstCreatMsg(msg);
+            } else if (type == TYP_ACC) {
+                event = deconstAccsMsg(msg);
+            }
+            dis.close();
+            bis.close();
+
+            return event;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -26,7 +26,7 @@ public class TestEventClnt extends Thread {
     private boolean allowedToRun;
     private boolean stopped;
     private DataInputStream inFromServer;
-    private ArrayList<EventRecord> eventLog = new ArrayList<EventRecord>();
+    private ArrayList<byte[]> eventLog = new ArrayList<byte[]>();
 
     /* private DataOutputStream outToServer; */
 
@@ -38,8 +38,8 @@ public class TestEventClnt extends Thread {
         setName("test-event-cli");
     }
 
-    public EventRecord[] getEventLog() {
-        return eventLog.toArray(new EventRecord[eventLog.size()]);
+    public byte[][] getEventLog() {
+        return eventLog.toArray(new byte[eventLog.size()][]);
     }
 
     /**
@@ -78,7 +78,7 @@ public class TestEventClnt extends Thread {
     public void run() {
         connect(true);
         eventLog.clear();
-        EventRecord event = null;
+        byte[] event = null;
         while (allowedToRun) {
             try {
                 // TODO: remove this workaround and use nonblocking sockets
@@ -92,7 +92,7 @@ public class TestEventClnt extends Thread {
                 throw new RuntimeException(e); // TODO: ignore?
             }
             if (event != null) {
-                stdoutPrintln(NM + ": RCV: " + event);
+                stdoutPrintln(NM + ": RCV: " + CommsProto.deconstMsg(event));
                 eventLog.add(event);
             }
             event = null;
@@ -109,7 +109,7 @@ public class TestEventClnt extends Thread {
         }
 
         /* Shutdown. */
-        EventRecord event = null;
+        byte[] event = null;
         stdoutPrintln(NM + ": Shutting down, fetching last messages ...");
         while (true) {
             try {
@@ -117,7 +117,7 @@ public class TestEventClnt extends Thread {
                 if (inFromServer.available() > 5) {
                     event = readEvent();
                     if (event != null) {
-                        stdoutPrintln(NM + ": RCV: " + event);
+                        //stdoutPrintln(NM + ": RCV: " + CommsProto.deconstMsg(event));
                         eventLog.add(event);
                         event = null;
                     }
@@ -174,21 +174,14 @@ public class TestEventClnt extends Thread {
         //}
     }
 
-    private EventRecord readEvent() {
-        EventRecord event = null;
+    private byte[] readEvent() {
         try {
-            byte type = inFromServer.readByte();
-            int rest = inFromServer.readInt();
-            byte[] msg = new byte[rest];
-            inFromServer.readFully(msg);
-            if (type == CommsProto.TYP_CRT) {
-                event = CommsProto.deconstCreatMsg(msg);
-            } else if (type == CommsProto.TYP_ACC) {
-                event = CommsProto.deconstAccsMsg(msg);
-            }
-            return event;
+            byte[] msg = new byte[inFromServer.available()];
+            inFromServer.read(msg);
+
+            return msg;
         } catch (Exception e) {
-            return event;
+            throw new RuntimeException(e);
         }
     }
 
