@@ -2,6 +2,7 @@ package testutils;
 
 import agent.Agent;
 import comms.CommsTest;
+import java.util.ArrayList;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -17,7 +18,7 @@ import static transform.Transfmr.transformClass;
  */
 
 /**
- * A custom classloader for loading & instrumenting classes based on predefined
+ * A custom class loader for loading & instrumenting classes based on predefined
  * load policies. As a part of a small testing framework for testing agent code
  * that performs instrumentation, this class provides the ability to clean
  * isolated test environments for the test methods of a test class.
@@ -27,11 +28,19 @@ public class TestClassLoader extends ClassLoader {
     private static File mainClsRt = classpathRoot(Agent.class);     /* Main classes root */
     private static File tstClsRt = classpathRoot(CommsTest.class);  /* Test classes root */
 
+    /**
+     * A flag that allows to force class loading without instrumentation
+     * regardless of the package loading/transformation policy for that
+     * class.
+     */
+    private ArrayList<String> forceNoInstr;
+
     /* proj pkg dirs & flags indicating whether to instrument their classes */
     private HashMap<Package, PkgLdPolicy> pkgLdPolicies;
 
     public TestClassLoader(HashMap<Package, PkgLdPolicy> pkgLdPolicies) {
         this.pkgLdPolicies = pkgLdPolicies;
+        this.forceNoInstr = new ArrayList<String>();
     }
 
     @Override
@@ -56,10 +65,8 @@ public class TestClassLoader extends ClassLoader {
             ClassLoader cl = (getParent() != null) ? getParent() : getSystemClassLoader();
             c = cl.loadClass(clsBinName);
         }
-        if (resolve) {
-            resolveClass(c);
-        }
 
+        /* NOTE: resolveClass() call is never reached, so it has been removed. */
         return c;
     }
 
@@ -70,7 +77,9 @@ public class TestClassLoader extends ClassLoader {
      * @param binClsName
      *            the binary class name of the class to be loaded
      */
-    protected Class<?> findClass(String clsBinName) throws ClassNotFoundException {
+    @Override
+    protected Class<?> findClass(String clsBinName)
+            throws ClassNotFoundException {
 
         /*
          * Get pkg for class (if pkg exists) and return its load policy if such
@@ -99,8 +108,8 @@ public class TestClassLoader extends ClassLoader {
             instr = p.isTstInstr();
         }
         byte[] clsBytes = readClass(clsBinName, clsFullPath);
-
-        return defineClass(clsBinName, (instr) ? transformClass(clsBytes) : clsBytes);
+        return defineClass(clsBinName, (instr && !forceNoInstr.contains(clsBinName)) ?
+                transformClass(clsBytes) : clsBytes);
     }
 
     private Class<?> defineClass(String clsBinName, byte[] bytecode) {
@@ -195,5 +204,16 @@ public class TestClassLoader extends ClassLoader {
 
     private static String binNmToPth(String clsBinName) {
         return clsBinName.replace('.', '/') + ".class";
+    }
+
+    /**
+     * Adds a class to a list of classes that are not going to be instrumented.
+     *
+     * @param forceNoInstr
+     *            The binary name of the class that should not be instrumented
+     *            (regardless of its package load policy).
+     */
+    public void addNoInstr(String name) {
+        this.forceNoInstr.add(name);
     }
 }

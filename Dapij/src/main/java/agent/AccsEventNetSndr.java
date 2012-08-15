@@ -1,9 +1,10 @@
 package agent;
 
-import comms.AgentEventSrv;
+import comms.AgentSrv;
 import comms.CommsProto;
 import transform.AccsEvent;
 import transform.AccsEventLisnr;
+import transform.InstAccsData;
 
 /**
  * An access event listener that converts events to a format suitable for
@@ -14,16 +15,17 @@ import transform.AccsEventLisnr;
  */
 public class AccsEventNetSndr implements AccsEventLisnr {
 
-    private AgentEventSrv aes;
+    private AgentSrv server;
 
-    public AccsEventNetSndr(AgentEventSrv aes) {
-        this.aes = aes;
+    public AccsEventNetSndr(AgentSrv server) {
+        this.server = server;
     }
 
     @Override
     public void handleAccessEvent(AccsEvent e) {
 
         /* Send message to client if event server started. */
-        aes.sendEvent(CommsProto.constructAccsMsg(e.getObjId(), e.getThreadId()));
+        server.sendMsg(CommsProto.constructAccsMsg(
+                new InstAccsData(e.getObjId(), e.getThreadId())));
     }
 }

@@ -1,6 +1,6 @@
 package agent;
 
-import comms.AgentEventSrv;
+import comms.AgentSrv;
 import comms.CommsProto;
 import transform.CreatEvent;
 import transform.CreatEventLisnr;
@@ -14,9 +14,9 @@ import transform.CreatEventLisnr;
  */
 public class CreatEventNetSndr implements CreatEventLisnr {
 
-    private AgentEventSrv aes;
+    private AgentSrv aes;
 
-    public CreatEventNetSndr(AgentEventSrv aes) {
+    public CreatEventNetSndr(AgentSrv aes) {
         this.aes = aes;
     }
 
@@ -24,6 +24,6 @@ public class CreatEventNetSndr implements CreatEventLisnr {
     public void handleCreationEvent(CreatEvent e) {
 
         /* Compose & send a message over to external subscribers. */
-        aes.sendEvent(CommsProto.constructCreatMsg(e.getObjData()));
+        aes.sendMsg(CommsProto.constructCreatMsg(e.getObjData()));
     }
 }

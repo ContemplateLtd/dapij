@@ -8,12 +8,10 @@ import agent.Settings;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
-
 import transform.InstAccsData;
 import transform.InstCreatData;
 
@@ -37,51 +35,55 @@ public final class CommsProto {
 
     private CommsProto() {}
 
-    public static byte[] constructAccsMsg(int objId, long thdId) {
+    public static ByteBuffer constructAccsMsg(InstAccsData data) {
         ByteBuffer bf = ByteBuffer.allocate(17);
         bf.put(TYP_ACC);
         bf.putInt(12);
-        bf.putInt(objId);
-        bf.putLong(thdId);
-        return bf.array();
+        bf.putInt(data.getObjId());
+        bf.putLong(data.getThdId());
+        bf.flip();
+
+        return bf;
     }
 
-    public static InstAccsData deconstAccsMsg(byte[] b) {
-        ByteBuffer bf = ByteBuffer.wrap(b);
+    public static InstAccsData deconstAccsMsg(byte[] body) {
+        ByteBuffer bf = ByteBuffer.wrap(body);
         int objId = bf.getInt();
         long thdId = bf.getLong();
 
-        /* TODO: fix function. */
         return new InstAccsData(objId, thdId);
     }
 
-    public static byte[] constructCreatMsg(InstCreatData stats) {
+    public static ByteBuffer constructCreatMsg(InstCreatData data) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutputStream dos = null;
         try {
             dos = new ObjectOutputStream(bos);
 
-            dos.writeInt(stats.getObjId());
-            dos.writeObject(stats.getClazz());
-            dos.writeObject(stats.getMethod());
-            dos.writeLong(stats.getThreadId());
-            dos.writeInt(stats.getOffset());
+            /* Create msg body. */
+            dos.writeInt(data.getObjId());
+            dos.writeObject(data.getClazz());
+            dos.writeObject(data.getMethod());
+            dos.writeLong(data.getThreadId());
+            dos.writeInt(data.getOffset());
             dos.flush();
-            byte[] data = bos.toByteArray();
+            byte[] body = bos.toByteArray();
             bos.close();
             dos.close();
 
+            /* Create msg header. */
             ByteBuffer bf = ByteBuffer.allocate(5);
             bf.put(TYP_CRT);
-            bf.putInt(data.length);
-            return concat(bf.array(), data);
+            bf.putInt(body.length);
+
+            return ByteBuffer.wrap(concat(bf.array(), body));   /* Stick to body & return. */
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static InstCreatData deconstCreatMsg(byte[] b) {
-        ByteArrayInputStream bis = new ByteArrayInputStream(b);
+    public static InstCreatData deconstCreatMsg(byte[] body) {
+        ByteArrayInputStream bis = new ByteArrayInputStream(body);
         ObjectInputStream ois = null;
         try {
             ois = new ObjectInputStream(bis);
@@ -99,32 +101,7 @@ public final class CommsProto {
         }
     }
 
-    public static EventRecord deconstMsg(byte[] b) {
-        ByteArrayInputStream bis = new ByteArrayInputStream(b);
-        DataInputStream dis = new DataInputStream(bis);
-        EventRecord event = null;
-        try {
-            //ois = new ObjectInputStream(bis);
-            //System.out.println("here!!!");
-            byte type = dis.readByte();
-            int rest = dis.readInt();
-            byte[] msg = new byte[rest];
-            dis.readFully(msg);
-            if (type == TYP_CRT) {
-                event = deconstCreatMsg(msg);
-            } else if (type == TYP_ACC) {
-                event = deconstAccsMsg(msg);
-            }
-            dis.close();
-            bis.close();
-
-            return event;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static byte[] concat(byte[]... arrays) {
+    public static byte[] concat(byte[]... arrays) {
         int catLen = 0;
         for (int i = 0; i < arrays.length; i++) {
             catLen += arrays[i].length;
@@ -139,5 +116,15 @@ public final class CommsProto {
         }
 
         return cat;
+    }
+
+    public static Object deconstMsg(byte[] body, byte msgType) {
+        if (msgType == CommsProto.TYP_CRT) {
+            return CommsProto.deconstCreatMsg(body);
+        } else if (msgType == CommsProto.TYP_ACC) {
+            return CommsProto.deconstAccsMsg(body);
+        } else {
+            throw new RuntimeException("Message Type not recognised.");
+        }
     }
 }

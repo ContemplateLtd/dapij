@@ -1,15 +1,7 @@
 package transform;
 
-import static agent.Agent.setupEventSrv;
-import agent.CreatEventNetSndr;
 import agent.InstIdentifier;
 import agent.RuntmEventSrc;
-import agent.Settings;
-import comms.AgentEventSrv;
-import comms.TestEventClnt;
-import java.io.File;
-import java.net.URISyntaxException;
-import java.security.ProtectionDomain;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,14 +23,14 @@ public class TransformationTest extends TransfmrTest {
      * Tests whether object creations are detected and information about the
      * creations is stored in the concurrent map. This implicitly tests the
      * injected code performing this task.
-     * 
+     *
      * @throws Exception
      */
     @Test
     public void constructorIsInstumented() throws Exception {
 
         /* Create & get the concurr map keeping track of instance creations. */
-        HashMap<Integer, InstCreatData> map = runtimeSetup(
+        HashMap<Integer, InstCreatData> map = noInstrSetup(
                 new Callable<HashMap<Integer, InstCreatData>>() {
 
             @SuppressWarnings("unchecked")
@@ -63,28 +55,32 @@ public class TransformationTest extends TransfmrTest {
         });
 
         /* Create some objects, get their refs & test if events registered. */
-        Object[] refs = runtimeSetup(new Callable<Object[]>() {
+        Object[] refs = instrSetup(new Callable<Object[]>() {
 
             /* Create & return an annon class instance in a private method. */
             private Runnable anotherMethod() {
+                final int i = 1;
+
+                /* Create a runnable obj, use a final lcl var to generate access in constructor. */
                 return new Runnable() {
 
                     @Override
-                    public void run() {} /* Empty, only object needed. */
+                    public void run() {
+                        Integer.valueOf(i);
+                    }
                 };
             }
 
             @Override
             public Object[] call() {
-                String.valueOf(5); /* Insert insn to change ofst. */
+                String.valueOf(5);          /* Insert insn to change ofst. */
                 Integer i = new Integer(5); /* Create object Int. */
 
                 return new Object[] { i, anotherMethod() };
             }
         });
+        Identifier idfr = noInstrSetup(new Callable<Identifier>() {
 
-        Identifier idfr = runtimeSetup(new Callable<Identifier>() {
-            
             @Override
             public Identifier call() {
                 return InstIdentifier.INSTANCE;
@@ -111,43 +107,8 @@ public class TransformationTest extends TransfmrTest {
         // TODO: test if subclass of Runnable
         // ArrayList(this.getClass().getClasses()).containes(Runnable.class);
         assertEquals("Method name correctly read & set", "anotherMethod", icsRnbl.getMethod());
-        assertEquals("Offset correctly read & set", true, icsRnbl.getOffset() == 0);
+        assertEquals("Offset correctly read & set", 2, icsRnbl.getOffset());
         assertEquals("Thread id correctly read & set", 1, icsRnbl.getThreadId());
-    }
-
-    /**
-     * Tests the Settings singleton class TODO: move to agent test package
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void settingsTest() throws Exception {
-        Settings s = Settings.INSTANCE;
-        String settNm1 = "s1", settVl1 = "v1", settVl2 = "v2";
-        s.set(settNm1, settVl1);
-
-        /* Test wheter setting inserted and can obtain same value2. */
-        Assert.assertEquals("Setterly inserted: ", true, s.get(settNm1).equals(settVl1));
-
-        /* Test wheter setting successfully overwritten. */
-        s.set(settNm1, settVl2);
-        Assert.assertEquals("Setterly overwritten: ", true, s.get(settNm1).equals(settVl2));
-
-        /* Test wheter root proejct path is correct. */
-        ProtectionDomain pd = this.getClass().getProtectionDomain();
-        try {
-            File pkgDir = new File(pd.getCodeSource().getLocation().toURI());
-            Assert.assertEquals("Is root path valid: ", true,
-                    s.get(Settings.SETT_CWD).equals(pkgDir.getParentFile().getParent()));
-        } catch (URISyntaxException e) {
-            System.out.println("Could not obtain project root path.");
-            throw new RuntimeException(e);
-        }
-
-        /* Test whether unsetSett properly removes a setting. */
-        s.set(settNm1, settVl1);
-        s.rm(settNm1);
-        Assert.assertEquals("Settings successfully removed: ", true, s.isSet(settNm1) == false);
     }
 
     public static class MickeyMaus {
@@ -162,45 +123,26 @@ public class TransformationTest extends TransfmrTest {
         }
     }
 
+    /*
+     * TODO: FIX: generate multiple objects of a not instrumented type (to test IDs recored in
+     * the InstIdentifier concurrent map. Generate multiple objects of an inner class
+     * (e.g. MickeyMaus) to test ids instrumented.
+     */
     @Test
     public void objectIDTest() throws Exception {
+        Integer[] objIds = instrSetup(new Callable<Integer[]>() {
 
-        /* Start a client first to receive and process events & get its ref. */
-        TestEventClnt tec = setupEventClnt();
-        tec.start(); /* Start client. */
-
-        AgentEventSrv aes = runtimeSetup(new Callable<AgentEventSrv>() {
-            @Override
-            public AgentEventSrv call() {
-
-                /*
-                 * Start a srv to recv & fwd events to a single client. Call
-                 * blocks until client connected.
-                 */
-                AgentEventSrv aes = setupEventSrv();
-
-                /* Add a listener to send events to the server. */
-                RuntmEventSrc.INSTANCE.getCreatEventSrc().addListener(new CreatEventNetSndr(aes));
-                aes.start();
-
-                return aes;
-            }
-        });
-
-        /* Perform random actions to generate events. */
-        Integer[] objIds = runtimeSetup(new Callable<Integer[]>() {
             @Override
             public Integer[] call() {
 
-                /* Check whether all objects are assigned unique identifiers */
-                /* Create some objects */
+                /* Create many objects. */
                 Object obj = new Object();
                 String str = new String("A string");
                 Integer itg = new Integer(1);
                 ConcurrentHashMap<String, String> hash = new ConcurrentHashMap<String, String>();
                 MickeyMaus mickey = new MickeyMaus(2); /* an inner class */
 
-                /* Create an array of object identifiers */
+                /* Record their object identifiers in an array. */
                 Integer[] objIds = new Integer[5];
                 objIds[0] = InstIdentifier.INSTANCE.getId(obj);
                 objIds[1] = InstIdentifier.INSTANCE.getId(str);
@@ -212,14 +154,12 @@ public class TransformationTest extends TransfmrTest {
             }
         });
 
-        /* The IDs should be non-negative and unique */
+        /* Check if all assigned identifiers are non-negative & unique.  */
         for (int i = 0; i < 5; i++) {
             Assert.assertTrue(objIds[i] >= 1);
             for (int j = 0; j < i; j++) {
                 Assert.assertFalse(objIds[i] == objIds[j]);
             }
         }
-        aes.shutdown();
-        tec.shutdown();
     }
 }

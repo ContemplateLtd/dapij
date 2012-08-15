@@ -89,6 +89,6 @@ public final class Settings {
     /* Hardcoded settings for now */
     private void loadSettings() {
         set(SETT_EVS_PORT, "7836");
-        set(SETT_CLI_HOST, "127.0.0.1");
+        set(SETT_CLI_HOST, "localhost");
     }
 }

@@ -1,7 +1,5 @@
 package testutils;
 
-import comms.CommsProto;
-import comms.TestEventClnt;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
@@ -17,9 +15,8 @@ import java.util.concurrent.Callable;
  */
 public class TransfmrTest {
 
-    private static HashMap<Package, PkgLdPolicy> loadPolicy =
-            TestClassLoader.getPkgLoadPolicy();
-    protected ClassLoader cl; /* set to a new instance for each test mwthod */
+    private static HashMap<Package, PkgLdPolicy> loadPolicy = TestClassLoader.getPkgLoadPolicy();
+    protected TestClassLoader cl; /* Create a new instance for each test mеthod. */
 
     /**
      * Resets the class loader field to provide a new one for each test
@@ -31,24 +28,15 @@ public class TransfmrTest {
         cl = new TestClassLoader(loadPolicy); /* A new cl for each test */
     }
 
-    protected void runtimeSetup(String name) {
+    @SuppressWarnings("unchecked")
+    protected <T extends Object> T noInstrSetup(Callable<T> clbl) {
+        cl.addNoInstr(clbl.getClass().getName());
+        Object classInst = setup(clbl);
+        return (T) classInst;
+    }
 
-        /* Load given class throug the newly created cl */
-        Class<?> clazz = null;
-        try {
-            clazz = cl.loadClass(name);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-
-        /* Create an instance of the given class */
-        Runnable rInst = null;
-        try {
-            rInst = (Runnable) clazz.newInstance();
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-        rInst.run();
+    protected <T extends Object> T instrSetup(Callable<T> clbl) {
+        return (T) setup(clbl);
     }
 
     /**
@@ -62,11 +50,15 @@ public class TransfmrTest {
      *            class. Pasing of local parameters not currently supported.
      */
     @SuppressWarnings("unchecked")
-    protected <T extends Object> T runtimeSetup(Callable<T> clbl) {
+    private <T extends Object> T setup(Callable<T> clbl) {
         try {
-            Class<?> clazz = cl.loadClass(clbl.getClass().getName());   /* Load in cl. */
-            Constructor<?> cnstr = clazz.getDeclaredConstructors()[0];  /* Get default */
+            /* Load in custom class loader. */
+            Class<?> clazz = cl.loadClass(clbl.getClass().getName());
+            Constructor<?> cnstr = clazz.getDeclaredConstructors()[0]; /* Get default constr. */
             cnstr.setAccessible(true);
+
+            /* Throw an ex if not a default - i.e. when final args passed to inner annon class. */
+            /* TODO: add support for passing arguments */
             if (cnstr.getParameterTypes().length > 1) {
                 throw new RuntimeException("Test inner callables do not allow local variable"
                         + " argument passing due to type incompatibility between classloaders.");
@@ -79,13 +71,5 @@ public class TransfmrTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    /* Starts a test client for receiving events from the agent's server. */
-    public static TestEventClnt setupEventClnt() {
-        final TestEventClnt tec = new TestEventClnt(CommsProto.HOST, CommsProto.PORT);
-        tec.setDaemon(true);
-
-        return tec;
     }
 }

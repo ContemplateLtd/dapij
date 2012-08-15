@@ -1,142 +1,110 @@
 package comms;
 
-import agent.AccsEventNetSndr;
-import static agent.Agent.setupEventSrv;
-import agent.CreatEventNetSndr;
-import agent.RuntmEventSrc;
-import agent.Settings;
-
+import static junit.framework.Assert.assertEquals;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.Callable;
-import junit.framework.Assert;
+import java.nio.ByteBuffer;
 import org.junit.Test;
 import testutils.TransfmrTest;
+import transform.InstAccsData;
 import transform.InstCreatData;
 
 /**
- * 
+ *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
 public class CommsTest extends TransfmrTest {
 
+    /* TODO: Before test - generate random port within some predetermined range? */
+
     /**
-     * Test agent's event server with a test EventClient.
+     * Test event client for detecting corrupt messages.
      */
     @Test
-    public void agentEventServerTest() throws Exception {
-        TestEventClnt tec = setupEventClnt();   /* Set up client & get its ref. */
-        tec.start();                            /* Start client before srv is started. */
-        AgentEventSrv aes = runtimeSetup(new Callable<AgentEventSrv>() {
+    public void agentEventServerTest() {
 
-            @Override
-            public AgentEventSrv call() {
+        /* Start client first, as srv blocking start. */
+        TestClnt client = new TestClnt(CommsProto.HOST, CommsProto.PORT);
+        client.setDaemon(true);
+        client.start();
+        AgentSrv server = AgentSrv.blockingConnect(CommsProto.HOST, CommsProto.PORT, 3, 5000);
+        server.setDaemon(true);
+        server.start();
 
-                /*
-                 * Start a srv to recv & fwd events to a single client. Call
-                 * blocks until client connected.
-                 */
-                AgentEventSrv aes = setupEventSrv();
+        /* TODO: Send a correct message, check if correctly received. */
+        server.sendMsg(CommsProto.constructAccsMsg(new InstAccsData(5, 1)));
 
-                /* Add a listener to send events to the server. */
-                RuntmEventSrc.INSTANCE.getCreatEventSrc().addListener(new CreatEventNetSndr(aes));
-                RuntmEventSrc.INSTANCE.getAccsEventSrc().addListener(new AccsEventNetSndr(aes));
-                aes.start();
+        server.sendMsg(ByteBuffer.wrap(new byte[]{5})); /* Construct & send corrupt msg. */
 
-                return aes;
-            }
-        });
+        /* TODO: Check if client recovered by sending another correct message. */
 
-        /* Perform random actions to generate events. */
-        runtimeSetup(new Callable<Object>() {
-
-            @Override
-            public Object call() {
-                new String(new String(String.valueOf(new Integer(5)))); /* Create objects. */
-                this.toString(); /* TODO: Generate access? */
-
-                return null;
-            }
-        });
-        aes.shutdown();
-        tec.shutdown();
-
-        /* TODO: FIX: write test to check if all event msgs correctly received. */
-        Assert.assertEquals("AgentEventSrv workds: ", true, true);
+        server.shutdown();
+        client.shutdown();
+        try {
+            server.join();
+            client.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        assertEquals("AgentEventSrv works: ", true, true); /* TODO: Write appropriate asserts. */
     }
 
     /**
-     * Test if the messages are received by the client in the correct order
+     * Test if all sent messages are received. Test if msg reception order
+     * matches order of generation.
      */
     @Test
-    public void EventOrderTest() throws Exception {
-        Settings.INSTANCE.set(Settings.SETT_QUIET_NET, "false");
-        TestEventClnt tec = setupEventClnt();    /* Set up client. */
-        tec.start();                             /* Start client before srv. */
-        AgentEventSrv aes = runtimeSetup(new Callable<AgentEventSrv>() {
+    public void EventOrderTest() {
 
-            @Override
-            public AgentEventSrv call() {
+        /* Start client first, as srv blocking start. */
+        TestClnt client = new TestClnt(CommsProto.HOST, CommsProto.PORT).withMsgLog();
+        client.setDaemon(true);
+        client.start();
+        AgentSrv server = AgentSrv.blockingConnect(CommsProto.HOST, CommsProto.PORT, 3, 5000);
+        server.setDaemon(true);
+        server.start();
 
-                /*
-                 * Start a srv to recv & fwd events to a single client. Call
-                 * blocks until client connected.
-                 */
-                AgentEventSrv aes = setupEventSrv();
-
-                /* Add a listener to send events to the server. */
-                RuntmEventSrc.INSTANCE.getCreatEventSrc().addListener(new CreatEventNetSndr(aes));
-                RuntmEventSrc.INSTANCE.getAccsEventSrc().addListener(new AccsEventNetSndr(aes));
-                aes.start();
-
-                return aes;
-            }
-        });
-
-        byte[][] testMessages = new byte[100][];
-
+        ByteBuffer[] testMessages = new ByteBuffer[100];
         for(int i = 0; i < 100; i++) {
-            /* TODO: The test fails without the sleep statement. This is probably due to the client
-             * not being able to process a large bunch of messages sent at the same time */
-            Thread.sleep(100);
             if(i % 3 == 0) {
                 testMessages[i] = CommsProto.constructCreatMsg(
                         new InstCreatData(i, String.class, "Method" + i, 2*i, 3*i));
-                aes.sendEvent(testMessages[i]);
+                server.sendMsg(testMessages[i]);
             }
             else if(i % 3 == 1) {
                 testMessages[i] = CommsProto.constructCreatMsg(
                         new InstCreatData(i, Integer.class, "Method" + i, 2*i, 3*i));
-                aes.sendEvent(testMessages[i]);
+                server.sendMsg(testMessages[i]);
             }
             else if(i % 3 == 2) {
-                testMessages[i] = CommsProto.constructAccsMsg(i, 4*i);
-                aes.sendEvent(testMessages[i]);
+                testMessages[i] = CommsProto.constructAccsMsg(new InstAccsData(i, 4*i));
+                server.sendMsg(testMessages[i]);
             }
-
         }
 
-        aes.shutdown();
-        tec.shutdown();
+        server.shutdown();
+        client.shutdown();
 
-        byte[][] receivedMessages = tec.getEventLog();
+        try {
+            server.join();
+            client.join();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        ArrayList<byte[]> receivedMessages = client.getEventLog();
+
+        /* Check if all messages received. */
+        assertEquals("Number msgs sent same as number of msgs received: ", testMessages.length,
+                receivedMessages.size());
 
         /* Check if all messages received in correct order */
-        boolean orderCorrect;
-        int i =0;
-        int j =0;
-       // System.out.println("rec_len: " + receivedMessages.length);
-        while((i < testMessages.length)&&(j < receivedMessages.length)) {
-            if(Arrays.equals(testMessages[i], receivedMessages[j])) {
-                i++;
-                j++;
-            }
-            else {
-                j++;
-            }
+        int i = 0;
+        while (i < testMessages.length) {
+            assertEquals("Message order correct: ", true,
+                    Arrays.equals(testMessages[i].array(), receivedMessages.get(i)));
+            i++;
         }
-
-        orderCorrect = i == testMessages.length;
-
-        Assert.assertTrue("Message order correct " + i + " " + j, orderCorrect);
     }
 }

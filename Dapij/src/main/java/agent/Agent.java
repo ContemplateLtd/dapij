@@ -1,11 +1,9 @@
 package agent;
 
-import comms.AgentEventSrv;
+import comms.AgentSrv;
 import comms.CommsProto;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
-import java.net.ServerSocket;
-import java.net.Socket;
 
 /**
  * An agent that instruments user programs for the purpose of collecting runtime
@@ -18,41 +16,28 @@ public final class Agent {
     private Agent() {}
 
     public static void premain(String argString, Instrumentation inst) throws IOException {
-        final AgentEventSrv aes = setupEventSrv();
 
-        RuntmEventSrc.INSTANCE.getAccsEventSrc().addListener(new AccsEventNetSndr(aes));
-        RuntmEventSrc.INSTANCE.getCreatEventSrc().addListener(new CreatEventNetSndr(aes));
+        /* Wait for clients conns 3 times for 5 sec. */ // TODO: load from Settings
+        final AgentSrv server = AgentSrv.blockingConnect(CommsProto.HOST, CommsProto.PORT, 3, 5);
+        server.setDaemon(true);
 
-        /* For gracefully shutdown when user program ends. */
+        RuntmEventSrc.INSTANCE.getAccsEventSrc().addListener(new AccsEventNetSndr(server));
+        RuntmEventSrc.INSTANCE.getCreatEventSrc().addListener(new CreatEventNetSndr(server));
+
+        /* For graceful shutdown upon user program termination. */
         Runtime.getRuntime().addShutdownHook(new Thread() {
 
             @Override
             public void run() {
-                aes.shutdown();
+                server.shutdown();
+                try {
+                    server.join();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
-        aes.start(); /* Start server. */
+        server.start(); /* Start server. */
         inst.addTransformer(new transform.Transfmr());
-    }
-
-    /**
-     * Blocks until a client connects & starts, in a different thread, a server
-     * passing to it the created sockets.
-     * @throws IOException
-     */
-    public static AgentEventSrv setupEventSrv() {
-        ServerSocket srvSock;
-        try {
-            srvSock = new ServerSocket(CommsProto.PORT);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        /* Attempt to connect '3' times */ // TODO: load from Settings
-        Socket conn = AgentEventSrv.blockingConnect(srvSock, 3, 5);
-        AgentEventSrv aes = new AgentEventSrv(srvSock, conn);
-        aes.setDaemon(true);
-
-        return aes;
     }
 }
