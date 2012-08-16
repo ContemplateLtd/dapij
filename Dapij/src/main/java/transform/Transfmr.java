@@ -35,6 +35,11 @@ public class Transfmr implements ClassFileTransformer {
 
             return classfileBuffer;
         }
+        if(classBeingRedefined.isInterface()) {
+            System.out.println("Did not instument interface " + className + "!");
+
+            return classfileBuffer;
+        }
         System.out.println("Instrumenting " + className + " ...");
 
         return transformClass(classfileBuffer);
