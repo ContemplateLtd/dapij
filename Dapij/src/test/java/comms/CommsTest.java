@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.nio.ByteBuffer;
 import org.junit.Test;
+import comms.proto.AccsMsg;
+import comms.proto.CommsProto;
+import comms.proto.CreatMsg;
 import testutils.TransfmrTest;
 import transform.InstAccsData;
 import transform.InstCreatData;
@@ -32,7 +35,7 @@ public class CommsTest extends TransfmrTest {
         server.start();
 
         /* TODO: Send a correct message, check if correctly received. */
-        server.sendMsg(CommsProto.constructAccsMsg(new InstAccsData(5, 1)));
+        server.sendMsg(AccsMsg.construct(new InstAccsData(5, 1)));
 
         server.sendMsg(ByteBuffer.wrap(new byte[]{5})); /* Construct & send corrupt msg. */
 
@@ -64,35 +67,33 @@ public class CommsTest extends TransfmrTest {
         server.setDaemon(true);
         server.start();
 
-        ByteBuffer[] testMessages = new ByteBuffer[100];
-        for(int i = 0; i < 100; i++) {
+        /* Send a 1000 different messages. */
+        int nrMsgs = 1000;
+        ByteBuffer[] testMessages = new ByteBuffer[nrMsgs];
+        for(int i = 0; i < nrMsgs; i++) {
             if(i % 3 == 0) {
-                testMessages[i] = CommsProto.constructCreatMsg(
+                testMessages[i] = CreatMsg.construct(
                         new InstCreatData(i, String.class, "Method" + i, 2*i, 3*i));
                 server.sendMsg(testMessages[i]);
             }
             else if(i % 3 == 1) {
-                testMessages[i] = CommsProto.constructCreatMsg(
+                testMessages[i] = CreatMsg.construct(
                         new InstCreatData(i, Integer.class, "Method" + i, 2*i, 3*i));
                 server.sendMsg(testMessages[i]);
             }
             else if(i % 3 == 2) {
-                testMessages[i] = CommsProto.constructAccsMsg(new InstAccsData(i, 4*i));
+                testMessages[i] = AccsMsg.construct(new InstAccsData(i, 4*i));
                 server.sendMsg(testMessages[i]);
             }
         }
-
         server.shutdown();
         client.shutdown();
-
         try {
             server.join();
             client.join();
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
         ArrayList<byte[]> receivedMessages = client.getEventLog();
 
         /* Check if all messages received. */
@@ -101,7 +102,7 @@ public class CommsTest extends TransfmrTest {
 
         /* Check if all messages received in correct order */
         int i = 0;
-        while (i < testMessages.length) {
+        while (i < nrMsgs) {
             assertEquals("Message order correct: ", true,
                     Arrays.equals(testMessages[i].array(), receivedMessages.get(i)));
             i++;

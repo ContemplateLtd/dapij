@@ -4,13 +4,12 @@
  */
 package transform;
 
-import comms.EventRecord;
 
 /**
  *
  * @author Marcin Szymczak <mpszymczak@gmail.com>
  */
-public class InstAccsData implements EventRecord {
+public class InstAccsData implements InstEventData {
 
     private int objId;
     private long thdId;
@@ -30,6 +29,7 @@ public class InstAccsData implements EventRecord {
     /**
      * @return the thdId
      */
+    @Override
     public long getThdId() {
         return thdId;
     }

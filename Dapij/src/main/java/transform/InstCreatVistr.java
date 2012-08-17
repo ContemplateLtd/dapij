@@ -29,7 +29,8 @@ public class InstCreatVistr extends InsnOfstReader {
      * A wrapper of object creation information. Used to compose the entries of
      * instanceCreationStack.
      */
-    private final class StackElement {
+    private static final class StackElement {
+
         private Type type;
         private String method;
         private int offset;
@@ -38,6 +39,18 @@ public class InstCreatVistr extends InsnOfstReader {
             this.type = type;
             this.method = method;
             this.offset = offset;
+        }
+
+        public Type getType() {
+            return type;
+        }
+
+        public String getMethod() {
+            return method;
+        }
+
+        public int getOffset() {
+            return offset;
         }
     }
 
@@ -122,9 +135,9 @@ public class InstCreatVistr extends InsnOfstReader {
 
         /* Push remaining arguments on stack. */
         StackElement currentElem = objectCreationStack.pop();
-        mv.visitLdcInsn(currentElem.type);
-        mv.visitLdcInsn(currentElem.method);
-        mv.visitLdcInsn(currentElem.offset);
+        mv.visitLdcInsn(currentElem.getType());
+        mv.visitLdcInsn(currentElem.getMethod());
+        mv.visitLdcInsn(currentElem.getOffset());
 
         /* Get thread ID & push. */
         mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(Thread.class),

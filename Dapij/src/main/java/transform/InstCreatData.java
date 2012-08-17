@@ -1,6 +1,5 @@
 package transform;
 
-import comms.EventRecord;
 
 /**
  * Container for info stored upon detection of newly created instances during
@@ -8,7 +7,7 @@ import comms.EventRecord;
  *
  * @author Marcin Szymczak <mpszymczak@gmail.com>
  */
-public class InstCreatData implements EventRecord {
+public class InstCreatData implements InstEventData {
 
     private int objId;
     private Class<?> clazz;
@@ -69,7 +68,8 @@ public class InstCreatData implements EventRecord {
     /**
      * @return the threadId
      */
-    public long getThreadId() {
+    @Override
+    public long getThdId() {
         return threadId;
     }
 

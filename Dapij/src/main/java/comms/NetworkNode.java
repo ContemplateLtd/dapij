@@ -125,17 +125,13 @@ public abstract class NetworkNode extends Thread {
             throw new RuntimeException("Illegal lenght: expected: length > 0, got: length = "
                     + length);
         }
-        int attempts = 0;       /* Number of attempts to read more bytes when 0 bytes just read. */
         int justRead = 0;       /* Number of bytes just read. */
-        ByteBuffer bf = ByteBuffer.wrap(new byte[length]);
+        ByteBuffer bf = ByteBuffer.wrap(new byte[length]);  // TODO: switch to .allocate(length);
         while (bf.hasRemaining()) {
             justRead = chnl.read(bf);
             if (justRead > 0) {
-                attempts = 0;   /* Reset number of attempts if read successful. */
                 continue;
-
-            /* If 0 bytes read, break unless some bytes previously read and some attempts left. */
-            } else if (justRead == 0 && !(bf.remaining() < length && attempts++ < 5)) {
+            } else if (justRead == 0) {
                 break;
             } else if (justRead == -1) {
                 chnl.close();   /* Not usable anymore, close. */

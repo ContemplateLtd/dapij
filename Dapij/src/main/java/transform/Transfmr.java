@@ -22,7 +22,7 @@ public class Transfmr implements ClassFileTransformer {
 
         /*
          * Do not instrument project's classes at runtime.
-         *
+         * TODO: do not instrument interfaces.
          * TODO: should remove all additional classes from this blacklist! Code
          * currently breaks if any of these is removed.
          */
@@ -32,11 +32,6 @@ public class Transfmr implements ClassFileTransformer {
                 || className.startsWith("java/io/") || className.startsWith("sun/net/")
                 || className.startsWith("java/util/")) {
             System.out.println("Did not instument " + className + "!");
-
-            return classfileBuffer;
-        }
-        if(classBeingRedefined.isInterface()) {
-            System.out.println("Did not instument interface " + className + "!");
 
             return classfileBuffer;
         }

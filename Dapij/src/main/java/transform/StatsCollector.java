@@ -17,7 +17,6 @@ import org.objectweb.asm.Type;
 public class StatsCollector extends ClassVisitor {
     
     private int access;
-    private String name;
     private boolean hasIdField = false;
 
     public StatsCollector(ClassVisitor cv) {
@@ -51,7 +50,6 @@ public class StatsCollector extends ClassVisitor {
         javaVersions.add(Integer.valueOf(Opcodes.V1_3));
         javaVersions.add(Integer.valueOf(Opcodes.V1_4));
         this.access = access;
-        this.name = name;
         cv.visit((javaVersions.contains(version)) ? Opcodes.V1_5 : version, access, name,
                 signature, superName, interfaces);
     }
@@ -79,19 +77,20 @@ public class StatsCollector extends ClassVisitor {
 
     public FieldVisitor visitField(int access, String name, String desc,
             String signature, Object value) {
-        if(name.equals("__DAPIJ_ID")) {
+        if (name.equals("__DAPIJ_ID")) {
             hasIdField = true;
         }
+
         return cv.visitField(access, name, desc, signature, value);
     }
 
     @Override
     public void visitEnd() {
         
-        /* Add ID field if not added before and class is not abstract nor an interface */
-        if((!hasIdField)&&(access & Opcodes.ACC_ABSTRACT) == 0) {
-            cv.visitField(Opcodes.ACC_PUBLIC, "__DAPIJ_ID", Type.INT_TYPE.getDescriptor(),
-                    null, null);
+        /* Add ID field if not present and class is not abstract. */
+        if (!hasIdField && (access & Opcodes.ACC_ABSTRACT) == 0) {
+            cv.visitField(Opcodes.ACC_PUBLIC, "__DAPIJ_ID", Type.INT_TYPE.getDescriptor(), null,
+                    null);
         }
         cv.visitEnd();
     }

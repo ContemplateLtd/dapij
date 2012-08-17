@@ -9,6 +9,12 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import comms.proto.CommsProto;
+import comms.proto.Message;
+import comms.proto.MsgHeader;
+
+import utils.Helpers;
+
 /**
  * A network client used for testing the agent's network server.
  *
@@ -130,29 +136,33 @@ public class TestClnt extends NetworkNode {
 
     private Object readEvent(SocketChannel srvChnl) {
         try {
-            /* Read msg type and number of args - a byte & an int (total size 5). */
-            ByteBuffer header = read(srvChnl, 5);
-            if (header == null) {
-                return null; /* Nothing read. */
+            ByteBuffer hdrBuf = read(srvChnl, MsgHeader.HDR_SIZE);      /* Read header. */
+            if (hdrBuf == null) {
+                return null;                                            /* Nothing read. */
             }
-            byte msgType = header.get();
-            int bodySize = header.getInt();
-            ByteBuffer body = read(srvChnl, bodySize);
-            if (body == null) {
-                return null; /* Nothing read. */
+            MsgHeader header = new MsgHeader(hdrBuf).deconstruct();
+            if (!CommsProto.isSupported(header.getMsgType())) {
+                throw new RuntimeException("Message type '" + header.getMsgType()
+                        + "' is not supported.");
+            }
+            ByteBuffer bodyBuf = read(srvChnl, header.getBdySize());    /* Read body. */
+            if (bodyBuf == null) {
+                return null;                                            /* Nothing read. */
             }
             if (msgLog != null) {
-                msgLog.add(CommsProto.concat(header.array(), body.array()));
+                msgLog.add(Helpers.arrCat(hdrBuf.array(), bodyBuf.array()));    /* Log event. */
             }
-            Object event = CommsProto.deconstMsg(body.array(), msgType);
-            stdoutPrintln("RCV: " + event.toString());
+            Message event = CommsProto.deconstMsgBdy(bodyBuf, header.getMsgType());
+            stdoutPrintln("RCV: " + event.getMsg().toString());
             return event;
         } catch (IOException e) {       /* Channel does not work */
             //e.printStackTrace();        // TODO: add logging.
             return null;
         } catch (RuntimeException e) {  /* Corrupted message. */
-            stdoutPrintln("Corrupted msg detected ..."); // TODO: add logging.
-            return null;
+            e.printStackTrace(); /* TODO: implement debug mode */
+            throw new RuntimeException(e);
+            //stdoutPrintln("Corrupted msg detected ..."); // TODO: add logging.
+            //return null;
         }
     }
 

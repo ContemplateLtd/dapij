@@ -96,7 +96,7 @@ public class TransformationTest extends TransfmrTest {
         assertEquals("Class corretly read & set", Integer.class, icsInt.getClazz());
         assertEquals("Method name correctly read & set", "call", icsInt.getMethod());
         assertEquals("Offset correctly read & set", true, icsInt.getOffset() == 3);
-        assertEquals("Thread id correctly read & set", 1, icsInt.getThreadId());
+        assertEquals("Thread id correctly read & set", 1, icsInt.getThdId());
 
         /* Check if map contains info for the inner anonymous Runnable obj. */
         int r = idfr.getId(refs[1]);
@@ -108,7 +108,7 @@ public class TransformationTest extends TransfmrTest {
         // ArrayList(this.getClass().getClasses()).containes(Runnable.class);
         assertEquals("Method name correctly read & set", "anotherMethod", icsRnbl.getMethod());
         assertEquals("Offset correctly read & set", 2, icsRnbl.getOffset());
-        assertEquals("Thread id correctly read & set", 1, icsRnbl.getThreadId());
+        assertEquals("Thread id correctly read & set", 1, icsRnbl.getThdId());
     }
 
     public static class MickeyMaus {
