@@ -12,8 +12,8 @@ id: NP
 
 NOTATION GUIDE:
 
-	[x]. Section
-		x.x[prio] Subsection
+	[#]. Section
+		#.#[prio] Subsection
 			- comment
 			* task
 
@@ -30,23 +30,28 @@ V	- implemented
 
 TASKS:
 
+	[0]. Issues
+MS		X	0.1 Problem with missing static classes at runtime in porduction (ClassDefNotFoundException).
+
 	[1]. Architecture
 NP			1.1	Implement a agent server that streams *events to a network port
 			V	* The server is created in a daemon thread that is started in the agent's premain method.
-			V	* The premain method will block on an accept() call until a client connects (so that
+			V	* The premain method will block & wait for an initial client connection (so that
 					the user program doesn't start until a client is ready to receive the messages).
 			V	* The user thread will invoke server method calls that directly send the messages to
 					the clients (relying on the OS network buffers) using send()**.
 			V	* Add a ShutdownHook (a thread object) to Runtime that flushes the queues (perhaps
 					by just calling close() on the connection) to guarantee that all messages are
 					 delivered to the connected client.
-			~V	* Fully test server
-(needs tst)	~V	** Implement send function properly (to guarantee ordered messages).
+			V	** Implement send function properly (to guarantee ordered messages).
 
-			1.2	[y] Implement a consumer API (e.g. using the Visitor pattern)
+NP		~V	1.2	[r] Establish a protocol (message format) for the events
+
+		X	1.3 [g] Implement a production test client (perhaps based on the testing client).
+
+			1.4	[g] Implement a consumer API (e.g. using the Visitor pattern)
 				* A client that accepts events from the agent event server (an event reader).
 				* Event visitors for processing different events.
-			1.3	[y] Establish a protocol (message format) for the events
 
 			*events - object creation, thread accesses to objects (class method invocation, field access)
 
@@ -56,10 +61,24 @@ NP			2.1. [r] Fix testing framework
 			~V	* Review TestClassLoader implementation and verify that it works
 					- improve package load policies
 			
-MS		~V	2.2	[r] Test communication architecture & protocol
+			2.2	[r] Test communication architecture & protocol
+				- test agent production server
+				- test production client
+MS			~V	* Performance test - fast send of a huge amount of messages.
+NP			~V 	* Test message order
+			X	* Test protocol methods & classes
+
+MS/NP	~V	2.3 [r] Fully test instrumentation code.
+
+NP		~V	2.4 [r] Fully test event generation code.
+
+			2.5 [r]	Fully agent code.
+			X	* ArgStack
+MS			~V	* InstIdentifier (not yet tested for concurrency & thread safety).
+NP			~V	* Settings (not yet tested for concurrency & thread safety).
 
 	[3]. Agent features
-MS			3.1	[r] Implement object identification (either in map or in inserted field)
+MS		~V	3.1	[r] Implement object identification (either in map or in inserted field)
 MS			3.2	Research the approach of adding a field to java.lang.Object
 				- this is better as it is centralised, but might introduce other problems
 			3.3	[g] Cover the rest of the (currently not handled) cases for object creation
@@ -69,9 +88,14 @@ MS			3.2	Research the approach of adding a field to java.lang.Object
 				- deal with unknown instances (i.e. without known origin)
 
 	[4]. [y] Settings Singleton
-			4.1 [y] make it thread safe, e.g.:
+		~V	4.1 [y] make it thread safe, e.g.:
 				- use a concurrent HashMap
-				- use synchronised setters
-				* test it for thread safety
+				- use synchronised setters?
 
-	[5]. [g] Proper logging?
+	[5]. Documentation.
+			5.1 [y] Documenting issues
+			~V	* TODOs
+			~V	* Extensive comments in code
+				* Textual explanations in doc folder / Contemplate wiki.
+
+	[6]. [g] Proper logging?
