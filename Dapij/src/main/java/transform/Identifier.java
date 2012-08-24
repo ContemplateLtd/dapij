@@ -6,5 +6,5 @@ package transform;
  */
 public interface Identifier {
 
-    int getId(Object ref);
+    long getId(Object ref);
 }

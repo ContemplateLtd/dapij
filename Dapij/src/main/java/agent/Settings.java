@@ -2,7 +2,7 @@ package agent;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A singleton class containing the settings of the agent.
@@ -14,11 +14,15 @@ public final class Settings {
     public static final Settings INSTANCE = new Settings();
 
     /* Constant keys for (internal) settings of the Settings Singleton */
+
+    /** Verbose setting name. */
+    public static final String SETT_VERBOSE = "verbose";
+
     /** Current working dir setting name. */
     public static final String SETT_CWD = "cwd";
 
-    /** Verbose network messages setting name. */
-    public static final String SETT_QUIET_NET = "quietNet";
+    /** User network setting name. */
+    public static final String SETT_USE_NET = "useNet";
 
     /** Agent's event server port setting name. */
     public static final String SETT_EVS_PORT = "EventSrvPort";
@@ -27,10 +31,12 @@ public final class Settings {
     public static final String SETT_CLI_HOST = "EventCliHost";
 
     /** A HashMap<String, String> structure that allows storing String settings. */
-    private HashMap<String, String> settings;
+    private  ConcurrentHashMap<String, String> settings;
+
+    private Boolean verbose;
 
     private Settings() {
-        settings = new HashMap<String, String>();
+        settings = new ConcurrentHashMap<String, String>();
 
         /* Set some internal settings dependent on runtime. */
         /* set default root path to current working directory */
@@ -39,6 +45,7 @@ public final class Settings {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
         // TODO: support loading from config file
         loadSettings(); /* load the rest of the settings */
     }
@@ -51,7 +58,7 @@ public final class Settings {
      * @return The value of the setting (a String) or null if it doesn't exist.
      */
     public String get(String key) {
-        return (settings.containsKey(key)) ? settings.get(key) : null;
+        return settings.get(key);
     }
 
     /**
@@ -61,34 +68,41 @@ public final class Settings {
      *            A String representing the name of the setting.
      * @param val
      *            A String representing the value of the setting.
+     * @returns The previous value for this settings, if any.
      */
-    public void set(String key, String val) {
-        settings.put(key, val);
+    public String set(String key, String val) {
+        return settings.put(key, val);
     }
 
     /**
      * Removes a settings given its name.
      * @param key
      *            The name of the setting to remove.
-     * @return Returns true if setting removed and false otherwise.
+     * @return Returns the setting removed or null if no such setting.
      */
-    public boolean rm(String key) {
-        if (settings.containsKey(key)) {
-            settings.remove(key);
-
-            return true;
-        }
-
-        return false;
+    public String rm(String key) {
+        return settings.remove(key);
     }
 
     public boolean isSet(String key) {
         return settings.containsKey(key);
     }
 
-    /* Hardcoded settings for now */
+    /* TODO: Implement. Hardcoded settings for now. */
     private void loadSettings() {
         set(SETT_EVS_PORT, "7836");
         set(SETT_CLI_HOST, "localhost");
+    }
+
+    /* TODO: Use logger & remove this. */
+    public void println(String msg) {
+        /* Set field only once. */
+        if (verbose == null) {
+            String q = get(Settings.SETT_VERBOSE);
+            verbose = Boolean.valueOf((q != null && q.equals("true")) ? true : false);
+        }
+        if (verbose) {
+            System.out.println(Thread.currentThread().getName() + ": " + msg);
+        }
     }
 }

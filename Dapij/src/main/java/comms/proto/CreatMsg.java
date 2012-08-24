@@ -43,7 +43,7 @@ public final class CreatMsg extends Message {
             dos = new ObjectOutputStream(bos);
 
             /* Create body. */
-            dos.writeInt(creatData.getObjId());
+            dos.writeLong(creatData.getObjId());
             dos.writeObject(creatData.getClazz());
             dos.writeObject(creatData.getMethod());
             dos.writeLong(creatData.getThdId());
@@ -71,7 +71,7 @@ public final class CreatMsg extends Message {
             ObjectInputStream ois = null;
             try {
                 ois = new ObjectInputStream(bis);
-                int objId = ois.readInt();
+                long objId = ois.readLong();
                 Class<?> objCls = (Class<?>) ois.readObject();
                 String method = (String) ois.readObject();
                 long thdId = ois.readLong();

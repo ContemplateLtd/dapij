@@ -11,20 +11,14 @@ import java.util.EventObject;
 public class AccsEvent extends EventObject {
 
     private static final long serialVersionUID = 1L; /* default value */
-    private int objId;
-    private long threadId;
+    private InstAccsData data;
 
-    public AccsEvent(Object src, int objId, long threadId) {
+    public AccsEvent(Object src, InstAccsData data) {
         super(src);
-        this.objId = objId;
-        this.threadId = threadId;
+        this.data = data;
     }
 
-    public int getObjId() {
-        return objId;
-    }
-
-    public long getThreadId() {
-        return threadId;
+    public InstAccsData getAccsData() {
+        return data;
     }
 }

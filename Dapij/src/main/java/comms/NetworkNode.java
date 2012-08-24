@@ -3,9 +3,7 @@ package comms;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.LinkedList;
-import java.util.Queue;
-import agent.Settings;
+import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * An abstract class that contains some common properties of network entities
@@ -15,15 +13,16 @@ import agent.Settings;
  */
 public abstract class NetworkNode extends Thread {
 
-    private static boolean quiet = shouldBeQuiet();
     private String host;            /* host on which node operates */
     private int port;               /* port on which node operates */
     private int attempts;           /* number of attempts to bind to port */
     private long soTimeout;         /* socket timeout */
     private long attemptInterval;   /* time btw attempts (in seconds) */
     private boolean running;        /* true while main loop loops */
-    private Queue<ByteBuffer> outMsgQ;
-    private Queue<ByteBuffer> inMsgQ;
+
+    /* Bounded concurrent blocking queues for snd/recv messages. Order guaranteed. */
+    private ArrayBlockingQueue<ByteBuffer> outMsgQ;
+    private ArrayBlockingQueue<ByteBuffer> inMsgQ;
 
     public NetworkNode(String host, int port, long soTimeout, long attemptInterval, int attempts) {
         this.running = true;
@@ -32,8 +31,8 @@ public abstract class NetworkNode extends Thread {
         this.soTimeout = soTimeout;
         this.attemptInterval = attemptInterval;
         this.attempts = attempts;
-        this.outMsgQ = new LinkedList<ByteBuffer>();
-        this.inMsgQ = new LinkedList<ByteBuffer>();
+        this.outMsgQ = new ArrayBlockingQueue<ByteBuffer>(15, true);    /* true - guarantee order */
+        this.inMsgQ = new ArrayBlockingQueue<ByteBuffer>(15, true);     /* true - guarantee order */
     }
 
     protected boolean isRunning() {
@@ -64,31 +63,16 @@ public abstract class NetworkNode extends Thread {
         return this.attemptInterval;
     }
 
-    /* TODO: use logger & remove this from class */
-    private static boolean shouldBeQuiet() {
-        String q = Settings.INSTANCE.get(Settings.SETT_QUIET_NET);
-
-        /* By default no messages are sent to stdout. */
-        return (q == null || (q != null && !q.equals("false"))) ? true : false;
-    }
-
-    /* TODO: use logger & remove this from class */
-    protected static void stdoutPrintln(String msg) {
-        if (!quiet) {
-            System.out.println(Thread.currentThread().getName() + ": " + msg);
-        }
-    }
-
-    protected Queue<ByteBuffer> getOutMsgQ() {
+    protected ArrayBlockingQueue<ByteBuffer> getOutMsgQ() {
         return outMsgQ;
     }
 
-    protected Queue<ByteBuffer> getInMsgQ() {
+    protected ArrayBlockingQueue<ByteBuffer> getInMsgQ() {
         return inMsgQ;
     }
 
-    public synchronized void sendMsg(ByteBuffer msg) {
-        while (!getOutMsgQ().offer(msg));
+    public void blockSnd(ByteBuffer msg) throws InterruptedException {
+        outMsgQ.put(msg);
     }
 
     protected static boolean write(SocketChannel chnl, ByteBuffer bf) throws IOException {
@@ -126,7 +110,7 @@ public abstract class NetworkNode extends Thread {
                     + length);
         }
         int justRead = 0;       /* Number of bytes just read. */
-        ByteBuffer bf = ByteBuffer.wrap(new byte[length]);  // TODO: switch to .allocate(length);
+        ByteBuffer bf = ByteBuffer.allocate(length);
         while (bf.hasRemaining()) {
             justRead = chnl.read(bf);
             if (justRead > 0) {

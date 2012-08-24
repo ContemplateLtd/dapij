@@ -1,0 +1,20 @@
+THIS IS THE PROJECT'S DOCUMENTATION DIRECTORY.
+
+Contents:
+tasks	- A file containing goals and tasks descriptions that include:
+			* status
+			* importance
+			* developer id attached
+
+bugs/	- Contains files (named '<bug_id>-<shortBugDescription>') that describe
+			bugs. A template for creating new bug descriptions is also included.
+
+			To create a new bug description issue:
+			bugs/ $ cp bug-template '<new_bug_id>-<newShortBugDescription>'
+
+issues/	- Contains files (named '<issue_id>-<shortIssueDescription>') that
+			describe issues. A template for creating new issue descriptions is
+			also included.
+
+			To create a new issue description issue:
+			bugs/ $ cp bug-template '<new_bug_id>-<newShortBugDescription>'

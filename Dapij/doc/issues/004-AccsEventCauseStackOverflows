@@ -1,0 +1,22 @@
+[STATUS]
+SOLVED (with workaround)
+
+[ISSUE]
+Access events cause event generation. Events are distributed to observers by
+singleton classes which maintaining ArrayLists. When an event is created, the
+singleton loops through the ArrayList to distribute the event. This internally
+creates an Iterator object. The iterator objects generates events (either
+its created with the 'new' keyword or because its .hasNext() method is called).
+This, in turn, generates another event and so on. This leads to a
+StackOverflow error.
+
+This happens if the "java/util/ArrayList$Itr" class is instrumented.
+
+A similar error happens whith the guava library responsible for maintaining the
+concurrent map (in agent.InstIdentifier) that contains the object ids.For this
+ reason, classes starting with "com/google/common/collect/" are not
+instrumented.
+
+[SOLUTION]
+Do not instrument the "java/util/ArrayList$Itr".
+Do not instrument classes from the "com/google/common/collect/" package.

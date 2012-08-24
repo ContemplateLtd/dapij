@@ -1,0 +1,12 @@
+[STATUS]
+UNSOLVED
+
+[ISSUE]
+Thread safety with the InstIdentifier singleton is currently achieved through a
+synchronised getId() method that guarantees a consistent view of the map that
+contains object IDs. This however introduces a performances bottleneck and
+affects concurrency during execution of client program.
+
+[SOLUTION]
+Considered options:
+	* reduce sync block.

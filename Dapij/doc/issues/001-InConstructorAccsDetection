@@ -1,0 +1,12 @@
+[STATUS]
+UNSOLVED
+
+[ISSUE]
+In-constructor access events for objects are generated before creation events for those objects.
+
+[SOLUTION]
+Considered options:
+	* Edit message order so that creation messages appear before these access messages.
+	* Discard in-constructor access messages. This is perhaps undesirable as the access events
+		in question might prove useful in detecting leaked references from constructor to
+		(other) threads.

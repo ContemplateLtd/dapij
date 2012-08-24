@@ -10,11 +10,11 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import testutils.TransfmrTest;
 
-/* TODO: test InsnOfstVisitor, InstIdentifier (for concurrency & consistency). */
+/* TODO: test InsnOfstVisitor, InstIdentifier (for concurrency). */
 
 /**
  * A class containing tests for the dapij.transform package.
- * 
+ *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
 public class TransformationTest extends TransfmrTest {
@@ -30,27 +30,27 @@ public class TransformationTest extends TransfmrTest {
     public void constructorIsInstumented() throws Exception {
 
         /* Create & get the concurr map keeping track of instance creations. */
-        HashMap<Integer, InstCreatData> map = noInstrSetup(
-                new Callable<HashMap<Integer, InstCreatData>>() {
+        HashMap<Long, InstCreatData> map = noInstrSetup(
+                new Callable<HashMap<Long, InstCreatData>>() {
 
             @SuppressWarnings("unchecked")
             @Override
-            public HashMap<Integer, InstCreatData> call() throws Exception {
+            public HashMap<Long, InstCreatData> call() throws Exception {
                 CreatEventLisnr l = new CreatEventLisnr() {
                     
-                    public HashMap<Integer, InstCreatData> map =
-                            new HashMap<Integer, InstCreatData>();
+                    public HashMap<Long, InstCreatData> map =
+                            new HashMap<Long, InstCreatData>();
 
                     @Override
                     public void handleCreationEvent(CreatEvent e) {
 
                         /* Collect creation events' data in a map. */
-                        map.put(e.getObjData().getObjId(), e.getObjData());
+                        map.put(e.getCreatData().getObjId(), e.getCreatData());
                     }
                 };
                 RuntmEventSrc.INSTANCE.getCreatEventSrc().addListener(l);
 
-                return (HashMap<Integer, InstCreatData>) l.getClass().getField("map").get(l);
+                return (HashMap<Long, InstCreatData>) l.getClass().getField("map").get(l);
             }
         });
 
@@ -88,7 +88,7 @@ public class TransformationTest extends TransfmrTest {
         });
 
         /* Check if map contains info for the Integer object. */
-        int i = idfr.getId(refs[0]);
+        long i = idfr.getId(refs[0]);
         assertEquals("Intger map entry exists", true, map.containsKey(i));
 
         /* Check if info obj fields correct (one by one). */
@@ -99,7 +99,7 @@ public class TransformationTest extends TransfmrTest {
         assertEquals("Thread id correctly read & set", 1, icsInt.getThdId());
 
         /* Check if map contains info for the inner anonymous Runnable obj. */
-        int r = idfr.getId(refs[1]);
+        long r = idfr.getId(refs[1]);
         assertEquals("Rnbl map entry exists", true, map.containsKey(r));
 
         /* Check if info obj fields correct (one by one). */
@@ -130,10 +130,10 @@ public class TransformationTest extends TransfmrTest {
      */
     @Test
     public void objectIDTest() throws Exception {
-        Integer[] objIds = instrSetup(new Callable<Integer[]>() {
+        Long[] objIds = instrSetup(new Callable<Long[]>() {
 
             @Override
-            public Integer[] call() {
+            public Long[] call() {
 
                 /* Create many objects. */
                 Object obj = new Object();
@@ -143,7 +143,7 @@ public class TransformationTest extends TransfmrTest {
                 MickeyMaus mickey = new MickeyMaus(2); /* an inner class */
 
                 /* Record their object identifiers in an array. */
-                Integer[] objIds = new Integer[5];
+                Long[] objIds = new Long[5];
                 objIds[0] = InstIdentifier.INSTANCE.getId(obj);
                 objIds[1] = InstIdentifier.INSTANCE.getId(str);
                 objIds[2] = InstIdentifier.INSTANCE.getId(itg);

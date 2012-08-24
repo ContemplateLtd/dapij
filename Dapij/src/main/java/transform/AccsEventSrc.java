@@ -23,8 +23,8 @@ public class AccsEventSrc {
         return listeners.remove(l);
     }
 
-    public void fireEvent(int objId, long threadId) {
-        AccsEvent e = new AccsEvent(this, objId, threadId); /* Create event */
+    public void fireEvent(long objId, long threadId) {
+        AccsEvent e = new AccsEvent(this, new InstAccsData(objId, threadId)); /* Create event */
 
         /* Notify subscribers. */
         for (AccsEventLisnr el : listeners) {

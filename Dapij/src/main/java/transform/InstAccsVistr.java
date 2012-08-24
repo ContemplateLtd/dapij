@@ -151,7 +151,7 @@ public class InstAccsVistr extends MethodVisitor {
         mv.visitInsn(Opcodes.SWAP); /* Swap to keep obj ref on top. */
 
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(InstIdentifier.class),
-                "getId", Type.getMethodDescriptor(Type.INT_TYPE, Type.getType(Object.class)));
+                "getId", Type.getMethodDescriptor(Type.LONG_TYPE, Type.getType(Object.class)));
 
         /* Gget the thread ID. */
         mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(Thread.class),
@@ -164,7 +164,7 @@ public class InstAccsVistr extends MethodVisitor {
                 Opcodes.INVOKEVIRTUAL,
                 Type.getInternalName(AccsEventSrc.class),
                 "fireEvent",
-                Type.getMethodDescriptor(Type.getType(void.class), Type.getType(int.class),
+                Type.getMethodDescriptor(Type.getType(void.class), Type.getType(long.class),
                         Type.getType(long.class)));
     }
 }

@@ -12,11 +12,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.FileUtils;
 import static transform.Transfmr.transformClass;
 
-/*
- * TODO: add control over instrumentation of innter Callable classes (all are
- * currently instrumented).
- */
-
 /**
  * A custom class loader for loading & instrumenting classes based on predefined
  * load policies. As a part of a small testing framework for testing agent code

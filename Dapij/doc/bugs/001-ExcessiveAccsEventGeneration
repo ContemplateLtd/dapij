@@ -1,0 +1,18 @@
+[STATUS]
+CLOSED
+
+[BUG]
+Agent code generates an excessive amount of access messages. The reason for this
+is that the transform/InstAccsVistr instruments the bytecode injected by
+transform/InstCreatVistr. All method calls needed to produce a creation event
+generate access events which are unnecessary. The goal of the agent is to
+extract execution information from the user program and not the instrumenting
+application itself.
+
+[SOLUTION]
+Swapped the order of InstCreatVistr and InstAccsVistr so that InstAccsVistr can
+inject bytecode in the original user program bytecode whith the InstCreatVistr
+code not being inserted yet. Even though this approach leads to instrumentation
+of InstAccsVisitor's bytecode by InstCreatVisitor, the fix works -
+InstAccsVisitor does not create new objects and InstCreatVisitor doesn't
+generate new events.

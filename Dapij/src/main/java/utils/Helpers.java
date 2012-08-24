@@ -2,6 +2,11 @@ package utils;
 
 import java.util.Arrays;
 
+/**
+ * A class containing useful utility methods.
+ *
+ * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
+ */
 public final class Helpers {
 
     private Helpers() {}

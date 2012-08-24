@@ -11,6 +11,7 @@ import java.util.Stack;
 public final class ArgStack {
 
     public static final ArgStack INSTANCE = new ArgStack();
+
     @SuppressWarnings("rawtypes")
     private Stack stack;
 

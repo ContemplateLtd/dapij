@@ -11,14 +11,14 @@ import java.util.EventObject;
 public class CreatEvent extends EventObject {
 
     private static final long serialVersionUID = 1L; /* default value */
-    private InstCreatData stats;
+    private InstCreatData data;
 
-    public CreatEvent(Object eventSrc, InstCreatData stats) {
+    public CreatEvent(Object eventSrc, InstCreatData data) {
         super(eventSrc);
-        this.stats = stats;
+        this.data = data;
     }
 
-    public InstCreatData getObjData() {
-        return stats;
+    public InstCreatData getCreatData() {
+        return data;
     }
 }

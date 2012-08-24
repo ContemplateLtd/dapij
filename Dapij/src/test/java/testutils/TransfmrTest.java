@@ -16,23 +16,21 @@ import java.util.concurrent.Callable;
 public class TransfmrTest {
 
     private static HashMap<Package, PkgLdPolicy> loadPolicy = TestClassLoader.getPkgLoadPolicy();
-    protected TestClassLoader cl; /* Create a new instance for each test mеthod. */
+    private TestClassLoader cl; /* Create a new instance for each test mеthod. */
 
     /**
      * Resets the class loader field to provide a new one for each test
      * resulting in a new test environment per test method. TODO: Test if cl is
-     * different for each test when they run concurrently.
+     * different for each test if they're ran concurrently.
      */
     @org.junit.Before
     public void setupPerTestCl() {
-        cl = new TestClassLoader(loadPolicy); /* A new cl for each test */
+        cl = new TestClassLoader(loadPolicy); /* Create a new classloader for each test. */
     }
 
-    @SuppressWarnings("unchecked")
     protected <T extends Object> T noInstrSetup(Callable<T> clbl) {
         cl.addNoInstr(clbl.getClass().getName());
-        Object classInst = setup(clbl);
-        return (T) classInst;
+        return (T) setup(clbl);
     }
 
     protected <T extends Object> T instrSetup(Callable<T> clbl) {
@@ -71,5 +69,9 @@ public class TransfmrTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public ClassLoader getClassLoader() {
+        return this.cl;
     }
 }

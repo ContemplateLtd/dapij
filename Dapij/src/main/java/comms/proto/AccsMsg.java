@@ -11,7 +11,7 @@ import transform.InstAccsData;
 public final class AccsMsg extends Message {
 
     public static final byte TYP_ACC = 1;
-    public static final int BDY_SIZE = 12;
+    public static final int BDY_SIZE = 16;
     private InstAccsData accsData;
 
     public AccsMsg(ByteBuffer body) {
@@ -36,7 +36,7 @@ public final class AccsMsg extends Message {
         ByteBuffer bf = ByteBuffer.allocate(MsgHeader.HDR_SIZE + BDY_SIZE);
         bf.put(TYP_ACC); /* faster not to use MsgHeader.construct() here. */
         bf.putInt(BDY_SIZE);
-        bf.putInt(accsData.getObjId());
+        bf.putLong(accsData.getObjId());
         bf.putLong(accsData.getThdId());
         bf.flip();
 
@@ -46,7 +46,7 @@ public final class AccsMsg extends Message {
     @Override
     public AccsMsg deconstruct() {
         if (getBody() != null && accsData == null) {
-            accsData = new InstAccsData(getBody().getInt(), getBody().getLong());
+            accsData = new InstAccsData(getBody().getLong(), getBody().getLong());
         }
 
         return this;

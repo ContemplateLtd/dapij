@@ -22,22 +22,24 @@ public class CommsTest extends TransfmrTest {
 
     /**
      * Test event client for detecting corrupt messages.
+     * @throws InterruptedException
+     * TODO: Complete this test.
      */
     @Test
-    public void agentEventServerTest() {
+    public void agentEventServerTest() throws InterruptedException {
 
         /* Start client first, as srv blocking start. */
         TestClnt client = new TestClnt(CommsProto.HOST, CommsProto.PORT);
         client.setDaemon(true);
         client.start();
-        AgentSrv server = AgentSrv.blockingConnect(CommsProto.HOST, CommsProto.PORT, 3, 5000);
+        AgentSrv server = AgentSrv.blockingConnect(CommsProto.HOST, CommsProto.PORT, 5000, 3000, 3);
         server.setDaemon(true);
         server.start();
 
         /* TODO: Send a correct message, check if correctly received. */
-        server.sendMsg(AccsMsg.construct(new InstAccsData(5, 1)));
+        server.blockSnd(AccsMsg.construct(new InstAccsData(5, 1)));
 
-        server.sendMsg(ByteBuffer.wrap(new byte[]{5})); /* Construct & send corrupt msg. */
+        server.blockSnd(ByteBuffer.wrap(new byte[]{5})); /* Construct & send corrupt msg. */
 
         /* TODO: Check if client recovered by sending another correct message. */
 
@@ -55,15 +57,16 @@ public class CommsTest extends TransfmrTest {
     /**
      * Test if all sent messages are received. Test if msg reception order
      * matches order of generation.
+     * @throws InterruptedException
      */
     @Test
-    public void EventOrderTest() {
+    public void EventOrderTest() throws InterruptedException {
 
         /* Start client first, as srv blocking start. */
         TestClnt client = new TestClnt(CommsProto.HOST, CommsProto.PORT).withMsgLog();
         client.setDaemon(true);
         client.start();
-        AgentSrv server = AgentSrv.blockingConnect(CommsProto.HOST, CommsProto.PORT, 3, 5000);
+        AgentSrv server = AgentSrv.blockingConnect(CommsProto.HOST, CommsProto.PORT, 5000, 3000, 3);
         server.setDaemon(true);
         server.start();
 
@@ -74,16 +77,16 @@ public class CommsTest extends TransfmrTest {
             if(i % 3 == 0) {
                 testMessages[i] = CreatMsg.construct(
                         new InstCreatData(i, String.class, "Method" + i, 2*i, 3*i));
-                server.sendMsg(testMessages[i]);
+                server.blockSnd(testMessages[i]);
             }
             else if(i % 3 == 1) {
                 testMessages[i] = CreatMsg.construct(
                         new InstCreatData(i, Integer.class, "Method" + i, 2*i, 3*i));
-                server.sendMsg(testMessages[i]);
+                server.blockSnd(testMessages[i]);
             }
             else if(i % 3 == 2) {
                 testMessages[i] = AccsMsg.construct(new InstAccsData(i, 4*i));
-                server.sendMsg(testMessages[i]);
+                server.blockSnd(testMessages[i]);
             }
         }
         server.shutdown();

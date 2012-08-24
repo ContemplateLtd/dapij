@@ -11,10 +11,10 @@ package transform;
  */
 public class InstAccsData implements InstEventData {
 
-    private int objId;
+    private long objId;
     private long thdId;
 
-    public InstAccsData(int objId, long thdId) {
+    public InstAccsData(long objId, long thdId) {
         this.objId = objId;
         this.thdId = thdId;
     }
@@ -22,7 +22,7 @@ public class InstAccsData implements InstEventData {
     /**
      * @return the objId
      */
-    public int getObjId() {
+    public long getObjId() {
         return objId;
     }
 

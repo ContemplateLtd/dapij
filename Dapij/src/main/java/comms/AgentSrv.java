@@ -10,6 +10,8 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
 
+import agent.Settings;
+
 /**
  * A server that allows the agent to communicate runtime information to one
  * external client on the network.
@@ -18,7 +20,8 @@ import java.util.Set;
  */
 public class AgentSrv extends NetworkNode {
 
-    private ServerSocketChannel srvSockChnl;
+    private ServerSocketChannel srvChnl;
+    private SocketChannel cliChnl;
     private Selector selector;
 
     public AgentSrv(String host, int port, long soTimeout, long attemptInerval, int attempts) {
@@ -26,16 +29,17 @@ public class AgentSrv extends NetworkNode {
         setName("agnt-server");
     }
 
-    public AgentSrv(ServerSocketChannel srvSockChnl, Selector selector) {
+    public AgentSrv(ServerSocketChannel srvSockChnl, SocketChannel cliChnl, Selector selector) {
         this(srvSockChnl.socket().getInetAddress().getHostAddress(),
                 srvSockChnl.socket().getLocalPort(), 1000, 5000, 3);
-        this.srvSockChnl = srvSockChnl;
+        this.srvChnl = srvSockChnl;
+        this.cliChnl = cliChnl;
         this.selector = selector;
     }
 
     @Override
     public void run() {
-        if (srvSockChnl == null || !srvSockChnl.isOpen() || !srvSockChnl.isRegistered()) {
+        if (srvChnl == null || !srvChnl.isOpen() || !srvChnl.isRegistered()) {
             bind(); /* Re/bind server not initialised or dead. */
         }
         while (isRunning()) {
@@ -49,17 +53,20 @@ public class AgentSrv extends NetworkNode {
             while (i.hasNext()) {
                 SelectionKey k = i.next();
                 i.remove();
-                if (k.isAcceptable()) {
+
+                /* Accept only if no client connected */
+                if (cliChnl == null && k.isAcceptable()) {
                     accept(k);
                 }
                 if (k.isWritable()) {
-                    flushOutMsgQ(k);
+                    flushOutMsgQ(); /* Flush messages to the single client. */
                 }
             }
         }
 
         /* Shutdown gracefully. */
-        stdoutPrintln("Shutting down server on [" + getHost() + ":" + getPort() + "] ...");
+        Settings.INSTANCE.println("Shutting down server on [" + getHost() + ":" + getPort()
+                + "] ...");
         if (selector.isOpen()) {
             try {
                 for (SelectionKey k : selector.keys()) {
@@ -70,50 +77,50 @@ public class AgentSrv extends NetworkNode {
                 throw new RuntimeException(e);
             }
         }
-        if (srvSockChnl != null && srvSockChnl.isOpen()) {
+        if (srvChnl != null && srvChnl.isOpen()) {
             try {
-                srvSockChnl.close();
+                srvChnl.close();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
         selector = null;
-        srvSockChnl = null;
-        stdoutPrintln("Done.");
+        srvChnl = null;
+        Settings.INSTANCE.println("Done.");
     }
 
     /* Waits for a client connections && resets the server if dead. */
     private boolean accept(SelectionKey k) {
-        SocketChannel client = null;
         try {
-            client = srvSockChnl.accept();
-            if (client == null) {
+            cliChnl = srvChnl.accept();
+            if (cliChnl == null) {
+
                 return false;
             }
-            client.configureBlocking(false);
-            client.register(selector, SelectionKey.OP_WRITE);
+            cliChnl.configureBlocking(false);
+            cliChnl.register(selector, SelectionKey.OP_WRITE);
         } catch (IOException e) {
             e.printStackTrace();
+
             return false; /* Ignore & continue. */
         }
-        stdoutPrintln("Client [" + client.socket().getRemoteSocketAddress() + "] connected ...");
+        Settings.INSTANCE.println("Client [" + cliChnl.socket().getRemoteSocketAddress()
+                + "] connected ...");
+
         return true;
     }
 
-    private synchronized void flushOutMsgQ(SelectionKey k) {
-        SocketChannel client = (SocketChannel) k.channel();
-        boolean failed = false;
-        while (!failed && !getOutMsgQ().isEmpty()) {
-            ByteBuffer msg = getOutMsgQ().peek();
+    private synchronized void flushOutMsgQ() {
+        ByteBuffer msg;
+        while ((msg = getOutMsgQ().peek()) != null) {
             try {
-                if (write(client, msg)) {
-                    getOutMsgQ().poll();
+                if (write(cliChnl, msg)) {
+                    getOutMsgQ().poll();    /* Rm msg from queue only if successfully sent. */
                 } else {
-                    failed = true;
+                    break;
                 }
             } catch (IOException e) {
-                /* TODO: Check channel - may have been closed. */
-                throw new RuntimeException(e);
+                throw new RuntimeException(e);  /* TODO: channel may have been closed, handle? */
             }
         }
     }
@@ -130,19 +137,20 @@ public class AgentSrv extends NetworkNode {
                         + "] ...");
             }
             try {
-                stdoutPrintln("(" + String.valueOf(i++) + ") Binding to [" + getHost() + ":"
-                        + getPort() + "] ...");
-                srvSockChnl = ServerSocketChannel.open();
-                srvSockChnl.configureBlocking(false);
-                srvSockChnl.socket().bind(new InetSocketAddress(getHost(), getPort()));
+                Settings.INSTANCE.println("(" + String.valueOf(i++) + ") Binding to [" + getHost()
+                        + ":" + getPort() + "] ...");
+                srvChnl = ServerSocketChannel.open();
+                srvChnl.configureBlocking(false);
+                srvChnl.socket().bind(new InetSocketAddress(getHost(), getPort()));
                 if (selector == null || !selector.isOpen()) {
                     selector = Selector.open();
                 }
-                srvSockChnl.register(selector, SelectionKey.OP_ACCEPT);
+                srvChnl.register(selector, SelectionKey.OP_ACCEPT);
+
                 return;
             } catch (IOException e) {
-                stdoutPrintln("Could not bind, trying again after " + getAttemptInterval()
-                        + " seconds ...");
+                Settings.INSTANCE.println("Could not bind, trying again after "
+                        + getAttemptInterval() + " seconds ...");
                 try {
                     Thread.sleep(getAttemptInterval() * 1000);
                 } catch (InterruptedException ex) {
@@ -167,45 +175,52 @@ public class AgentSrv extends NetworkNode {
      * @return An initialised (bounded, with one client connection) and not yet
      *         started AgentSrv server object.
      */
-    public static AgentSrv blockingConnect(String host, int port, int attempts, int soTimeout) {
-        ServerSocketChannel srvSockChnl = null;
-        SocketChannel cliSockChnl = null;
+    public static AgentSrv blockingConnect(String host, int port, long soTimeout,
+            long attemptInterval, int attempts) {
+        ServerSocketChannel srvChnl = null;
+        SocketChannel cliChnl = null;
         Selector selector = null;
         try {
-            srvSockChnl = ServerSocketChannel.open();
-            srvSockChnl.configureBlocking(false);
+            srvChnl = ServerSocketChannel.open();
+            srvChnl.configureBlocking(false);
             selector = Selector.open();
-            srvSockChnl.register(selector, SelectionKey.OP_ACCEPT);
+            srvChnl.register(selector, SelectionKey.OP_ACCEPT);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         for (int i = 1; i <= attempts; i++) {
             try {
-                stdoutPrintln("(" + i + ") Binding to [" + host + ":" + port + "] ...");
-                srvSockChnl.socket().bind(new InetSocketAddress(host, port));
-                stdoutPrintln("Done.");
+                Settings.INSTANCE.println("(" + i + ") Binding to [" + host + ":" + port + "] ...");
+                srvChnl.socket().bind(new InetSocketAddress(host, port));
+                Settings.INSTANCE.println("Done.");
             } catch (IOException ex) {
-                stdoutPrintln("Could not bind, attempting again ...");
-                // TODO: timeout?
+                Settings.INSTANCE.println("Could not bind, attempting again ...");
+                try {
+                    Thread.sleep(attemptInterval);  /* Wait before next bind attempt */
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 continue;
             }
             while (i <= attempts) {
                 try {
-                    stdoutPrintln("(" + i + ") Listening ...");
-                    selector.select(soTimeout);
+                    Settings.INSTANCE.println("(" + i + ") Listening ...");
+                    selector.select(soTimeout * attempts);
                     Set<SelectionKey> ks = selector.keys();
                     if (ks.size() < 1) {
                         i++;
-                        continue;   /* Wait for a client for another soTimeout seconds. */
+                        continue;
                     }
                     for (SelectionKey k : ks) {
                         if (k.isAcceptable()) {
-                            cliSockChnl = srvSockChnl.accept();
-                            cliSockChnl.configureBlocking(false);
-                            cliSockChnl.register(selector, SelectionKey.OP_WRITE);
-                            stdoutPrintln("Client [" + cliSockChnl.socket().getRemoteSocketAddress()
+                            cliChnl = srvChnl.accept();
+                            cliChnl.configureBlocking(false);
+                            cliChnl.register(selector, SelectionKey.OP_WRITE);
+                            Settings.INSTANCE.println("Client ["
+                                    + cliChnl.socket().getRemoteSocketAddress()
                                     + "] connected ...");
-                            return new AgentSrv(srvSockChnl, selector);
+
+                            return new AgentSrv(srvChnl, cliChnl, selector);
                         }
                     }
                 } catch (Exception e) {

@@ -3,7 +3,7 @@ package comms.proto;
 import agent.Settings;
 import java.nio.ByteBuffer;
 
-/* TODO: Revise how types are defined & handled. Move them here? */
+/* TODO: Revise how msg types are defined & handled. Move them here? */
 
 /**
  * A class taking care of the communication protocol between the server (an

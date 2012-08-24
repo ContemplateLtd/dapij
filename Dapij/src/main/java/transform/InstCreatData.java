@@ -9,13 +9,13 @@ package transform;
  */
 public class InstCreatData implements InstEventData {
 
-    private int objId;
+    private long objId;
     private Class<?> clazz;
     private String method;
     private int offset;
     private long threadId;
 
-    public InstCreatData(int objId, Class<?> clazz, String method, int offset, long threadId) {
+    public InstCreatData(long objId, Class<?> clazz, String method, int offset, long threadId) {
         this.objId = objId;
         this.clazz = clazz;
         this.method = method;
@@ -32,7 +32,7 @@ public class InstCreatData implements InstEventData {
     /**
      * @return the objId
      */
-    public int getObjId() {
+    public long getObjId() {
         return objId;
     }
 
@@ -40,7 +40,7 @@ public class InstCreatData implements InstEventData {
      * @param objId
      *            the objId to set
      */
-    public void setObjId(int objId) {
+    public void setObjId(long objId) {
         this.objId = objId;
     }
 

@@ -15,7 +15,7 @@ import org.objectweb.asm.Type;
  */
 public class InstCreatVistr extends InsnOfstReader {
 
-    /* Stats for the object creation currently detected */
+    /* Data for the object creation currently detected. */
     private String creatorMethod; /* name of method where creation occured */
 
     /**
@@ -114,7 +114,7 @@ public class InstCreatVistr extends InsnOfstReader {
         }
 
         /*
-         * Push a reference to the CreationEventGenerator object to allow for
+         * Push a reference to the getCreatEventSrc instance to allow for
          * calling it's fireEvent instance method (just after visiting the
          * INVOKESPECIAL insn corresponding to the previously detected NEW).
          */
@@ -131,7 +131,7 @@ public class InstCreatVistr extends InsnOfstReader {
         mv.visitInsn(Opcodes.SWAP); /* Swap to keep obj ref on top. */
 
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(InstIdentifier.class),
-                "getId", Type.getMethodDescriptor(Type.INT_TYPE, Type.getType(Object.class)));
+                "getId", Type.getMethodDescriptor(Type.LONG_TYPE, Type.getType(Object.class)));
 
         /* Push remaining arguments on stack. */
         StackElement currentElem = objectCreationStack.pop();
@@ -153,7 +153,7 @@ public class InstCreatVistr extends InsnOfstReader {
          * thread deletes the object (leaked reference)?
          */
         String descriptor = Type.getMethodDescriptor(Type.getType(void.class),
-                Type.getType(int.class), Type.getType(Class.class), Type.getType(String.class),
+                Type.getType(long.class), Type.getType(Class.class), Type.getType(String.class),
                 Type.getType(int.class), Type.getType(long.class));
 
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(CreatEventSrc.class),

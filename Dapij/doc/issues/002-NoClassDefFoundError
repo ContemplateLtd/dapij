@@ -1,0 +1,20 @@
+[STATUS]
+UNSOLVED
+
+[ISSUE]
+Static initialisations in system libraries (i.e. java.*) that use the 'new'
+keyword cannot find agent's singleton classes which results in a
+ClassDefNotFoundError.
+
+The problem occurs, because system libraries are loaded by the bootstrap
+classloader. The agent's singleton classes are loaded by a child classloader and
+thus they are not seen by the bootstrap classloader and its classes.
+
+[SOLUTION]
+Append the agent JAR to the bootstrap classpath using:
+-Xbootclasspath/a:/full/path/to/dapij-0.1-SNAPSHOT.jar
+
+This way the static classes become truly global.
+
+Possible issues with this approach?
+ * security

@@ -24,7 +24,7 @@ public class CreatEventSrc {
         return listeners.remove(l);
     }
 
-    public void fireEvent(int objId, Class<?> clazz, String method, int offset, long threadId) {
+    public void fireEvent(long objId, Class<?> clazz, String method, int offset, long threadId) {
         CreatEvent e = new CreatEvent(this, new InstCreatData(objId, clazz, method, offset,
                 threadId)); /* Create event */
 

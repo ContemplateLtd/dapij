@@ -9,6 +9,8 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import agent.Settings;
+
 import comms.proto.CommsProto;
 import comms.proto.Message;
 import comms.proto.MsgHeader;
@@ -50,7 +52,8 @@ public class TestClnt extends NetworkNode {
                     sockChnl.configureBlocking(false);
                 }
                 if (!sockChnl.isConnected()) {
-                    stdoutPrintln("Connecting to server [" + getHost() + ":" + getPort() + "] ...");
+                    Settings.INSTANCE.println("Connecting to server [" + getHost() + ":"
+                            + getPort() + "] ...");
                     sockChnl.connect(new InetSocketAddress(getHost(), getPort()));
                 }
             } catch (IOException e) {
@@ -70,8 +73,9 @@ public class TestClnt extends NetworkNode {
                 } catch (Exception ex) {
                     e.printStackTrace(); /* Ignore. */
                 }
-                stdoutPrintln("Could not connect to [" + getHost() + ":" + getPort() + "] ...");
-                stdoutPrintln("Attempting again ...");
+                Settings.INSTANCE.println("Could not connect to [" + getHost() + ":" + getPort()
+                        + "] ...");
+                Settings.INSTANCE.println("Attempting again ...");
                 continue;
             }
             try {
@@ -82,7 +86,7 @@ public class TestClnt extends NetworkNode {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            stdoutPrintln("Done.");
+            Settings.INSTANCE.println("Done.");
             break;
         }
     }
@@ -95,8 +99,8 @@ public class TestClnt extends NetworkNode {
         }
 
         /* Shutdown gracefully. */
-        stdoutPrintln("Shutting down ...");
-        stdoutPrintln("Fetching remaining messages ...");
+        Settings.INSTANCE.println("Shutting down ...");
+        Settings.INSTANCE.println("Fetching remaining messages ...");
         listenAndProcess(true); /* Fetch remaining events. */
         try {
             selector.close();
@@ -104,7 +108,7 @@ public class TestClnt extends NetworkNode {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        stdoutPrintln("Done.");
+        Settings.INSTANCE.println("Done.");
     }
 
     private void listenAndProcess(boolean finalise) {
@@ -119,9 +123,10 @@ public class TestClnt extends NetworkNode {
         if (!i.hasNext()) {
             if (!finalise && (sockChnl == null || !sockChnl.isOpen() || !sockChnl.isConnected()
                     || !sockChnl.isRegistered())) {
-                stdoutPrintln("Connection lost, reconnecting ...");
+                Settings.INSTANCE.println("Connection lost, reconnecting ...");
                 connect();  /* Reconnect if connection died. */
             }
+
             return;
         }
         while (i.hasNext()) {
@@ -138,6 +143,7 @@ public class TestClnt extends NetworkNode {
         try {
             ByteBuffer hdrBuf = read(srvChnl, MsgHeader.HDR_SIZE);      /* Read header. */
             if (hdrBuf == null) {
+
                 return null;                                            /* Nothing read. */
             }
             MsgHeader header = new MsgHeader(hdrBuf).deconstruct();
@@ -147,27 +153,26 @@ public class TestClnt extends NetworkNode {
             }
             ByteBuffer bodyBuf = read(srvChnl, header.getBdySize());    /* Read body. */
             if (bodyBuf == null) {
+
                 return null;                                            /* Nothing read. */
             }
             if (msgLog != null) {
                 msgLog.add(Helpers.arrCat(hdrBuf.array(), bodyBuf.array()));    /* Log event. */
             }
             Message event = CommsProto.deconstMsgBdy(bodyBuf, header.getMsgType());
-            stdoutPrintln("RCV: " + event.getMsg().toString());
+            Settings.INSTANCE.println("RCV: " + event.getMsg().toString());
+
             return event;
         } catch (IOException e) {       /* Channel does not work */
-            //e.printStackTrace();        // TODO: add logging.
-            return null;
-        } catch (RuntimeException e) {  /* Corrupted message. */
-            e.printStackTrace(); /* TODO: implement debug mode */
+            return null;                /* Continue main loop. */
+        } catch (RuntimeException e) {  /* Corrupted message detected. */
             throw new RuntimeException(e);
-            //stdoutPrintln("Corrupted msg detected ..."); // TODO: add logging.
-            //return null;
         }
     }
 
     public ArrayList<byte[]> getEventLog() {
         if (msgLog != null) {
+
             return msgLog;
         } else {
             throw new RuntimeException("Instance does not use message logging.");
