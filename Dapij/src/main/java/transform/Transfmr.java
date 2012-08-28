@@ -26,8 +26,9 @@ public class Transfmr implements ClassFileTransformer {
                 || className.startsWith("transform/")
 
                 /* The two boolean expressions below are related to issue 004. */
-                /* Takes care of stack overflows when trying to notify event subscribers. */
-                || className.startsWith("java/util/ArrayList$Itr") /* TODO: To be removed. */
+                /* These prevent stack overflows when trying to notify event subscribers. */
+                || className.startsWith("java/util/") /* TODO: To be removed. */
+                || className.startsWith("sun/reflect") /* TODO: To be removed. */
 
                 /* Takes care of stack overflows when getting & storing IDs, null pointer exs. */
                 || className.startsWith("com/google/common/collect/")); /* TODO: To be removed. */

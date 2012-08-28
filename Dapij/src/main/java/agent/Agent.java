@@ -1,9 +1,9 @@
 package agent;
 
 import comms.AgentSrv;
-import comms.proto.AccsMsg;
-import comms.proto.CommsProto;
-import comms.proto.CreatMsg;
+import comms.CommsProto;
+import comms.CommsProto.AccsMsg;
+import comms.CommsProto.CreatMsg;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import transform.AccsEvent;
@@ -25,7 +25,6 @@ public final class Agent {
 
         /* Initialise singletons before transformation starts. */
         InstIdentifier.INSTANCE.hashCode(); /* TODO: To be removed. Partially solves issue '002'. */
-        RuntmEventSrc.INSTANCE.hashCode(); /* TODO: To be removed. Partially solves issue '002'. */
 
         handleArgs(argString);
         if (Settings.INSTANCE.isSet(Settings.SETT_USE_NET)

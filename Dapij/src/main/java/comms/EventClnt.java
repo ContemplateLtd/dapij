@@ -6,43 +6,28 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
 import java.util.Iterator;
-
 import agent.Settings;
-
-import comms.proto.CommsProto;
-import comms.proto.Message;
-import comms.proto.MsgHeader;
-
-import utils.Helpers;
+import comms.CommsProto.MsgBody;
+import comms.CommsProto.MsgHeader;
 
 /**
  * A network client used for testing the agent's network server.
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class TestClnt extends NetworkNode {
+public abstract class EventClnt extends NetworkNode {
 
     private Selector selector;
     private SocketChannel sockChnl;
-    private ArrayList<byte[]> msgLog;
 
-    public TestClnt(String host, int port) {
-
-        /*
-         * Manual tests suggest a soTimout value of 500 results in discarding
-         * late messages (during fetching of last messages by client).
-         */
+    public EventClnt(String host, int port) {
         super(host, port, 100, 2000, 5);
         setName("test-client");
     }
 
     /**
-     * Attempts to reconnect if forced and only resets inFromServer otherwise.
-     *
-     * @param force
-     *            A boolean value for enforce connection closure.
+     * Attempts to re/connect to server.
      */
     private void connect() {
         while (isRunning()) {
@@ -95,13 +80,13 @@ public class TestClnt extends NetworkNode {
     public void run() {
         connect();
         while (isRunning()) {
-            listenAndProcess(false); /* Fetch remaining events. */
+            listenAndProcess(); /* Fetch remaining events. */
         }
 
         /* Shutdown gracefully. */
         Settings.INSTANCE.println("Shutting down ...");
         Settings.INSTANCE.println("Fetching remaining messages ...");
-        listenAndProcess(true); /* Fetch remaining events. */
+        listenAndProcess(); /* Fetch events remaining after shutdown(). */
         try {
             selector.close();
             sockChnl.close();
@@ -111,7 +96,7 @@ public class TestClnt extends NetworkNode {
         Settings.INSTANCE.println("Done.");
     }
 
-    private void listenAndProcess(boolean finalise) {
+    private void listenAndProcess() {
         try {
             selector.select(getSoTimeout());
         } catch (IOException e) {
@@ -121,10 +106,10 @@ public class TestClnt extends NetworkNode {
 
         /* If nothing ready for receive, check channel */
         if (!i.hasNext()) {
-            if (!finalise && (sockChnl == null || !sockChnl.isOpen() || !sockChnl.isConnected()
+            if (isRunning() && (sockChnl == null || !sockChnl.isOpen() || !sockChnl.isConnected()
                     || !sockChnl.isRegistered())) {
                 Settings.INSTANCE.println("Connection lost, reconnecting ...");
-                connect();  /* Reconnect if connection died. */
+                connect(); /* Reconnect if connection died. */
             }
 
             return;
@@ -139,49 +124,36 @@ public class TestClnt extends NetworkNode {
         }
     }
 
-    private Object readEvent(SocketChannel srvChnl) {
+    private MsgBody readEvent(SocketChannel srvChnl) {
         try {
-            ByteBuffer hdrBuf = read(srvChnl, MsgHeader.HDR_SIZE);      /* Read header. */
+            ByteBuffer hdrBuf = read(srvChnl, MsgHeader.SIZE);          /* Read header. */
             if (hdrBuf == null) {
 
                 return null;                                            /* Nothing read. */
             }
-            MsgHeader header = new MsgHeader(hdrBuf).deconstruct();
-            if (!CommsProto.isSupported(header.getMsgType())) {
-                throw new RuntimeException("Message type '" + header.getMsgType()
-                        + "' is not supported.");
+            MsgHeader header = MsgHeader.deconstruct(hdrBuf);
+            byte msgType = header.getMsgType();
+            if (!CommsProto.MsgTypes.isSupported(msgType)) {
+                throw new RuntimeException("Message type '" + msgType + "' is not supported.");
             }
             ByteBuffer bodyBuf = read(srvChnl, header.getBdySize());    /* Read body. */
             if (bodyBuf == null) {
 
                 return null;                                            /* Nothing read. */
             }
-            if (msgLog != null) {
-                msgLog.add(Helpers.arrCat(hdrBuf.array(), bodyBuf.array()));    /* Log event. */
-            }
-            Message event = CommsProto.deconstMsgBdy(bodyBuf, header.getMsgType());
-            Settings.INSTANCE.println("RCV: " + event.getMsg().toString());
 
-            return event;
+            /* Accesses messages are more frequent, check for them first. */
+            MsgBody body = CommsProto.deconstructMsg(bodyBuf, msgType);
+            onMsgRecv(header, body);
+
+            return body;
         } catch (IOException e) {       /* Channel does not work */
+
             return null;                /* Continue main loop. */
         } catch (RuntimeException e) {  /* Corrupted message detected. */
             throw new RuntimeException(e);
         }
     }
 
-    public ArrayList<byte[]> getEventLog() {
-        if (msgLog != null) {
-
-            return msgLog;
-        } else {
-            throw new RuntimeException("Instance does not use message logging.");
-        }
-    }
-
-    public TestClnt withMsgLog() {
-        msgLog = new ArrayList<byte[]>();
-
-        return this;
-    }
+    protected abstract void onMsgRecv(MsgHeader header, MsgBody body);
 }

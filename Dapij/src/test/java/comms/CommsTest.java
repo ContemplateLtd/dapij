@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.nio.ByteBuffer;
 import org.junit.Test;
-import comms.proto.AccsMsg;
-import comms.proto.CommsProto;
-import comms.proto.CreatMsg;
+import comms.CommsProto.AccsMsg;
+import comms.CommsProto.CreatMsg;
+import testutils.LoggingTestClnt;
 import testutils.TransfmrTest;
 import transform.InstAccsData;
 import transform.InstCreatData;
@@ -18,8 +18,6 @@ import transform.InstCreatData;
  */
 public class CommsTest extends TransfmrTest {
 
-    /* TODO: Before test - generate random port within some predetermined range? */
-
     /**
      * Test event client for detecting corrupt messages.
      * @throws InterruptedException
@@ -29,7 +27,7 @@ public class CommsTest extends TransfmrTest {
     public void agentEventServerTest() throws InterruptedException {
 
         /* Start client first, as srv blocking start. */
-        TestClnt client = new TestClnt(CommsProto.HOST, CommsProto.PORT);
+        LoggingTestClnt client = new LoggingTestClnt(CommsProto.HOST, CommsProto.PORT);
         client.setDaemon(true);
         client.start();
         AgentSrv server = AgentSrv.blockingConnect(CommsProto.HOST, CommsProto.PORT, 5000, 3000, 3);
@@ -63,7 +61,7 @@ public class CommsTest extends TransfmrTest {
     public void EventOrderTest() throws InterruptedException {
 
         /* Start client first, as srv blocking start. */
-        TestClnt client = new TestClnt(CommsProto.HOST, CommsProto.PORT).withMsgLog();
+        LoggingTestClnt client = new LoggingTestClnt(CommsProto.HOST, CommsProto.PORT);
         client.setDaemon(true);
         client.start();
         AgentSrv server = AgentSrv.blockingConnect(CommsProto.HOST, CommsProto.PORT, 5000, 3000, 3);
