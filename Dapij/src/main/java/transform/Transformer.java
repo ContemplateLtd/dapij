@@ -14,7 +14,7 @@ import agent.Settings;
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class Transfmr implements ClassFileTransformer {
+public class Transformer implements ClassFileTransformer {
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
@@ -27,13 +27,12 @@ public class Transfmr implements ClassFileTransformer {
 
                 /* The two boolean expressions below are related to issue 004. */
                 /* These prevent stack overflows when trying to notify event subscribers. */
-                || className.startsWith("java/util/") /* TODO: To be removed. */
-                || className.startsWith("sun/reflect") /* TODO: To be removed. */
+                || className.startsWith("java/util/")   /* TODO: To be removed. */
+                || className.startsWith("sun/reflect")  /* TODO: To be removed. */
 
                 /* Takes care of stack overflows when getting & storing IDs, null pointer exs. */
                 || className.startsWith("com/google/common/collect/")); /* TODO: To be removed. */
 
-        /* TODO: Log, do not print. */
         Settings.INSTANCE.println("Loaded " + ((shouldInstrument) ? "[i]" : "   ")
                 + " " + className);
 
@@ -43,7 +42,7 @@ public class Transfmr implements ClassFileTransformer {
     /** Instruments classes' bytecode using an ASM ClassVisitor. */
     public static byte[] transformClass(byte[] classfileBuffer) {
         ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        ClassVisitor sc = new StatsCollector(writer);
+        ClassVisitor sc = new DataCollector(writer);
         new ClassReader(classfileBuffer).accept(sc, 0);
 
         return writer.toByteArray();

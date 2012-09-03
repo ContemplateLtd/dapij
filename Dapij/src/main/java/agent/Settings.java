@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * A singleton class containing the settings of the agent.
+ * A singleton containing agent settings.
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
@@ -18,7 +18,7 @@ public final class Settings {
     /** Verbose setting name. */
     public static final String SETT_VERBOSE = "verbose";
 
-    /** Current working dir setting name. */
+    /** Current working directory setting name. */
     public static final String SETT_CWD = "cwd";
 
     /** User network setting name. */
@@ -27,8 +27,8 @@ public final class Settings {
     /** Agent's event server port setting name. */
     public static final String SETT_EVS_PORT = "EventSrvPort";
 
-    /** Agent's event test client port setting name. */
-    public static final String SETT_CLI_HOST = "EventCliHost";
+    /** Agent's test event client host setting name. */
+    public static final String SETT_CLI_HOST = "EventCliHost";  // TODO: review this setting's name
 
     /** A HashMap<String, String> structure that allows storing String settings. */
     private  ConcurrentHashMap<String, String> settings;
@@ -45,8 +45,6 @@ public final class Settings {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        // TODO: support loading from config file
         loadSettings(); /* load the rest of the settings */
     }
 
@@ -88,7 +86,7 @@ public final class Settings {
         return settings.containsKey(key);
     }
 
-    /* TODO: Implement. Hardcoded settings for now. */
+    /* TODO: Implement config file loading. Hardcode settings for now. */
     private void loadSettings() {
         set(SETT_EVS_PORT, "7836");
         set(SETT_CLI_HOST, "localhost");
@@ -96,6 +94,7 @@ public final class Settings {
 
     /* TODO: Use logger & remove this. */
     public void println(String msg) {
+
         /* Set field only once. */
         if (verbose == null) {
             String q = get(Settings.SETT_VERBOSE);

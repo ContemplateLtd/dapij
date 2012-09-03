@@ -13,28 +13,32 @@ import java.util.concurrent.Callable;
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class TransfmrTest {
+public class TransformerTest {
 
-    private static HashMap<Package, PkgLdPolicy> loadPolicy = TestClassLoader.getPkgLoadPolicy();
+    private static HashMap<Package, PackageLoadPolicy> loadPolicy =
+            TestClassLoader.getPkgLoadPolicy();
     private TestClassLoader cl; /* Create a new instance for each test mеthod. */
 
     /**
      * Resets the class loader field to provide a new one for each test
-     * resulting in a new test environment per test method. TODO: Test if cl is
-     * different for each test if they're ran concurrently.
+     * resulting in a new test environment per test method.
      */
     @org.junit.Before
     public void setupPerTestCl() {
         cl = new TestClassLoader(loadPolicy); /* Create a new classloader for each test. */
     }
 
-    protected <T extends Object> T noInstrSetup(Callable<T> clbl) {
-        cl.addNoInstr(clbl.getClass().getName());
-        return (T) setup(clbl);
+    protected <T> T noInstrSetup(Callable<T> clbl) {
+        dontInstr(clbl.getClass());
+        return setup(clbl);
     }
 
-    protected <T extends Object> T instrSetup(Callable<T> clbl) {
-        return (T) setup(clbl);
+    protected <T> T instrSetup(Callable<T> clbl) {
+        return setup(clbl);
+    }
+
+    protected <T> void dontInstr(Class<T> c) {
+        cl.addNoInstr(c.getName());
     }
 
     /**
@@ -45,11 +49,11 @@ public class TransfmrTest {
      *
      * @param clbl
      *            the Callable implementation - usually an anonymous inner
-     *            class. Pasing of local parameters not currently supported.
+     *            class. Passing of local parameters not currently supported.
      */
-    @SuppressWarnings("unchecked")
-    private <T extends Object> T setup(Callable<T> clbl) {
+    private <T> T setup(Callable<T> clbl) {
         try {
+
             /* Load in custom class loader. */
             Class<?> clazz = cl.loadClass(clbl.getClass().getName());
             Constructor<?> cnstr = clazz.getDeclaredConstructors()[0]; /* Get default constr. */
@@ -63,9 +67,10 @@ public class TransfmrTest {
             }
 
             /* Create new instance passing null for the outer object arg. */
-            Callable<?> newClbl = (Callable<?>) cnstr.newInstance(new Object[] {null});
+            @SuppressWarnings("unchecked")
+            Callable<T> newClbl = (Callable<T>) cnstr.newInstance(new Object[] {null});
 
-            return (T) newClbl.call(); /* Execute test setup. */
+            return newClbl.call(); /* Execute test setup. */
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

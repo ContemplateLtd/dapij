@@ -20,7 +20,10 @@ public abstract class NetworkNode extends Thread {
     private long attemptInterval;   /* time btw attempts (in seconds) */
     private boolean running;        /* true while main loop loops */
 
-    /* Bounded concurrent blocking queues for snd/recv messages. Order guaranteed. */
+    /*
+     * Bounded concurrent blocking queues for snd/recv messages. Order
+     * guaranteed.
+     */
     private ArrayBlockingQueue<ByteBuffer> outMsgQ;
     private ArrayBlockingQueue<ByteBuffer> inMsgQ;
 
@@ -75,20 +78,34 @@ public abstract class NetworkNode extends Thread {
         outMsgQ.put(msg);
     }
 
-    protected static boolean write(SocketChannel chnl, ByteBuffer bf) throws IOException {
+    /**
+     * Writes the remaining bytes in a buffer to the given socket channel.
+     *
+     * @param chnl
+     *            the SocketChannel to write to.
+     * @param bf
+     *            the ByteBuffer contents that are going to be written.
+     * @return true if message successfully sent and false if nothing sent.
+     */
+    protected static boolean write(SocketChannel chnl, ByteBuffer bf) {
         if (!bf.hasRemaining()) {
+
             return false;
         }
-        while (bf.hasRemaining()) {
-            chnl.write(bf);
+        try {
+            while (bf.hasRemaining()) {
+                chnl.write(bf);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);  /* TODO: channel may have been closed, return false? */
         }
 
         return true;
     }
 
     /**
-     * Attempts to read length characters from a nonblocking SocketChannel into
-     * a ByteBuffer.
+     * Read length characters from a nonblocking SocketChannel into a ByteBuffer
+     * in a nonblocking manner.
      *
      * @param chnl
      *            The nonblocking channel to read from.
@@ -98,18 +115,18 @@ public abstract class NetworkNode extends Thread {
      *         with the bytes read or null if no bytes were read.
      * @throws IOException
      *             if there is a problem with the SocketChannel while reading.
-     * @throws RuntimeException
+     * @throws IllegalArgumentException
      *             if length < 0 or channel is blocking.
      */
     protected static ByteBuffer read(SocketChannel chnl, int length) throws IOException {
         if (chnl.isBlocking()) {
-            throw new RuntimeException("SocketChannel cannot be blocking.");
+            throw new IllegalArgumentException("SocketChannel chnl cannot be blocking.");
         }
         if (length <= 0) {
-            throw new RuntimeException("Illegal lenght: expected: length > 0, got: length = "
-                    + length);
+            throw new IllegalArgumentException("Illegal lenght: expected length > 0, but got "
+                    + "length = " + length);
         }
-        int justRead = 0;       /* Number of bytes just read. */
+        int justRead = 0; /* Number of bytes just read. */
         ByteBuffer bf = ByteBuffer.allocate(length);
         while (bf.hasRemaining()) {
             justRead = chnl.read(bf);
@@ -118,11 +135,11 @@ public abstract class NetworkNode extends Thread {
             } else if (justRead == 0) {
                 break;
             } else if (justRead == -1) {
-                chnl.close();   /* Not usable anymore, close. */
+                chnl.close(); /* Channel not usable anymore, close. */
             }
         }
         if (bf.remaining() == length) {
-            return null;        /* Return null if no bytes read & buffer empty. */
+            return null; /* Return null if no bytes read & buffer empty. */
         } else if (bf.remaining() > 0) {
             throw new RuntimeException("Corrupted message detected.");
         }

@@ -14,13 +14,13 @@ import org.objectweb.asm.Type;
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class StatsCollector extends ClassVisitor {
+public class DataCollector extends ClassVisitor {
 
     private static final String ID_NAME = "__DAPIJ_ID";
     private int access;
     private boolean hasIdField = false;
 
-    public StatsCollector(ClassVisitor cv) {
+    public DataCollector(ClassVisitor cv) {
         super(Opcodes.ASM4, cv);
     }
 
@@ -71,9 +71,9 @@ public class StatsCollector extends ClassVisitor {
          *
          * CHAIN: InstAccsVistr -> InsnOfstVistr -> InstCreatVistr
          */
-        InstCreatVistr icv = new InstCreatVistr(mv, name);
-        InsnOfstProvdr iof = new InsnOfstProvdr(icv); /* add a provider (needed by icv). */
-        return new InstAccsVistr(iof, name);
+        InstanceCreationVisitor icv = new InstanceCreationVisitor(mv, name);
+        InstanceOffsetProvider iof = new InstanceOffsetProvider(icv); /* icv depends on provider. */
+        return new InstanceAccessVisitor(iof, name);
     }
 
     public FieldVisitor visitField(int access, String name, String desc,
@@ -85,14 +85,13 @@ public class StatsCollector extends ClassVisitor {
         return cv.visitField(access, name, desc, signature, value);
     }
 
-    /* TODO: change to private and not public. */
     @Override
     public void visitEnd() {
+        // TODO: make injected filed final.
 
         /* Add ID field if not present and class is not abstract. */
         if (!hasIdField && (access & Opcodes.ACC_ABSTRACT) == 0) {
-            cv.visitField(Opcodes.ACC_PRIVATE, ID_NAME, Type.LONG_TYPE.getDescriptor(), null,
-                    null);
+            cv.visitField(Opcodes.ACC_PRIVATE, ID_NAME, Type.LONG_TYPE.getDescriptor(), null, null);
         }
         cv.visitEnd();
     }

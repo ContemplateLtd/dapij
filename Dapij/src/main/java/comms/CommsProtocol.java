@@ -10,9 +10,9 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import transform.InstAccsData;
-import transform.InstCreatData;
-import transform.InstEventData;
+import transform.InstanceAccessData;
+import transform.InstanceCreationData;
+import transform.InstanceEventData;
 import agent.Settings;
 
 /**
@@ -21,13 +21,13 @@ import agent.Settings;
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public final class CommsProto {
+public final class CommsProtocol {
 
     /* Network configuration */
     public static final int PORT = Integer.valueOf(Settings.INSTANCE.get(Settings.SETT_EVS_PORT));
     public static final String HOST = Settings.INSTANCE.get(Settings.SETT_CLI_HOST);
 
-    private CommsProto() {}
+    private CommsProtocol() {}
 
     /**
      * A class defining the message types supported by the communications
@@ -206,7 +206,7 @@ public final class CommsProto {
 
         public abstract ByteBuffer construct();
         public abstract MsgBody deconstruct();
-        public abstract InstEventData getMsg();
+        public abstract InstanceEventData getMsg();
 
         public byte getMsgType() {
             return msgType;
@@ -228,13 +228,13 @@ public final class CommsProto {
      */
     public static final class CreatMsg extends MsgBody {
 
-        private InstCreatData creatData;
+        private InstanceCreationData creatData;
 
         public CreatMsg(ByteBuffer body) {
             super(body, MsgTypes.TYP_CRT);
         }
 
-        public CreatMsg(InstCreatData accsData) {
+        public CreatMsg(InstanceCreationData accsData) {
             super(null, MsgTypes.TYP_CRT);
             this.creatData = accsData;
         }
@@ -248,7 +248,7 @@ public final class CommsProto {
             return getBody();
         }
 
-        public static ByteBuffer construct(InstCreatData creatData) {
+        public static ByteBuffer construct(InstanceCreationData creatData) {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ObjectOutputStream dos = null;
             try {
@@ -256,7 +256,7 @@ public final class CommsProto {
 
                 /* Create body first - have to know body length before creating header. */
                 dos.writeLong(creatData.getObjId());
-                dos.writeObject(creatData.getClazz());
+                dos.writeObject(creatData.getClassName());
                 dos.writeObject(creatData.getMethod());
                 dos.writeLong(creatData.getThdId());
                 dos.writeInt(creatData.getOffset());
@@ -285,7 +285,7 @@ public final class CommsProto {
                 try {
                     ois = new ObjectInputStream(bis);
                     long objId = ois.readLong();
-                    Class<?> objCls = (Class<?>) ois.readObject();
+                    String className = (String) ois.readObject();
                     String method = (String) ois.readObject();
                     long thdId = ois.readLong();
                     int ofst = ois.readInt();
@@ -293,7 +293,7 @@ public final class CommsProto {
                     ois.close();
 
                     /* Set value only once. */
-                    creatData = new InstCreatData(objId, objCls, method, ofst, thdId);
+                    creatData = new InstanceCreationData(objId, className, method, ofst, thdId);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -307,7 +307,7 @@ public final class CommsProto {
         }
 
         @Override
-        public InstCreatData getMsg() {
+        public InstanceCreationData getMsg() {
             return creatData;
         }
     }
@@ -319,13 +319,13 @@ public final class CommsProto {
      */
     public static final class AccsMsg extends MsgBody {
 
-        private InstAccsData accsData;
+        private InstanceAccessData accsData;
 
         public AccsMsg(ByteBuffer body) {
             super(body, MsgTypes.TYP_ACC);
         }
 
-        public AccsMsg(InstAccsData accsData) {
+        public AccsMsg(InstanceAccessData accsData) {
             super(null, MsgTypes.TYP_ACC);
             this.accsData = accsData;
         }
@@ -339,7 +339,7 @@ public final class CommsProto {
             return getBody();
         }
 
-        public static ByteBuffer construct(InstAccsData accsData) {
+        public static ByteBuffer construct(InstanceAccessData accsData) {
             ByteBuffer bf = ByteBuffer.allocate(MsgHeader.SIZE + 16);
 
             /* Construct header, faster not to use MsgHeader.construct() here. */
@@ -357,7 +357,7 @@ public final class CommsProto {
         @Override
         public AccsMsg deconstruct() {
             if (getBody() != null && accsData == null) {
-                accsData = new InstAccsData(getBody().getLong(), getBody().getLong());
+                accsData = new InstanceAccessData(getBody().getLong(), getBody().getLong());
             }
 
             return this;
@@ -368,7 +368,7 @@ public final class CommsProto {
         }
 
         @Override
-        public InstAccsData getMsg() {
+        public InstanceAccessData getMsg() {
             return accsData;
         }
     }

@@ -3,7 +3,7 @@ package utils;
 import java.util.Arrays;
 
 /**
- * A class containing useful utility methods.
+ * A class containing some useful utility methods.
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
@@ -11,6 +11,15 @@ public final class Helpers {
 
     private Helpers() {}
 
+    /**
+     * A generic method for gluing lists of objects.
+     *
+     * @param first
+     *            the first array.
+     * @param rest
+     *            the rest of the arrays.
+     * @return
+     */
     public static <T> T[] arrCat(T[] first, T[]... rest) {
         int ttlLen = first.length;
         for (T[] arr : rest) {
@@ -26,6 +35,15 @@ public final class Helpers {
         return result;
     }
 
+    /**
+     * A method for gluing byte lists.
+     *
+     * @param first
+     *            the first array.
+     * @param rest
+     *            the rest of the arrays.
+     * @return
+     */
     public static byte[] arrCat(byte[] first, byte[]... rest) {
         int ttlLen = first.length;
         for (byte[] arr : rest) {

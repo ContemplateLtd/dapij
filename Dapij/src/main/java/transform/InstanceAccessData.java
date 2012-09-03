@@ -4,31 +4,25 @@
  */
 package transform;
 
-
 /**
+ * A container class for data collected upon access to instances.
  *
  * @author Marcin Szymczak <mpszymczak@gmail.com>
  */
-public class InstAccsData implements InstEventData {
+public class InstanceAccessData implements InstanceEventData {
 
     private long objId;
     private long thdId;
 
-    public InstAccsData(long objId, long thdId) {
+    public InstanceAccessData(long objId, long thdId) {
         this.objId = objId;
         this.thdId = thdId;
     }
 
-    /**
-     * @return the objId
-     */
     public long getObjId() {
         return objId;
     }
 
-    /**
-     * @return the thdId
-     */
     @Override
     public long getThdId() {
         return thdId;

@@ -6,7 +6,7 @@ package transform;
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public interface CreatEventLisnr {
+public interface CreationEventListener {
 
-    void handleCreationEvent(CreatEvent e);
+    void handleCreationEvent(CreationEvent e);
 }

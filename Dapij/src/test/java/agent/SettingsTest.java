@@ -16,9 +16,6 @@ import org.junit.Test;
  */
 public class SettingsTest {
 
-    /**
-     * @throws Exception
-     */
     @Test
     public void settingsBasicTest() throws Exception {
         Settings s = Settings.INSTANCE;

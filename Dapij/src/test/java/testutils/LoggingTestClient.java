@@ -1,16 +1,16 @@
 package testutils;
 
 import java.util.ArrayList;
-import comms.EventClnt;
-import comms.CommsProto.MsgBody;
-import comms.CommsProto.MsgHeader;
+import comms.EventClient;
+import comms.CommsProtocol.MsgBody;
+import comms.CommsProtocol.MsgHeader;
 import utils.Helpers;
 
-public class LoggingTestClnt extends EventClnt {
+public class LoggingTestClient extends EventClient {
 
     private ArrayList<byte[]> msgLog;
 
-    public LoggingTestClnt(String host, int port) {
+    public LoggingTestClient(String host, int port) {
         super(host, port);
         msgLog = new ArrayList<byte[]>();
     }

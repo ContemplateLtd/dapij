@@ -10,7 +10,7 @@ import java.security.ProtectionDomain;
 import java.util.HashMap;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.FileUtils;
-import static transform.Transfmr.transformClass;
+import static transform.Transformer.transformClass;
 
 /**
  * A custom class loader for loading & instrumenting classes based on predefined
@@ -31,9 +31,9 @@ public class TestClassLoader extends ClassLoader {
     private ArrayList<String> forceNoInstr;
 
     /* proj pkg dirs & flags indicating whether to instrument their classes */
-    private HashMap<Package, PkgLdPolicy> pkgLdPolicies;
+    private HashMap<Package, PackageLoadPolicy> pkgLdPolicies;
 
-    public TestClassLoader(HashMap<Package, PkgLdPolicy> pkgLdPolicies) {
+    public TestClassLoader(HashMap<Package, PackageLoadPolicy> pkgLdPolicies) {
         this.pkgLdPolicies = pkgLdPolicies;
         this.forceNoInstr = new ArrayList<String>();
     }
@@ -80,7 +80,7 @@ public class TestClassLoader extends ClassLoader {
          * Get pkg for class (if pkg exists) and return its load policy if such
          * exists.
          */
-        PkgLdPolicy p = getLdPolicy(getPkg(clsBinName));
+        PackageLoadPolicy p = getLdPolicy(getPkg(clsBinName));
 
         String clsRelPath = binNmToPth(clsBinName);
         File clsFullPath = new File(mainClsRt, clsRelPath);
@@ -140,7 +140,7 @@ public class TestClassLoader extends ClassLoader {
      *            A Package object representing the package.
      * @returns The package loading policy or null if no policy found.
      */
-    private PkgLdPolicy getLdPolicy(Package p) {
+    private PackageLoadPolicy getLdPolicy(Package p) {
 
         /* If in project classes, search & return policy (or null if none). */
         return (p != null && pkgLdPolicies.containsKey(p)) ? pkgLdPolicies.get(p) : null;
@@ -158,24 +158,30 @@ public class TestClassLoader extends ClassLoader {
      * @return A HashMap<File, PkgLoadConf> containing the load/instrument
      *         policies for the project's classes conditioned on the packages.
      */
-    public static HashMap<Package, PkgLdPolicy> getPkgLoadPolicy() {
-        HashMap<Package, PkgLdPolicy> pkgLdPolicies = new HashMap<Package, PkgLdPolicy>();
+    public static HashMap<Package, PackageLoadPolicy> getPkgLoadPolicy() {
+        HashMap<Package, PackageLoadPolicy> policies = new HashMap<Package, PackageLoadPolicy>();
 
         /* main-chld-fst (contains state, refreshed in tst), tst-chld-fst, tst-instr */
-        pkgLdPolicies.put(Package.getPackage("agent"), new PkgLdPolicy(true, true, true));
+        policies.put(Package.getPackage("agent"), new PackageLoadPolicy(true, true, true));
 
         /* main-parent-fst, tst-chld-fst, tst-instr */
-        pkgLdPolicies.put(Package.getPackage("comms"), new PkgLdPolicy(false, true, true));
+        policies.put(Package.getPackage("comms"), new PackageLoadPolicy(false, true, true));
 
         /* main-parent-fst, tst-chld-fst, tst-instr */
-        pkgLdPolicies.put(Package.getPackage("transform"), new PkgLdPolicy(false, true, true));
+        policies.put(Package.getPackage("transform"), new PackageLoadPolicy(false, true, true));
 
         /* main-parent-fst, tst-parent-fst, tst-no-instr */
-        pkgLdPolicies.put(Package.getPackage("testutils"), new PkgLdPolicy(false, false, false));
+        policies.put(Package.getPackage("testutils"), new PackageLoadPolicy(false, false, false));
 
-        return pkgLdPolicies;
+        return policies;
     }
 
+    /**
+     * Provides the classpath root for a given class.
+     *
+     * @param clazz the class.
+     * @return File object representing the classpath root.
+     */
     private static File classpathRoot(Class<?> clazz) {
         try {
             ProtectionDomain pd = clazz.getProtectionDomain();

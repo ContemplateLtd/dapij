@@ -1,10 +1,11 @@
 package transform;
 
 /**
+ * An interface for classes providing entity identification.
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
 public interface Identifier {
 
-    long getId(Object ref);
+    <T> long getId(T ref);
 }

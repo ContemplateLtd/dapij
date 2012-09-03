@@ -8,7 +8,7 @@ package testutils;
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class PkgLdPolicy {
+public class PackageLoadPolicy {
     private boolean mainChldFst; /* Main class package load policy. */
     private boolean tstChldFst; /* Test class package load policy. */
     private boolean tstIsInstrum; /* Test class package instrumentation policy */
@@ -24,7 +24,7 @@ public class PkgLdPolicy {
      *            A boolean that indicates whether to instrument package test
      *            classes or not.
      */
-    public PkgLdPolicy(boolean mainChldFst, boolean tstChldFst, boolean tstIsInstrum) {
+    public PackageLoadPolicy(boolean mainChldFst, boolean tstChldFst, boolean tstIsInstrum) {
         this.mainChldFst = mainChldFst;
         this.tstChldFst = tstChldFst;
         this.tstIsInstrum = tstIsInstrum;
@@ -57,26 +57,31 @@ public class PkgLdPolicy {
     }
 
     /**
+     * Sets the boolean flag denoting whether to load main classes from this
+     * package in child or parent (or system if no parent) class loader.
+     *
      * @param tstChldFst
-     *            Sets the boolean flag denoting whether to load main classes
-     *            from this package in child or parent (or system if no parent)
-     *            class loader.
+     *            the boolean flag.
      */
     public void setTstChldFst(boolean tstChldFst) {
         this.tstChldFst = tstChldFst;
     }
 
     /**
-     * @return The value of the flag determining whether to instrument or not.
+     * Returns the value of the flag determining whether to instrument or not.
+     *
+     * @return the flag.
      */
     public boolean isTstInstr() {
         return (tstIsInstrum);
     }
 
     /**
+     * Returns the boolean flag denoting whether to instrument test classes from
+     * this package or not.
+     *
      * @param tstIsInstrum
-     *            The boolean flag denoting whether to instrument test classes
-     *            from this package or not.
+     *            the boolean flag.
      */
     public void isTstInstr(boolean tstIsInstrum) {
         this.tstIsInstrum = tstIsInstrum;

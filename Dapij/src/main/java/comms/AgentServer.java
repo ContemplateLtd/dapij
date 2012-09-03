@@ -9,7 +9,6 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
-
 import agent.Settings;
 
 /**
@@ -18,18 +17,18 @@ import agent.Settings;
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class AgentSrv extends NetworkNode {
+public class AgentServer extends NetworkNode {
 
     private ServerSocketChannel srvChnl;
     private SocketChannel cliChnl;
     private Selector selector;
 
-    public AgentSrv(String host, int port, long soTimeout, long attemptInerval, int attempts) {
+    public AgentServer(String host, int port, long soTimeout, long attemptInerval, int attempts) {
         super(host, port, 1000, 5000, 3);
         setName("agnt-server");
     }
 
-    public AgentSrv(ServerSocketChannel srvSockChnl, SocketChannel cliChnl, Selector selector) {
+    public AgentServer(ServerSocketChannel srvSockChnl, SocketChannel cliChnl, Selector selector) {
         this(srvSockChnl.socket().getInetAddress().getHostAddress(),
                 srvSockChnl.socket().getLocalPort(), 1000, 5000, 3);
         this.srvChnl = srvSockChnl;
@@ -113,14 +112,10 @@ public class AgentSrv extends NetworkNode {
     private synchronized void flushOutMsgQ() {
         ByteBuffer msg;
         while ((msg = getOutMsgQ().peek()) != null) {
-            try {
-                if (write(cliChnl, msg)) {
-                    getOutMsgQ().poll();    /* Rm msg from queue only if successfully sent. */
-                } else {
-                    break;
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);  /* TODO: channel may have been closed, handle? */
+            if (write(cliChnl, msg)) {
+                getOutMsgQ().poll();    /* Rm msg from queue only if successfully sent. */
+            } else {
+                break;
             }
         }
     }
@@ -175,7 +170,7 @@ public class AgentSrv extends NetworkNode {
      * @return An initialised (bounded, with one client connection) and not yet
      *         started AgentSrv server object.
      */
-    public static AgentSrv blockingConnect(String host, int port, long soTimeout,
+    public static AgentServer blockingConnect(String host, int port, long soTimeout,
             long attemptInterval, int attempts) {
         ServerSocketChannel srvChnl = null;
         SocketChannel cliChnl = null;
@@ -220,7 +215,7 @@ public class AgentSrv extends NetworkNode {
                                     + cliChnl.socket().getRemoteSocketAddress()
                                     + "] connected ...");
 
-                            return new AgentSrv(srvChnl, cliChnl, selector);
+                            return new AgentServer(srvChnl, cliChnl, selector);
                         }
                     }
                 } catch (Exception e) {

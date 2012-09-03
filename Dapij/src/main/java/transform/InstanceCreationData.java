@@ -7,17 +7,18 @@ package transform;
  *
  * @author Marcin Szymczak <mpszymczak@gmail.com>
  */
-public class InstCreatData implements InstEventData {
+public class InstanceCreationData implements InstanceEventData {
 
     private long objId;
-    private Class<?> clazz;
+    private String className;
     private String method;
     private int offset;
     private long threadId;
 
-    public InstCreatData(long objId, Class<?> clazz, String method, int offset, long threadId) {
+    public InstanceCreationData(long objId, String className, String method, int offset,
+            long threadId) {
         this.objId = objId;
-        this.clazz = clazz;
+        this.className = className;
         this.method = method;
         this.offset = offset;
         this.threadId = threadId; /* TODO: Use other data to identify threads? */
@@ -25,7 +26,7 @@ public class InstCreatData implements InstEventData {
 
     @Override
     public String toString() {
-        return ("[id: " + getObjId() + "; cls: " + clazz.getName() + "; mtd: " + method + "; ofs: "
+        return ("[id: " + getObjId() + "; cls: " + className + "; mtd: " + method + "; ofs: "
                 + offset + "; tId: " + threadId + "]");
     }
 
@@ -45,10 +46,10 @@ public class InstCreatData implements InstEventData {
     }
 
     /**
-     * @return the clazz
+     * @return the className
      */
-    public Class<?> getClazz() {
-        return clazz;
+    public String getClassName() {
+        return className;
     }
 
     /**
@@ -75,10 +76,10 @@ public class InstCreatData implements InstEventData {
 
     /**
      * @param clazz
-     *            the clazz to set
+     *            the className to set
      */
-    public void setClazz(Class<?> clazz) {
-        this.clazz = clazz;
+    public void setClazz(String className) {
+        this.className = className;
     }
 
     /**

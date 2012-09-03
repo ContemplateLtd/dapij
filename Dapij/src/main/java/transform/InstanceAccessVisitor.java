@@ -1,8 +1,8 @@
 package transform;
 
-import agent.ArgStack;
-import agent.InstIdentifier;
-import agent.RuntmEventSrc;
+import agent.ArgumentStack;
+import agent.InstanceIdentifier;
+import agent.RuntimeEventSource;
 import java.util.HashMap;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -15,11 +15,11 @@ import org.objectweb.asm.Type;
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class InstAccsVistr extends MethodVisitor {
+public class InstanceAccessVisitor extends MethodVisitor {
 
     private String methodName;
 
-    public InstAccsVistr(MethodVisitor mv, String name) {
+    public InstanceAccessVisitor(MethodVisitor mv, String name) {
         super(Opcodes.ASM4, mv);
         methodName = name;
     }
@@ -53,21 +53,11 @@ public class InstAccsVistr extends MethodVisitor {
             /* Pop args & store them temporarily in external stack. */
             for (int i = argTypes.length - 1; i >= 0; i--) {
                 Type argType = argTypes[i];
-                mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(ArgStack.class),
-                        "INSTANCE", Type.getDescriptor(ArgStack.INSTANCE.getClass()));
-
-                if (twoSlotArgFuncMap.containsKey(argType)) {
-                    mv.visitInsn(Opcodes.DUP_X2);   /* fancy swap if arg takes 2 slots */
-                    mv.visitInsn(Opcodes.POP);
-                } else {
-
-                    /* Use Object type if argType not supported */
-                    if (!oneSlotArgFuncMap.containsKey(argType)) {
+                if (!twoSlotArgFuncMap.containsKey(argType)
+                        && !oneSlotArgFuncMap.containsKey(argType)) {
                         argType = Type.getType(Object.class);
-                    }
-                    mv.visitInsn(Opcodes.SWAP);     /* regular swap if 1 slot */
                 }
-                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(ArgStack.class),
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ArgumentStack.class),
                         "push", Type.getMethodDescriptor(Type.VOID_TYPE, argType));
             }
             mv.visitInsn(Opcodes.DUP);
@@ -75,9 +65,6 @@ public class InstAccsVistr extends MethodVisitor {
 
             /* Push the arguments back on the stack. */
             for (Type argType : argTypes) {
-                mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(ArgStack.class),
-                        "INSTANCE", Type.getDescriptor(ArgStack.INSTANCE.getClass()));
-
                 boolean supportedType = true;
                 String func = "popObj";
                 if (oneSlotArgFuncMap.containsKey(argType)) {
@@ -88,7 +75,7 @@ public class InstAccsVistr extends MethodVisitor {
                     supportedType = false;
                 }
 
-                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(ArgStack.class),
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ArgumentStack.class),
                         func, Type.getMethodDescriptor(
                                 (supportedType) ? argType : Type.getType(Object.class)));
 
@@ -117,7 +104,7 @@ public class InstAccsVistr extends MethodVisitor {
             } else if (opcode == Opcodes.PUTFIELD) {
                 Type type = Type.getType(desc);
 
-                /* If 2-slot value on stack, can't just swap. Do this instad. */
+                /* If 2-slot value on stack, can't just swap. Do this instead. */
                 if (type.equals(Type.LONG_TYPE) || type.equals(Type.DOUBLE_TYPE)) {
                     mv.visitInsn(Opcodes.DUP2_X1);
                     mv.visitInsn(Opcodes.POP2);
@@ -138,19 +125,19 @@ public class InstAccsVistr extends MethodVisitor {
     private void injectFireAccsEvent() {
 
         /* Get a reference to InstanceCreationTracker and put it on the bottom. */
-        mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(RuntmEventSrc.class), "INSTANCE",
-                Type.getDescriptor(RuntmEventSrc.INSTANCE.getClass()));
+        mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(RuntimeEventSource.class),
+                "INSTANCE", Type.getDescriptor(RuntimeEventSource.INSTANCE.getClass()));
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                Type.getInternalName(RuntmEventSrc.INSTANCE.getClass()), "getAccsEventSrc",
-                Type.getMethodDescriptor(Type.getType(AccsEventSrc.class)));
+                Type.getInternalName(RuntimeEventSource.INSTANCE.getClass()), "getAccsEventSrc",
+                Type.getMethodDescriptor(Type.getType(AccessEventSource.class)));
 
         /* Get Obj unique id & push. */
         mv.visitInsn(Opcodes.SWAP); /* Swap to keep obj ref on top. */
-        mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(InstIdentifier.class),
-                "INSTANCE", Type.getDescriptor(InstIdentifier.class));
+        mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(InstanceIdentifier.class),
+                "INSTANCE", Type.getDescriptor(InstanceIdentifier.class));
         mv.visitInsn(Opcodes.SWAP); /* Swap to keep obj ref on top. */
 
-        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(InstIdentifier.class),
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(InstanceIdentifier.class),
                 "getId", Type.getMethodDescriptor(Type.LONG_TYPE, Type.getType(Object.class)));
 
         /* Gget the thread ID. */
@@ -162,7 +149,7 @@ public class InstAccsVistr extends MethodVisitor {
         /* Register object access. */
         mv.visitMethodInsn(
                 Opcodes.INVOKEVIRTUAL,
-                Type.getInternalName(AccsEventSrc.class),
+                Type.getInternalName(AccessEventSource.class),
                 "fireEvent",
                 Type.getMethodDescriptor(Type.getType(void.class), Type.getType(long.class),
                         Type.getType(long.class)));

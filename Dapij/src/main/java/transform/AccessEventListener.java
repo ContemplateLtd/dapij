@@ -6,7 +6,7 @@ package transform;
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public interface AccsEventLisnr {
+public interface AccessEventListener {
 
-    void handleAccessEvent(AccsEvent e);
+    void handleAccessEvent(AccessEvent e);
 }

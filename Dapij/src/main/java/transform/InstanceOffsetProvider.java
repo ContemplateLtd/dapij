@@ -14,11 +14,11 @@ import org.objectweb.asm.Opcodes;
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class InsnOfstProvdr extends MethodVisitor {
+public class InstanceOffsetProvider extends MethodVisitor {
 
     private int insnOfst = -1;
 
-    public InsnOfstProvdr(InsnOfstReader mvIof) {
+    public InstanceOffsetProvider(InstructionOffsetReader mvIof) {
         super(Opcodes.ASM4, mvIof);
         mvIof.setInsnOfsetProvider(this);
     }

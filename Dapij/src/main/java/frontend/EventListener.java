@@ -1,24 +1,27 @@
 package frontend;
 
-import comms.CommsProto.AccsMsg;
-import comms.CommsProto.CreatMsg;
+import comms.CommsProtocol.AccsMsg;
+import comms.CommsProtocol.CreatMsg;
 
 /**
  * An abstract class providing hooks for processing event messages. It allows
- * creating a chain of listeners each processing the result of the one before
- * it.
+ * assembling listeners into an event processing chain.
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
 public abstract class EventListener {
 
-    protected EventListener el; /* Previous  */
+    private EventListener el; /* Previous  */
 
     EventListener(EventListener prevInChain) {
         this.el = prevInChain;
     }
 
     public EventListener() {}
+
+    public EventListener nextListener() {
+        return el;
+    }
 
     public abstract void onCreatEvent(CreatMsg msg);
 

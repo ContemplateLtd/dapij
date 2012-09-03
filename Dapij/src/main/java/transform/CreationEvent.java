@@ -8,17 +8,17 @@ import java.util.EventObject;
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class CreatEvent extends EventObject {
+public class CreationEvent extends EventObject {
 
     private static final long serialVersionUID = 1L; /* default value */
-    private InstCreatData data;
+    private InstanceCreationData data;
 
-    public CreatEvent(Object eventSrc, InstCreatData data) {
+    public CreationEvent(Object eventSrc, InstanceCreationData data) {
         super(eventSrc);
         this.data = data;
     }
 
-    public InstCreatData getCreatData() {
+    public InstanceCreationData getCreatData() {
         return data;
     }
 }

@@ -8,20 +8,20 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import agent.Settings;
-import comms.CommsProto.MsgBody;
-import comms.CommsProto.MsgHeader;
+import comms.CommsProtocol.MsgBody;
+import comms.CommsProtocol.MsgHeader;
 
 /**
- * A network client used for testing the agent's network server.
+ * A network client for communication with the agent's network server.
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public abstract class EventClnt extends NetworkNode {
+public abstract class EventClient extends NetworkNode {
 
     private Selector selector;
     private SocketChannel sockChnl;
 
-    public EventClnt(String host, int port) {
+    public EventClient(String host, int port) {
         super(host, port, 100, 2000, 5);
         setName("test-client");
     }
@@ -133,7 +133,7 @@ public abstract class EventClnt extends NetworkNode {
             }
             MsgHeader header = MsgHeader.deconstruct(hdrBuf);
             byte msgType = header.getMsgType();
-            if (!CommsProto.MsgTypes.isSupported(msgType)) {
+            if (!CommsProtocol.MsgTypes.isSupported(msgType)) {
                 throw new RuntimeException("Message type '" + msgType + "' is not supported.");
             }
             ByteBuffer bodyBuf = read(srvChnl, header.getBdySize());    /* Read body. */
@@ -143,7 +143,7 @@ public abstract class EventClnt extends NetworkNode {
             }
 
             /* Accesses messages are more frequent, check for them first. */
-            MsgBody body = CommsProto.deconstructMsg(bodyBuf, msgType);
+            MsgBody body = CommsProtocol.deconstructMsg(bodyBuf, msgType);
             onMsgRecv(header, body);
 
             return body;

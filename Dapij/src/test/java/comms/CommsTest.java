@@ -5,21 +5,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.nio.ByteBuffer;
 import org.junit.Test;
-import comms.CommsProto.AccsMsg;
-import comms.CommsProto.CreatMsg;
-import testutils.LoggingTestClnt;
-import testutils.TransfmrTest;
-import transform.InstAccsData;
-import transform.InstCreatData;
+import comms.CommsProtocol.AccsMsg;
+import comms.CommsProtocol.CreatMsg;
+import testutils.LoggingTestClient;
+import testutils.TransformerTest;
+import transform.InstanceAccessData;
+import transform.InstanceCreationData;
 
 /**
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class CommsTest extends TransfmrTest {
+public class CommsTest extends TransformerTest {
 
     /**
      * Test event client for detecting corrupt messages.
+     *
      * @throws InterruptedException
      * TODO: Complete this test.
      */
@@ -27,15 +28,16 @@ public class CommsTest extends TransfmrTest {
     public void agentEventServerTest() throws InterruptedException {
 
         /* Start client first, as srv blocking start. */
-        LoggingTestClnt client = new LoggingTestClnt(CommsProto.HOST, CommsProto.PORT);
+        LoggingTestClient client = new LoggingTestClient(CommsProtocol.HOST, CommsProtocol.PORT);
         client.setDaemon(true);
         client.start();
-        AgentSrv server = AgentSrv.blockingConnect(CommsProto.HOST, CommsProto.PORT, 5000, 3000, 3);
+        AgentServer server = AgentServer.blockingConnect(CommsProtocol.HOST, CommsProtocol.PORT,
+                5000, 3000, 3);
         server.setDaemon(true);
         server.start();
 
         /* TODO: Send a correct message, check if correctly received. */
-        server.blockSnd(AccsMsg.construct(new InstAccsData(5, 1)));
+        server.blockSnd(AccsMsg.construct(new InstanceAccessData(5, 1)));
 
         server.blockSnd(ByteBuffer.wrap(new byte[]{5})); /* Construct & send corrupt msg. */
 
@@ -55,16 +57,18 @@ public class CommsTest extends TransfmrTest {
     /**
      * Test if all sent messages are received. Test if msg reception order
      * matches order of generation.
+     *
      * @throws InterruptedException
      */
     @Test
-    public void EventOrderTest() throws InterruptedException {
+    public void eventOrderTest() throws InterruptedException {
 
         /* Start client first, as srv blocking start. */
-        LoggingTestClnt client = new LoggingTestClnt(CommsProto.HOST, CommsProto.PORT);
+        LoggingTestClient client = new LoggingTestClient(CommsProtocol.HOST, CommsProtocol.PORT);
         client.setDaemon(true);
         client.start();
-        AgentSrv server = AgentSrv.blockingConnect(CommsProto.HOST, CommsProto.PORT, 5000, 3000, 3);
+        AgentServer server = AgentServer.blockingConnect(CommsProtocol.HOST, CommsProtocol.PORT,
+                5000, 3000, 3);
         server.setDaemon(true);
         server.start();
 
@@ -74,16 +78,18 @@ public class CommsTest extends TransfmrTest {
         for(int i = 0; i < nrMsgs; i++) {
             if(i % 3 == 0) {
                 testMessages[i] = CreatMsg.construct(
-                        new InstCreatData(i, String.class, "Method" + i, 2*i, 3*i));
+                        new InstanceCreationData(i, String.class.getName(), "Method" + i, 2*i,
+                                3*i));
                 server.blockSnd(testMessages[i]);
             }
             else if(i % 3 == 1) {
                 testMessages[i] = CreatMsg.construct(
-                        new InstCreatData(i, Integer.class, "Method" + i, 2*i, 3*i));
+                        new InstanceCreationData(i, Integer.class.getName(), "Method" + i, 2*i,
+                                3*i));
                 server.blockSnd(testMessages[i]);
             }
             else if(i % 3 == 2) {
-                testMessages[i] = AccsMsg.construct(new InstAccsData(i, 4*i));
+                testMessages[i] = AccsMsg.construct(new InstanceAccessData(i, 4*i));
                 server.blockSnd(testMessages[i]);
             }
         }

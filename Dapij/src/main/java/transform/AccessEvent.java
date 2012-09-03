@@ -8,17 +8,17 @@ import java.util.EventObject;
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class AccsEvent extends EventObject {
+public class AccessEvent extends EventObject {
 
     private static final long serialVersionUID = 1L; /* default value */
-    private InstAccsData data;
+    private InstanceAccessData data;
 
-    public AccsEvent(Object src, InstAccsData data) {
+    public AccessEvent(Object src, InstanceAccessData data) {
         super(src);
         this.data = data;
     }
 
-    public InstAccsData getAccsData() {
+    public InstanceAccessData getAccsData() {
         return data;
     }
 }
