@@ -19,15 +19,15 @@ public class InstanceCreationVisitor extends InstructionOffsetReader {
     private String creatorMethod; /* name of method where creation occurred */
 
     /**
-     * A stack for handling nested NEW-INVOKEVIRTUAL instruction patterns met
-     * while visiting methods. Needed for inserting bytecode for recording info
-     * about created objects.
+     * A {@link Stack} for handling nested NEW-INVOKEVIRTUAL instruction
+     * patterns met while visiting methods. Needed for inserting bytecode for
+     * recording info about created objects.
      */
     private Stack<StackElement> objectCreationStack;
 
     /**
      * A wrapper of object creation information. Used to compose the entries of
-     * instanceCreationStack.
+     * {@code objectCreationStack}.
      */
     private static final class StackElement {
 
@@ -61,7 +61,7 @@ public class InstanceCreationVisitor extends InstructionOffsetReader {
     }
 
     /**
-     * Collects information, pushes it on a objectCreationStack & loads the
+     * Collects information, pushes it on a {@code objectCreationStack} & loads the
      * necessary refs on the stack. This provides the necessary data for an
      * object creation detection when the matching INVOKEVIRTUAL instruction is
      * visited (i.e. when the created instance has been initialised).
@@ -86,8 +86,9 @@ public class InstanceCreationVisitor extends InstructionOffsetReader {
     }
 
     /**
-     * Pops information from objectCreationStack & injects code to create an
-     * event that registers the a newly created & instantiated instance.
+     * Pops information from {@code objectCreationStack} & injects code to
+     * create an event that registers the a newly created & instantiated
+     * instance.
      */
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String desc) {

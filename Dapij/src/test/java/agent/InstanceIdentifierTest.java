@@ -92,8 +92,9 @@ public class InstanceIdentifierTest extends TransformerTest {
         ArrayList<Long> objIds = instrSetup(new Callable<ArrayList<Long>>() {
 
             /**
-             * An internal class that defines a task for creating multiple objects
-             * of instrumented types and returning their identifiers as a Long[].
+             * An internal class that defines a task for creating multiple
+             * objects of instrumented types and returning their identifiers as
+             * a {@link Long}{@code []}.
              *
              * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
              */
@@ -136,8 +137,9 @@ public class InstanceIdentifierTest extends TransformerTest {
             }
 
             /**
-             * An internal class that defines a task for creating multiple objects
-             * of uninstrumented types and returning their identifiers as a Long[].
+             * An internal class that defines a task for creating multiple
+             * objects of uninstrumented types and returning their identifiers
+             * as a {@link Long}{@code []}.
              *
              * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
              */

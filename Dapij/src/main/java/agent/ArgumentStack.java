@@ -89,6 +89,7 @@ public final class ArgumentStack {
     public static float popFloat() {
         return ((Float) localStack.get().pop()).floatValue();
     }
+
     public static int popInt() {
         return ((Integer) localStack.get().pop()).intValue();
     }

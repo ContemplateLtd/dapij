@@ -9,8 +9,9 @@ import org.objectweb.asm.ClassWriter;
 import agent.Settings;
 
 /**
- * A ClassFileTransformer used by the agent to instrument user program classes
- * upon loading. The classes of this project are filtered and not transformed.
+ * A {@link ClassFileTransformer} used by the agent to instrument user program
+ * classes upon loading. The classes of this project are filtered and not
+ * transformed.
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
@@ -39,7 +40,7 @@ public class Transformer implements ClassFileTransformer {
         return (shouldInstrument) ? transformClass(classfileBuffer) : classfileBuffer;
     }
 
-    /** Instruments classes' bytecode using an ASM ClassVisitor. */
+    /** Instruments classes' bytecode using an ASM {@link ClassVisitor}. */
     public static byte[] transformClass(byte[] classfileBuffer) {
         ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         ClassVisitor sc = new DataCollector(writer);

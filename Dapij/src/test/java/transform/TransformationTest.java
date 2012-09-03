@@ -11,7 +11,7 @@ import testutils.TransformerTest;
 /* TODO: Test InsnOfstVisitor */
 
 /**
- * A class containing tests for the dapij.transform package.
+ * A class containing tests for the {@code dapij.transform} package.
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */

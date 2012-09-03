@@ -10,7 +10,7 @@ import org.junit.Test;
 /* TODO: Test InstIdentifier's concurrent map for concurrency. */
 
 /**
- * Includes tests for the the Settings singleton class.
+ * Includes tests for the the {@link Settings} singleton class.
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */

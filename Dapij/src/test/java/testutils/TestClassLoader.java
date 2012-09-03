@@ -67,7 +67,8 @@ public class TestClassLoader extends ClassLoader {
 
     /**
      * Search for class in local project and load it if present and transform it
-     * according to the package load policy for its package (if any).
+     * according to the {@link PackageLoadPolicy} object for its package (if
+     * any).
      *
      * @param binClsName
      *            the binary class name of the class to be loaded
@@ -120,24 +121,24 @@ public class TestClassLoader extends ClassLoader {
     }
 
     /**
-     * For a given class name, returns a File representing the full path to the
-     * package of that class.
+     * For a given class name, returns a {@link File} representing the full path
+     * to the package of that class.
      *
      * @param clsBinName
      *            the binary name of the class
-     * @return A Package object representing the package or null if it is
-     *         unknown.
+     * @return A {@link Package} object representing the package or null if it
+     *         is unknown.
      */
     private Package getPkg(String clsBinName) {
         return Package.getPackage(getPgkName(clsBinName));
     }
 
     /**
-     * Given a full path File object for a package, retrieves a load policy for
-     * the class files contained in this package.
+     * Given a full path {@link File} object for a package, retrieves a load
+     * policy for the class files contained in this package.
      *
      * @param p
-     *            A Package object representing the package.
+     *            A {@link Package} object representing the package.
      * @returns The package loading policy or null if no policy found.
      */
     private PackageLoadPolicy getLdPolicy(Package p) {
@@ -152,10 +153,10 @@ public class TestClassLoader extends ClassLoader {
      * needs to be changed by hand in the future.
      *
      * NOTE: Main classes are never instrumented, test classes are always child
-     * first
-     * TODO: improvement - load from a config file.
+     * first. TODO: improvement - load from a config file.
      *
-     * @return A HashMap<File, PkgLoadConf> containing the load/instrument
+     * @return A {@link HashMap}{@code <}{@link Package}{@code , }
+     *         {@link PackageLoadPolicy}{@code >} containing the load/instrument
      *         policies for the project's classes conditioned on the packages.
      */
     public static HashMap<Package, PackageLoadPolicy> getPkgLoadPolicy() {
@@ -179,8 +180,9 @@ public class TestClassLoader extends ClassLoader {
     /**
      * Provides the classpath root for a given class.
      *
-     * @param clazz the class.
-     * @return File object representing the classpath root.
+     * @param clazz
+     *            the class.
+     * @return {@link File} object representing the classpath root.
      */
     private static File classpathRoot(Class<?> clazz) {
         try {

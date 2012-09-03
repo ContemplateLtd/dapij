@@ -15,7 +15,7 @@ import transform.CreationEventListener;
  * An agent that instruments user programs for the purpose of collecting runtime
  * data & sending it to external clients for further processing.
  *
- * @author Nikolay Pulev
+ * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
 public final class Agent {
 

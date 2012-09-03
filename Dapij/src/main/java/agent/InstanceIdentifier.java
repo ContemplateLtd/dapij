@@ -18,7 +18,7 @@ public final class InstanceIdentifier implements Identifier {
 
     public static final InstanceIdentifier INSTANCE = new InstanceIdentifier();
 
-    /** A long variable used to provide unique identifiers to objects. */
+    /** A {@link AtomicLong} variable used to provide unique identifiers to objects. */
     private AtomicLong nextObjectID;
 
     /** A map storing IDs of objects whose classes could not be instrumented. */
@@ -31,16 +31,14 @@ public final class InstanceIdentifier implements Identifier {
 
     @Override
     public <T> long getId(T ref) {
-        if (ref == null) {
-         // TODO: IllegalArgumentException or NullPointerException instead?
-            throw new RuntimeException("Null reference has no identifier.");
-        }
         do {
             Field f = null;
             try {
                 f = ref.getClass().getDeclaredField("__DAPIJ_ID");
                 f.setAccessible(true);
-            } catch (Exception e) {
+            } catch (NullPointerException e) {
+                throw new IllegalArgumentException("Null reference has no identifier.");
+            } catch (Exception e2) {
                 break; /* Proceed to using map if id field not injected. */
             }
 

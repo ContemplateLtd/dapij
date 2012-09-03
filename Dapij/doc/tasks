@@ -47,9 +47,9 @@ NP			1.1	Implement a agent server that streams *events to a network port
 
 NP		V	1.2	[r] Establish a protocol (network message format) for the events
 
-		X	1.3 [g] Implement a production test client (perhaps based on the testing client).
+		V	1.3 [g] Implement a production test client (perhaps based on the testing client).
 
-			1.4	[g] Implement a consumer API (e.g. using the Visitor pattern)
+		~V	1.4	[g] Implement a consumer API (e.g. using the Visitor pattern)
 				* A client that accepts events from the agent event server (an event reader).
 				* Event visitors for processing different events.
 
@@ -59,13 +59,13 @@ NP		V	1.2	[r] Establish a protocol (network message format) for the events
 NP			2.1. [r] Fix testing framework
 			V	* Provide support for loading & instrumenting policies per package.
 			V	* Add functionality to override instrumentation policy regardless of class pkg policy.
-					- should be loaded from config file
+					- should be loaded from config file (not yet implemented)
 			V	* Review TestClassLoader implementation and verify that it works
 					- improve package load policies
 			
 			2.2	[r] Test communication architecture & protocol
 			~V	- test agent production server
-				- test production client
+			X	- test production client
 MS			~V	* Performance test - fast send of a huge amount of messages.
 NP			~V 	* Test message order (no concurrent tests yet)
 			X	* Test protocol methods & classes
@@ -75,12 +75,12 @@ MS/NP	~V	2.3 [r] Fully test instrumentation code.
 NP		~V	2.4 [r] Fully test event generation code.
 
 			2.5 [r]	Fully test agent code.
-			X	* ArgStack
-MS			~V	* InstIdentifier (not yet tested for concurrency & thread safety).
+			X	* ArgumentStack
+MS			~V	* InstanceIdentifier (issue with incrementing atomic counter more than required)
 NP			~V	* Settings (not yet tested for concurrency & thread safety).
 
 	[3]. Agent features
-MS		~V	3.1	[r] Implement object identification (either in map or in inserted field)
+MS		V	3.1	[r] Implement object identification (either in map or in inserted field)
 MS			3.2	Research the approach of adding a field to java.lang.Object
 				- this is better as it is centralised, but might introduce other problems
 			3.3	[g] Cover the rest of the (currently not handled) cases for object creation
@@ -98,6 +98,7 @@ MS			3.2	Research the approach of adding a field to java.lang.Object
 			5.1 [y] Documenting issues
 			~V	* TODOs
 			~V	* Extensive comments in code
-				* Textual explanations in doc folder / Contemplate wiki.
+			~V	* Textual explanations in doc folder / Contemplate wiki.
+					- Created issues/ & bugs/ directories
 
-	[6]. [g] Proper logging?
+	[6]. [g] Use a Logger for logging instead of prints to stdout.

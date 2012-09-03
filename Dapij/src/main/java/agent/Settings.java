@@ -74,6 +74,7 @@ public final class Settings {
 
     /**
      * Removes a settings given its name.
+     *
      * @param key
      *            The name of the setting to remove.
      * @return Returns the setting removed or null if no such setting.

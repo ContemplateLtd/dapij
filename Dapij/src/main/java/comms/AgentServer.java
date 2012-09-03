@@ -121,8 +121,8 @@ public class AgentServer extends NetworkNode {
     }
 
     /**
-     * Tries to bind the server to the specified port. If srvSockChnl was
-     * previously used, attempt to close it, set it to null and then try.
+     * Tries to bind the server to the specified port. If {@code srvSockChnl} was
+     * previously used, attempt to close it, set it to {@code null} and then try.
      */
     private void bind() {
         int i = 1;
@@ -164,11 +164,12 @@ public class AgentServer extends NetworkNode {
      * @param port
      *            The host port to bind to.
      * @param attempts
-     *            Number of times to wait for a client with timeout soTimeout.
+     *            Number of times to wait for a client with timeout
+     *            {@code soTimeout}.
      * @param soTimeout
      *            The timeout to wait for a client.
      * @return An initialised (bounded, with one client connection) and not yet
-     *         started AgentSrv server object.
+     *         started {@link AgentServer} server object.
      */
     public static AgentServer blockingConnect(String host, int port, long soTimeout,
             long attemptInterval, int attempts) {

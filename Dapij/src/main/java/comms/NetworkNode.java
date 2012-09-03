@@ -82,9 +82,9 @@ public abstract class NetworkNode extends Thread {
      * Writes the remaining bytes in a buffer to the given socket channel.
      *
      * @param chnl
-     *            the SocketChannel to write to.
+     *            the {@link SocketChannel} to write to.
      * @param bf
-     *            the ByteBuffer contents that are going to be written.
+     *            the {@link ByteBuffer} contents that are going to be written.
      * @return true if message successfully sent and false if nothing sent.
      */
     protected static boolean write(SocketChannel chnl, ByteBuffer bf) {
@@ -104,19 +104,20 @@ public abstract class NetworkNode extends Thread {
     }
 
     /**
-     * Read length characters from a nonblocking SocketChannel into a ByteBuffer
-     * in a nonblocking manner.
+     * Read length characters from a nonblocking {@link SocketChannel} into a
+     * {@link ByteBuffer} in a nonblocking manner.
      *
      * @param chnl
      *            The nonblocking channel to read from.
      * @param length
      *            The number of bytes to read.
-     * @return A ByteBuffer of length capacity (maybe partially or fully) filled
-     *         with the bytes read or null if no bytes were read.
+     * @return A {@link ByteBuffer} of length capacity (maybe partially or
+     *         fully) filled with the bytes read or null if no bytes were read.
      * @throws IOException
-     *             if there is a problem with the SocketChannel while reading.
+     *             if there is a problem with the {@link SocketChannel} while
+     *             reading.
      * @throws IllegalArgumentException
-     *             if length < 0 or channel is blocking.
+     *             if length {@code < 0} or channel is blocking.
      */
     protected static ByteBuffer read(SocketChannel chnl, int length) throws IOException {
         if (chnl.isBlocking()) {

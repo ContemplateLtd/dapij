@@ -20,36 +20,62 @@ public class TransformerTest {
     private TestClassLoader cl; /* Create a new instance for each test mеthod. */
 
     /**
-     * Resets the class loader field to provide a new one for each test
-     * resulting in a new test environment per test method.
+     * Instantiates a new {@link TestClassLoader} class loader instance for each
+     * test resulting in a new test environment per test method.
      */
     @org.junit.Before
     public void setupPerTestCl() {
-        cl = new TestClassLoader(loadPolicy); /* Create a new classloader for each test. */
+        cl = new TestClassLoader(loadPolicy); /* Create a new class loader for each test. */
     }
 
+    /**
+     * Loads the class of the passed {@link Callable} object using the new class
+     * loader. The loaded class is not instrumented. A new instance is created
+     * and it's {@code call()} method is executed.
+     *
+     * @param clbl
+     *            the {@link Callable} object to load.
+     * @return the {@code call()} method result.
+     */
     protected <T> T noInstrSetup(Callable<T> clbl) {
         dontInstr(clbl.getClass());
         return setup(clbl);
     }
 
+    /**
+     * Loads the class of the passed {@link Callable} object using the new class
+     * loader. The {@link Callable} class is instrumented. A new instance is
+     * created and it's {@code call()} method is executed.
+     *
+     * @param clbl
+     *            the {@link Callable} object to load.
+     * @return the {@code call()} method result.
+     */
     protected <T> T instrSetup(Callable<T> clbl) {
         return setup(clbl);
     }
 
-    protected <T> void dontInstr(Class<T> c) {
-        cl.addNoInstr(c.getName());
+    /**
+     * Simply loads a class using the current test's class loader without
+     * instrumenting it.
+     *
+     * @param c
+     *            the class to load.
+     */
+    protected <T> void dontInstr(Class<T> clazz) {
+        cl.addNoInstr(clazz.getName());
     }
 
     /**
      * Provides an convenient way to config a per-test-method runtime setup by
-     * loading a Runnable implementation into the newly created classloader for
-     * the test (created by setupPerTestCl). Achieved by creating an instance
-     * and executing its run using reflection.
+     * loading a {@link Runnable} implementation into the newly created class
+     * loader for the test (created by {@code setupPerTestCl()}). Achieved by
+     * creating an instance and executing its run using reflection.
      *
      * @param clbl
-     *            the Callable implementation - usually an anonymous inner
-     *            class. Passing of local parameters not currently supported.
+     *            the {@link Callable} implementation - usually an anonymous
+     *            inner class. Passing of local parameters not currently
+     *            supported.
      */
     private <T> T setup(Callable<T> clbl) {
         try {
@@ -76,6 +102,12 @@ public class TransformerTest {
         }
     }
 
+    /**
+     * Provides access to the current test method's class loader instance.
+     *
+     * @return the {@link TestClassLoader} class loader instance for this test
+     *         method.
+     */
     public ClassLoader getClassLoader() {
         return this.cl;
     }

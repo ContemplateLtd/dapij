@@ -8,9 +8,9 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * A class visitor for instrumenting client programs that allows the agent to
- * collect various data during execution of these programs for the purpose of
- * dynamic analysis.
+ * A {@link ClassVisitor} for instrumenting client programs that allows the
+ * agent to collect various data during execution of these programs for the
+ * purpose of dynamic analysis.
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
@@ -71,8 +71,8 @@ public class DataCollector extends ClassVisitor {
          *
          * CHAIN: InstAccsVistr -> InsnOfstVistr -> InstCreatVistr
          */
-        InstanceCreationVisitor icv = new InstanceCreationVisitor(mv, name);
-        InstanceOffsetProvider iof = new InstanceOffsetProvider(icv); /* icv depends on provider. */
+        InstanceCreationVisitor icv = new InstanceCreationVisitor(mv, name); /* needs a provider. */
+        InstructionOffsetProvider iof = new InstructionOffsetProvider(icv); /* the provider */
         return new InstanceAccessVisitor(iof, name);
     }
 

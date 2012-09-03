@@ -63,7 +63,8 @@ public final class CommsProtocol {
          *
          * @param type
          *            A byte value representing the type of the message.
-         * @return true if message type supported and false otherwise.
+         * @return {@code true} if message type supported and {@code false}
+         *         otherwise.
          */
         public static boolean isSupported(byte type) {
             return SUPPORTED_TYPES.containsKey(type);
@@ -74,8 +75,8 @@ public final class CommsProtocol {
          * message type given its type.
          *
          * @param msgType
-         *            a byte value representing the type of the message. Can
-         *            be any MsgTypes.TYP_* constant.
+         *            a {@code byte} value representing the type of the message. Can
+         *            be any {@link MsgTypes}{@code .TYP_*} constant.
          * @return the class constant for the message type or null if type not
          *         supported.
          */
@@ -85,12 +86,16 @@ public final class CommsProtocol {
     }
 
     /**
-     * Deconstructs the ByteBuffer body of a message into a MsgBody object.
+     * Deconstructs the {@link ByteBuffer} body of a message into a
+     * {@link MsgBody} object.
      *
-     * @param bodyBuf the contents of the message body
-     * @param msgType the type of the message.
+     * @param bodyBuf
+     *            the contents of the message body
+     * @param msgType
+     *            the type of the message.
      * @return a fully initialised concrete MsgBody object.
-     * @throws RuntimeException if message type not supported.
+     * @throws RuntimeException
+     *             if message type not supported.
      */
     public static MsgBody deconstructMsg(ByteBuffer bodyBuf, byte msgType) {
         try {
@@ -121,13 +126,13 @@ public final class CommsProtocol {
         }
 
         /**
-         * Creates a MsgHeader object from the contents of a header.
+         * Creates a {@link MsgHeader} object from the contents of a header.
          *
          * @param hdrBuf
-         *            a ByteBuffer with the header contents.
+         *            a {@link ByteBuffer} with the header contents.
          * @throws RuntimeException
-         *             if hdrBuf does not have at least MsgHeader.SIZE bytes
-         *             remaining.
+         *             if {@code hdrBuf} does not have at least
+         *             {@link MsgHeader}{@code .SIZE} bytes remaining.
          */
         public MsgHeader(ByteBuffer hdrBuf) {
             if (hdrBuf.remaining() < SIZE) {
@@ -137,10 +142,10 @@ public final class CommsProtocol {
         }
 
         /**
-         * Constructs and return the byte array representation of this header
-         * object.
+         * Constructs and return the {@link ByteBuffer} representation of this
+         * header object.
          *
-         * @return the byte array header.
+         * @return the {@link ByteBuffer} header object.
          */
         public ByteBuffer construct() {
             if (header == null) {
@@ -150,6 +155,16 @@ public final class CommsProtocol {
             return header;
         }
 
+        /**
+         * Constructs and return the {@link ByteBuffer} representation of a
+         * header, described by these input parameters.
+         *
+         * @param msgType
+         *            the type constant of this message.
+         * @param bdySize
+         *            the length of the body of this message.
+         * @return the {@link ByteBuffer} header object.
+         */
         public static ByteBuffer construct(byte msgType, int bdySize) {
             ByteBuffer bf = ByteBuffer.allocate(SIZE);
             bf.put(msgType);
@@ -159,6 +174,13 @@ public final class CommsProtocol {
             return bf;
         }
 
+        /**
+         * Deconstructs the {@link ByteBuffer} header contents according to the
+         * communications protocol and sets the fields of this header object to
+         * the extracted values.
+         *
+         * @return the instantiated {@link MsgHeader} object.
+         */
         public MsgHeader deconstruct() {
             if (header != null) {
                 msgType = header.get();

@@ -2,9 +2,10 @@ package testutils;
 
 /**
  * This is a container for package settings regarding loading and instrumenting
- * policies (per package). The settings include two booleans that determine
- * whether classes from package should be loaded using a child-first or in
- * parent-first methods, and whether the class should be instrumented or not.
+ * policies (per package). The settings include two {@code boolean}s that
+ * determine whether classes from package should be loaded using a child-first
+ * or in parent-first methods, and whether the class should be instrumented or
+ * not.
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
@@ -15,14 +16,14 @@ public class PackageLoadPolicy {
 
     /**
      * @param mainChldFst
-     *            A boolean indicating whether to load pkg main classes in a
-     *            child or parent (or system if no parent) class loader.
+     *            A {@code boolean} indicating whether to load pkg main classes
+     *            in a child or parent (or system if no parent) class loader.
      * @param tstChldFst
-     *            A boolean indicating whether to load pkg test classes in a
-     *            child or parent (or system if no parent) class loader.
+     *            A {@code boolean} indicating whether to load pkg test classes
+     *            in a child or parent (or system if no parent) class loader.
      * @param tstIsInstrum
-     *            A boolean that indicates whether to instrument package test
-     *            classes or not.
+     *            A {@code boolean} that indicates whether to instrument package
+     *            test classes or not.
      */
     public PackageLoadPolicy(boolean mainChldFst, boolean tstChldFst, boolean tstIsInstrum) {
         this.mainChldFst = mainChldFst;
@@ -31,8 +32,9 @@ public class PackageLoadPolicy {
     }
 
     /**
-     * @return The boolean flag denoting whether to load main classes from this
-     *         package in child or parent (or system if no parent) class loader.
+     * @return The {@code boolean} flag denoting whether to load main classes
+     *         from this package in child or parent (or system if no parent)
+     *         class loader.
      */
     public boolean isMainChldFst() {
         return mainChldFst;
@@ -40,28 +42,29 @@ public class PackageLoadPolicy {
 
     /**
      * @param mainChldFst
-     *            Sets the boolean flag denoting whether to load main classes
-     *            from this package in child or parent (or system if no parent)
-     *            class loader.
+     *            Sets the {@code boolean} flag denoting whether to load main
+     *            classes from this package in child or parent (or system if no
+     *            parent) class loader.
      */
     public void setMainChldFst(boolean mainChldFst) {
         this.mainChldFst = mainChldFst;
     }
 
     /**
-     * @return The boolean flag denoting whether to load test classes from this
-     *         package in child or parent (or system if no parent) class loader.
+     * @return The {@code boolean} flag denoting whether to load test classes
+     *         from this package in child or parent (or system if no parent)
+     *         class loader.
      */
     public boolean isTstChldFst() {
         return tstChldFst;
     }
 
     /**
-     * Sets the boolean flag denoting whether to load main classes from this
-     * package in child or parent (or system if no parent) class loader.
+     * Sets the {@code boolean} flag denoting whether to load main classes from
+     * this package in child or parent (or system if no parent) class loader.
      *
      * @param tstChldFst
-     *            the boolean flag.
+     *            the {@code boolean} flag.
      */
     public void setTstChldFst(boolean tstChldFst) {
         this.tstChldFst = tstChldFst;
@@ -77,11 +80,11 @@ public class PackageLoadPolicy {
     }
 
     /**
-     * Returns the boolean flag denoting whether to instrument test classes from
-     * this package or not.
+     * Returns the {@code boolean} flag denoting whether to instrument test
+     * classes from this package or not.
      *
      * @param tstIsInstrum
-     *            the boolean flag.
+     *            the {@code boolean} flag.
      */
     public void isTstInstr(boolean tstIsInstrum) {
         this.tstIsInstrum = tstIsInstrum;
