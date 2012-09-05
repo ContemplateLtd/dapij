@@ -1,6 +1,7 @@
 package utils;
 
 import java.util.Arrays;
+import java.util.Random;
 
 /**
  * A class containing some useful utility methods.
@@ -8,6 +9,8 @@ import java.util.Arrays;
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
 public final class Helpers {
+
+    private static Random random = new Random();
 
     private Helpers() {}
 
@@ -58,4 +61,21 @@ public final class Helpers {
 
         return result;
     }
+
+    /**
+     * Returns a random number within the specified interval.
+     *
+     * @param min lower bound of interval.
+     * @param max upper bound if interval.
+     * @return the random number as an {@link Integer}.
+     */
+    public static int randomInt(int min, int max) {
+        return min + random.nextInt(max - min);
+    }
+
+    public static long randomLong() {
+        return random.nextLong();
+    }
 }
+
+

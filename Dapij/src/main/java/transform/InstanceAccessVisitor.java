@@ -3,7 +3,6 @@ package transform;
 import agent.ArgumentStack;
 import agent.InstanceIdentifier;
 import agent.RuntimeEventSource;
-import java.util.HashMap;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -30,31 +29,13 @@ public class InstanceAccessVisitor extends MethodVisitor {
         /* Inject code to detect object accesses here. */
         if (opcode == Opcodes.INVOKEVIRTUAL || opcode == Opcodes.INVOKEINTERFACE
                 || (opcode == Opcodes.INVOKESPECIAL && !name.equals("<init>"))) {
-
-            /*
-             * To access the object reference, all the arguments have to be
-             * removed first. Create useful data structures:
-             */
-            HashMap<Type, String> oneSlotArgFuncMap = new HashMap<Type, String>();
-            oneSlotArgFuncMap.put(Type.getType(Object.class), "popObj");
-            oneSlotArgFuncMap.put(Type.BOOLEAN_TYPE, "popBoolean");
-            oneSlotArgFuncMap.put(Type.BYTE_TYPE, "popByte");
-            oneSlotArgFuncMap.put(Type.CHAR_TYPE, "popChar");
-            oneSlotArgFuncMap.put(Type.FLOAT_TYPE, "popFloat");
-            oneSlotArgFuncMap.put(Type.INT_TYPE, "popInt");
-            oneSlotArgFuncMap.put(Type.SHORT_TYPE, "popShort");
-
-            HashMap<Type, String> twoSlotArgFuncMap = new HashMap<Type, String>();
-            twoSlotArgFuncMap.put(Type.DOUBLE_TYPE, "popDouble");
-            twoSlotArgFuncMap.put(Type.LONG_TYPE, "popLong");
-
             Type[] argTypes = Type.getArgumentTypes(desc); /* Get arg types */
 
             /* Pop args & store them temporarily in external stack. */
             for (int i = argTypes.length - 1; i >= 0; i--) {
                 Type argType = argTypes[i];
-                if (!twoSlotArgFuncMap.containsKey(argType)
-                        && !oneSlotArgFuncMap.containsKey(argType)) {
+                if (!ArgumentStack.TWO_SLOT_ARG_FUNC_MAP.containsKey(argType)
+                        && !ArgumentStack.ONE_SLOT_ARG_FUNC_MAP.containsKey(argType)) {
                         argType = Type.getType(Object.class);
                 }
                 mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ArgumentStack.class),
@@ -66,12 +47,13 @@ public class InstanceAccessVisitor extends MethodVisitor {
             /* Push the arguments back on the stack. */
             for (Type argType : argTypes) {
                 boolean supportedType = true;
-                String func = "popObj";
-                if (oneSlotArgFuncMap.containsKey(argType)) {
-                    func = oneSlotArgFuncMap.get(argType);
-                } else if (twoSlotArgFuncMap.containsKey(argType)) {
-                    func = twoSlotArgFuncMap.get(argType);
-                } else {
+                String func;
+                func = ArgumentStack.ONE_SLOT_ARG_FUNC_MAP.get(argType);
+                if (func == null) {
+                    func = ArgumentStack.TWO_SLOT_ARG_FUNC_MAP.get(argType);
+                }
+                if (func == null) {
+                    func = "popObj";
                     supportedType = false;
                 }
 
@@ -140,7 +122,7 @@ public class InstanceAccessVisitor extends MethodVisitor {
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(InstanceIdentifier.class),
                 "getId", Type.getMethodDescriptor(Type.LONG_TYPE, Type.getType(Object.class)));
 
-        /* Gget the thread ID. */
+        /* Get the thread ID. */
         mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(Thread.class),
                 "currentThread", Type.getMethodDescriptor(Type.getType(Thread.class)));
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(Thread.class), "getId",
