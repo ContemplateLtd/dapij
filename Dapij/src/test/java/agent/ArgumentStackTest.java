@@ -57,9 +57,8 @@ public class ArgumentStackTest {
             initialValue.add((byte) 6);
             initialValue.add((float) 7.8);
             initialValue.add((boolean) true);
-            initialValue.add(new byte[][] {new byte[]{1}, new byte[]{}, new byte[]{2, 3}}); // array
-            initialValue.add(new ArrayList<String>());  // generic type & object
-            //            initialValue.add(new );
+            initialValue.add(new byte[][] {new byte[]{1}, new byte[]{}, new byte[]{2, 3}});
+            initialValue.add(new ArrayList<String>());
             STACK_TEST_ENTRIES = Collections.unmodifiableList(initialValue);
         }
 

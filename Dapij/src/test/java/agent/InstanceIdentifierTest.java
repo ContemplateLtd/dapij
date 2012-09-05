@@ -34,13 +34,17 @@ public class InstanceIdentifierTest extends TransformerTest {
         }
     }
 
+    /**
+     * Check if generated id values are all different from each other and
+     * {@code >} 0.
+     */
     @Test
     public void validityTest() throws Exception {
         Long[] objIds = instrSetup(new Callable<Long[]>() {
 
             @Override
             public Long[] call() {
-                Long[] objIds = new Long[10000];  /* Stores generated ids. */
+                Long[] objIds = new Long[10000];  /* Stores generated id values. */
 
                 /* Create references. */
                 Object obj;
@@ -98,11 +102,11 @@ public class InstanceIdentifierTest extends TransformerTest {
              *
              * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
              */
-            class GeneratorOfNotInstrumentedObjects implements Callable<List<Long>> {
+            class GeneratorOfUninstrumentedObjects implements Callable<List<Long>> {
 
                 private int nrItems = 0;
 
-                public GeneratorOfNotInstrumentedObjects(int nrItems) {
+                public GeneratorOfUninstrumentedObjects(int nrItems) {
                     this.nrItems = nrItems;
                 }
 
@@ -159,7 +163,7 @@ public class InstanceIdentifierTest extends TransformerTest {
                     /* Create many objects & store their obj ids into an array. */
                     for (int i = 0; i < nrItems; i++) {
                         obj = new MickeyMaus(5);
-                        objIds.add(new Long(InstanceIdentifier.INSTANCE.getId(obj)));
+                        objIds.add(Long.valueOf(InstanceIdentifier.INSTANCE.getId(obj)));
                     }
 
                     return objIds;
@@ -168,15 +172,11 @@ public class InstanceIdentifierTest extends TransformerTest {
 
             @Override
             public ArrayList<Long> call() {
-                ExecutorService pool = Executors.newFixedThreadPool(4); /* Allow 4 threads. */
+                ExecutorService pool = Executors.newFixedThreadPool(100);
                 ArrayList<Future<List<Long>>> futures = new ArrayList<Future<List<Long>>>();
                 for (int i = 0; i < 100; i++) {
-                    Callable<List<Long>> c = new GeneratorOfNotInstrumentedObjects(100);
-                    Callable<List<Long>> c2 = new GeneratorOfInstrumentedObjects(100);
-                    Future<List<Long>> f = pool.submit(c);
-                    Future<List<Long>> f2 = pool.submit(c2);
-                    futures.add(f);
-                    futures.add(f2);
+                    futures.add(pool.submit(new GeneratorOfUninstrumentedObjects(100)));
+                    futures.add(pool.submit(new GeneratorOfInstrumentedObjects(100)));
                 }
 
                 ArrayList<Long> result = new ArrayList<Long>();
@@ -199,5 +199,77 @@ public class InstanceIdentifierTest extends TransformerTest {
                 Assert.assertEquals("IDs different: ", true, objIds.get(i) != objIds.get(j));
             }
         }
+    }
+
+    /**
+     * Create an object, get its id multiple times from multiple threads and
+     * test it for changes.
+     */
+    @Test
+    public void consistencyTest() {
+        Boolean isConsistent = instrSetup(new Callable<Boolean>() {
+
+            /**
+             * A {@link Callable} worker that generates accesses to an object
+             * regularly fetching its id to check it for consistency.
+             *
+             * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
+             */
+            class ObjectAccessGenerator implements Callable<Long> {
+
+                private Object ref;
+
+                public ObjectAccessGenerator(Object ref) {
+                    this.ref = ref;
+                }
+
+                /**
+                 * Generates accesses to passed reference. Obtains id value,
+                 * checks it for consistency, and returns it as a result.
+                 *
+                 * @throws Exception
+                 */
+                @Override
+                public Long call() {
+                    long id0 = InstanceIdentifier.INSTANCE.getId(ref);
+                    ref.hashCode();
+                    long id1 = InstanceIdentifier.INSTANCE.getId(ref);
+                    ref.toString();
+                    long id2 = InstanceIdentifier.INSTANCE.getId(ref);
+                    ref.equals(ref);
+                    long id3 = InstanceIdentifier.INSTANCE.getId(ref);
+                    if (!(id0 == id1 && id1 == id2 && id2 == id3)) {
+                        return (long) -1;
+                    }
+                    return Long.valueOf(id0);
+                }
+            }
+
+            @Override
+            public Boolean call() throws Exception {
+                Object ref = new MickeyMaus(5); /* Create object. */
+                long initialId = InstanceIdentifier.INSTANCE.getId(ref);
+                ExecutorService pool = Executors.newFixedThreadPool(100);
+                ArrayList<Future<Long>> futures = new ArrayList<Future<Long>>();
+
+                /* Create several access generators to query the object's id. */
+                for (int i = 1; i < 1000; i++) {
+                    futures.add(pool.submit(new ObjectAccessGenerator(ref)));
+                }
+
+                /* Check results. */
+                for (Future<Long> future : futures) {
+                    if (initialId != future.get().longValue()) {
+
+                        return Boolean.valueOf(false); /* Return false if inconsistency found. */
+                    }
+                }
+
+                return Boolean.valueOf(true);
+            }
+        });
+
+        Assert.assertEquals("Object id remains consistent when obtained multiple times: ",
+                true , isConsistent.booleanValue());
     }
 }

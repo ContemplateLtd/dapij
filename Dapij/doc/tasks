@@ -49,9 +49,9 @@ NP		V	1.2	[r] Establish a protocol (network message format) for the events
 
 		V	1.3 [g] Implement a production test client (perhaps based on the testing client).
 
-		~V	1.4	[g] Implement a consumer API (e.g. using the Visitor pattern)
-				* A client that accepts events from the agent event server (an event reader).
-				* Event visitors for processing different events.
+		~V	1.4	[g] Implement a consumer API (e.g. using the Visitor pattern) - currently a miniature implementation
+		V		* A client that accepts events from the agent event server (an event reader).
+		V		* Event visitors for processing different events.
 
 			*events - object creation, thread accesses to objects (method invocation, field access)
 
@@ -64,7 +64,7 @@ NP			2.1. [r] Fix testing framework
 					- improve package load policies
 			
 			2.2	[r] Test communication architecture & protocol
-			~V	- test agent production server
+			~V	- test agent production server - tested indirectly
 			X	- test production client
 MS			~V	* Performance test - fast send of a huge amount of messages.
 NP			~V 	* Test message order (no concurrent tests yet)
@@ -75,19 +75,19 @@ MS/NP	~V	2.3 [r] Fully test instrumentation code.
 NP		~V	2.4 [r] Fully test event generation code.
 
 			2.5 [r]	Fully test agent code.
-			X	* ArgumentStack
+			~V	* ArgumentStack, test needs review to check for completeness
 MS			~V	* InstanceIdentifier (issue with incrementing atomic counter more than required)
 NP			~V	* Settings (not yet tested for concurrency & thread safety).
 
 	[3]. Agent features
 MS		V	3.1	[r] Implement object identification (either in map or in inserted field)
-MS			3.2	Research the approach of adding a field to java.lang.Object
+MS		~V	3.2	Research the approach of adding a field to java.lang.Object
 				- this is better as it is centralised, but might introduce other problems
-			3.3	[g] Cover the rest of the (currently not handled) cases for object creation
+		X	3.3	[g] Cover the rest of the (currently not handled) cases for object creation
 				which include (but may not be limited to):
 				- create instances using reflection
 				- create instances using deserialisation
-				- deal with unknown instances (i.e. without known origin)
+				- deal with unknown instances (i.e. without known origin) - this is not a problem of data collection.
 
 	[4]. [y] Settings Singleton
 		~V	4.1 [y] make it thread safe, e.g.:
