@@ -7,7 +7,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /* TODO: Test (Settings) for concurrency. */
-/* TODO: Test InstIdentifier's concurrent map for concurrency. */
 
 /**
  * Includes tests for the the {@link Settings} singleton class.

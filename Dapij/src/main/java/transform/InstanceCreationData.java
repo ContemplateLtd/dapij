@@ -21,7 +21,7 @@ public class InstanceCreationData implements InstanceEventData {
         this.className = className;
         this.method = method;
         this.offset = offset;
-        this.threadId = threadId; /* TODO: Use other data to identify threads? */
+        this.threadId = threadId;
     }
 
     @Override

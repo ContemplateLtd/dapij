@@ -10,9 +10,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import junit.framework.Assert;
 import org.junit.Test;
-import utils.Helpers;
 
-/* TODO: add array and template objects to STACK_ENTRIES */
+import utils.Helpers;
 
 public class ArgumentStackTest {
 
@@ -38,8 +37,8 @@ public class ArgumentStackTest {
             initialValue.add(byte.class);
             initialValue.add(float.class);
             initialValue.add(boolean.class);
-            initialValue.add(byte[][].class);
-            initialValue.add(new ArrayList<String>().getClass());
+            initialValue.add(byte[][].class);                       /* Add an array. */
+            initialValue.add(new ArrayList<String>().getClass());   /* Add a template object. */
             STACK_TYPES = Collections.unmodifiableList(initialValue);
         }
 
@@ -112,7 +111,7 @@ public class ArgumentStackTest {
                     || poppedType == byte.class && popByte() == ArgumentStack.popByte()
                     || poppedType == float.class && popFloat() == ArgumentStack.popFloat()
                     || poppedType == boolean.class && popBoolean() == ArgumentStack.popBoolean()
-                    || popObj().equals(ArgumentStack.popObj()));
+                    || popObj().equals(ArgumentStack.pop()));
         }
 
         public boolean popBoolean() {

@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import testutils.TransformerTest;
 
-/* TODO: Test InsnOfstVisitor */
+/* TODO: Test InstructionOffsetVisitor. */
 
 /**
  * A class containing tests for the {@code dapij.transform} package.
@@ -27,22 +27,24 @@ public class TransformationTest extends TransformerTest {
     @Test
     public void constructorIsInstumented() throws Exception {
 
-        /* Create & get the concurr map keeping track of instance creations. */
+        /* Get map with ids for created instances. */
         HashMap<Long, InstanceCreationData> map = noInstrSetup(
                 new Callable<HashMap<Long, InstanceCreationData>>() {
 
             @SuppressWarnings("unchecked")
             @Override
             public HashMap<Long, InstanceCreationData> call() throws Exception {
+
+                /* Create a listener to register instance creations. */
                 CreationEventListener l = new CreationEventListener() {
-                    
+
                     public HashMap<Long, InstanceCreationData> map =
                             new HashMap<Long, InstanceCreationData>();
 
                     @Override
                     public void handleCreationEvent(CreationEvent e) {
 
-                        /* Collect creation events' data in a map. */
+                        /* Collect creation data in a map on each creation event. */
                         map.put(e.getCreatData().getObjId(), e.getCreatData());
                     }
                 };
@@ -52,14 +54,13 @@ public class TransformationTest extends TransformerTest {
             }
         });
 
-        /* Create some objects, get their refs & test if events registered. */
+        /* Create some instances, get their refs & test if the creations were registered. */
         Object[] refs = instrSetup(new Callable<Object[]>() {
 
-            /* Create & return an annon class instance in a private method. */
+            /* Returns a new Runnable object. */
             private Runnable anotherMethod() {
-                final int i = 1;
+                final int i = 1; /* Use this to make Runnable's constructor non-default. */
 
-                /* Create a runnable obj, use a final lcl var to generate access in constructor. */
                 return new Runnable() {
 
                     @Override
@@ -71,10 +72,10 @@ public class TransformationTest extends TransformerTest {
 
             @Override
             public Object[] call() {
-                String.valueOf(5);          /* Insert insn to change ofst. */
-                Integer i = new Integer(5); /* Create object Int. */
+                String.valueOf(5);          /* Insert instruction to change offset. */
+                Integer i = new Integer(5); /* Create an Integer object. */
 
-                return new Object[] { i, anotherMethod() };
+                return new Object[] { i, anotherMethod() }; /* Return refs of created objects. */
             }
         });
         Identifier idfr = noInstrSetup(new Callable<Identifier>() {

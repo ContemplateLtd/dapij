@@ -23,16 +23,16 @@ public final class Agent {
 
     public static void premain(String argString, Instrumentation inst) throws IOException {
 
-        /* Initialise singletons before transformation starts. */
+        /* Initialise singleton before transformation starts. */
         InstanceIdentifier.INSTANCE.hashCode(); /* TODO: Remove. Partially solves issue '002'. */
 
-        handleArgs(argString);
+        processCmdArgs(argString);
         if (Settings.INSTANCE.isSet(Settings.SETT_USE_NET)
                 && Settings.INSTANCE.get(Settings.SETT_USE_NET).equals("true")) {
 
             /*
-             * Wait for client conns for 15 sec (3 * 5). Bind attempt interval -
-             * 3 sec. TODO: load timeout args from Settings.
+             * Wait for client connections for 15 sec (3 * 5). Bind attempt
+             * interval - 3 sec. TODO: load timeout arguments from Settings.
              */
             final AgentServer server = AgentServer
                     .blockingConnect(CommsProtocol.HOST, CommsProtocol.PORT, 5000, 3000, 3);
@@ -90,7 +90,12 @@ public final class Agent {
         inst.addTransformer(new transform.Transformer());
     }
 
-    private static void handleArgs(String argString) {
+    /**
+     * Processes command line arguments passed via the -javaagent JVM parameter.
+     *
+     * @param argString
+     */
+    private static void processCmdArgs(String argString) {
         if (argString != null) {
 
             /* Split argString on one or more occurrences of whitespace characters. */
@@ -99,7 +104,11 @@ public final class Agent {
             while (i < args.length) {
 
                 /* Controls whether a network server is used for data streaming. */
-                if (args[i].equals("--server") || args[i].equals("-s")) {
+                if (args[i].equals("--help") || args[i].equals("-h")) {
+                    displayHelp();
+
+                /* Controls whether a network server is used for data streaming. */
+                } else if (args[i].equals("--server") || args[i].equals("-s")) {
                     Settings.INSTANCE.set(Settings.SETT_USE_NET, "true");
 
                 /* Controls whether a verbose output is produced. */
@@ -109,5 +118,9 @@ public final class Agent {
                 i++;
             }
         }
+    }
+
+    private static void displayHelp() {
+        //Settings.INSTANCE.println(msg) //set(Settings.SETT_USE_NET, "true");
     }
 }

@@ -22,7 +22,7 @@ public class AgentServerTest extends TransformerTest {
      * Test event client for detecting corrupt messages.
      *
      * @throws InterruptedException
-     * TODO: Complete this test.
+     * TODO: Test needs to be completed.
      */
     @Test
     public void agentEventServerTest() throws InterruptedException {

@@ -15,35 +15,49 @@ import org.objectweb.asm.Type;
  */
 public final class ArgumentStack {
 
+    public static final Type OBJECT_TYPE = Type.getType(Object.class);
+
     /**
-     * Type to function name map. Useful for obtaining correct method. Contains
-     * functions for computational type 1 types (one-stack-slot types).
+     * Maps computational type 1 primitive types (types taking 1 stack
+     * slot when loaded on stack) to corresponding pop method names.
      */
-    public static final Map<Type, String> ONE_SLOT_ARG_FUNC_MAP;
+    private static final Map<Type, String> TYPE_ONE_POP_MTHDS;
     static {
         Map<Type, String> initialValue = new HashMap<Type, String>();
-        initialValue.put(Type.getType(Object.class), "popObj");
         initialValue.put(Type.BOOLEAN_TYPE, "popBoolean");
         initialValue.put(Type.BYTE_TYPE, "popByte");
         initialValue.put(Type.CHAR_TYPE, "popChar");
         initialValue.put(Type.FLOAT_TYPE, "popFloat");
         initialValue.put(Type.INT_TYPE, "popInt");
         initialValue.put(Type.SHORT_TYPE, "popShort");
-        ONE_SLOT_ARG_FUNC_MAP = Collections.unmodifiableMap(initialValue);
+        TYPE_ONE_POP_MTHDS = Collections.unmodifiableMap(initialValue);
     }
 
     /**
-     * Type to function name map. Useful for obtaining correct method. Contains
-     * functions for computational type 2 types (two-stack-slot types).
+     * Maps computational type 2 primitive types (types taking 2 stack
+     * slot when loaded on stack) to corresponding pop method names.
      */
-    public static final Map<Type, String> TWO_SLOT_ARG_FUNC_MAP;
+    private static final Map<Type, String> TYPE_TWO_POP_MTHDS;
     static {
         Map<Type, String> initialValue = new HashMap<Type, String>();
-        initialValue.put(Type.getType(Object.class), "popDouble");
-        initialValue.put(Type.BOOLEAN_TYPE, "popLong");
-        TWO_SLOT_ARG_FUNC_MAP = Collections.unmodifiableMap(initialValue);
+        initialValue.put(Type.DOUBLE_TYPE, "popDouble");
+        initialValue.put(Type.LONG_TYPE, "popLong");
+        TYPE_TWO_POP_MTHDS = Collections.unmodifiableMap(initialValue);
     }
 
+    /** A datastructure created solely for optimising getPopMethodName(). */
+    private static final Map<Type, String> PRIMITIVE_TYPE_POP_MTHDS;
+    static {
+        Map<Type, String> initialValue = new HashMap<Type, String>();
+        initialValue.putAll(TYPE_ONE_POP_MTHDS);
+        initialValue.putAll(TYPE_TWO_POP_MTHDS);
+        PRIMITIVE_TYPE_POP_MTHDS = Collections.unmodifiableMap(initialValue);
+    }
+
+    /**
+     * A {@link ThreadLocal} that provides each thread with a separate stack
+     * instance.
+     */
     @SuppressWarnings("rawtypes")
     private static ThreadLocal<Stack> localStack = new ThreadLocal<Stack>() {
 
@@ -54,6 +68,39 @@ public final class ArgumentStack {
     };
 
     private ArgumentStack() {}
+
+    /**
+     * Checks whether the given type is primitive or not.
+     *
+     * @param type
+     *            the type to be checked.
+     * @return true if primitive and false otherwise.
+     */
+    public static boolean isPrimitive(Type type) {
+        return (PRIMITIVE_TYPE_POP_MTHDS.containsKey(type));
+    }
+
+    /**
+     * Determines whether the given type takes 2 slots when loaded on stack.
+     *
+     * @param type
+     *            the type to be checked.
+     * @return {@code true} if type takes 2 slots and {@code false} if 1.
+     */
+    public static boolean isComputationalType2(Type type) {
+        return TYPE_TWO_POP_MTHDS.containsKey(type);
+    }
+
+    /**
+     * Returns the appropriate pop method name for the given type.
+     *
+     * @param type the type
+     * @return a {@link String} containing the correct pop method name.
+     */
+    public static String getPopMethodNameFor(Type type) {
+        String methodName = PRIMITIVE_TYPE_POP_MTHDS.get(type);
+        return (methodName != null) ? methodName : "pop";
+    }
 
     @SuppressWarnings("unchecked")
     public static void push(Object obj) {
@@ -100,7 +147,13 @@ public final class ArgumentStack {
         localStack.get().push(Short.valueOf(i));
     }
 
-    public static Object popObj() {
+    /**
+     * Removes and returns the top stack element. This method is used to pop
+     * elements of non-primitive types.
+     *
+     * @return the element as an Object.
+     */
+    public static Object pop() {
         return localStack.get().pop();
     }
 

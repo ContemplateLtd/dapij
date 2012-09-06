@@ -31,7 +31,7 @@ V	- implemented
 TASKS:
 
 	[0]. Issues
-MS		~	0.1 Problem with missing static classes at runtime in porduction (issue 002-NoClassDefFoundError).
+MS		~	0.1 Problem with missing static classes at runtime in production (issue 002-NoClassDefFoundError).
 
 	[1]. Architecture
 NP			1.1	Implement a agent server that streams *events to a network port
@@ -65,18 +65,18 @@ NP			2.1. [r] Fix testing framework
 			
 			2.2	[r] Test communication architecture & protocol
 			~V	- test agent production server - currently only tested indirectly
-			X	- test production client
+			~V	- test production client - currently only tested indirectly
 MS			~V	* Performance test - rapid sending of a huge amount of messages.
-NP			~V 	* Test message order (no concurrent tests yet)
+NP			~V 	* Test message order & whether all messages received (no concurrent tests yet)
 NP			V	* Test protocol methods & classes
 
 MS/NP	~V	2.3 [r] Fully test instrumentation code.
 
-NP		~V	2.4 [r] Fully test event generation code.
+NP		~V	2.4 [r] Fully test event generation code - indirectly tested.
 
 			2.5 [r]	Fully test agent code.
 			~V	* ArgumentStack, test needs review to check for completeness
-MS			~V	* InstanceIdentifier (issue with incrementing atomic counter more than required)
+MS			~V	* InstanceIdentifier (issue with incrementing atomic counter more than needed)
 NP			~V	* Settings (not yet tested for concurrency & thread safety).
 
 	[3]. Agent features
@@ -97,7 +97,7 @@ MS		~V	3.2	Research the approach of adding a field to java.lang.Object
 	[5]. Documentation.
 			5.1 [y] Documenting issues
 			~V	* TODOs
-			~V	* Extensive comments in code
+			~V	* Extensive comments in codr
 			~V	* Textual explanations in doc folder / Contemplate wiki.
 					- Created issues/ & bugs/ directories
 

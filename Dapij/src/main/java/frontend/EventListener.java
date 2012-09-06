@@ -17,8 +17,6 @@ public abstract class EventListener {
         this.el = prevInChain;
     }
 
-    public EventListener() {}
-
     public EventListener nextListener() {
         return el;
     }

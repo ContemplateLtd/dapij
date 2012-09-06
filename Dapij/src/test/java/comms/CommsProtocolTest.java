@@ -56,9 +56,7 @@ public class CommsProtocolTest extends TransformerTest {
 
         /* Construct a ByteBuffer header. */
         ByteBuffer hdrBuf = MsgHeader.construct(MsgTypes.TYP_ACC, bodySize);
-
-        Assert.assertEquals("Header size property adhered to: ", true,
-                MsgHeader.SIZE == hdrBuf.capacity());
+        Assert.assertEquals("Header size adhered to: ", true, MsgHeader.SIZE == hdrBuf.capacity());
         MsgHeader header = new MsgHeader(hdrBuf);
         header.deconstruct(); /* Extract data from buffer & set internal fields. */
         Assert.assertEquals("Msg header properly de/constructs message type property: ", true,

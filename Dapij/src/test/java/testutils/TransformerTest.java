@@ -86,7 +86,7 @@ public class TransformerTest {
             cnstr.setAccessible(true);
 
             /* Throw an ex if not a default - i.e. when final args passed to inner annon class. */
-            /* TODO: add support for passing arguments */
+            /* TODO: add support for passing arguments to instrumented inner callables. */
             if (cnstr.getParameterTypes().length > 1) {
                 throw new RuntimeException("Test inner callables do not allow local variable"
                         + " argument passing due to type incompatibility between classloaders.");

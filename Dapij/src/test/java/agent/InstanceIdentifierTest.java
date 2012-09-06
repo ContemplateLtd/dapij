@@ -7,9 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
 import junit.framework.Assert;
-
 import org.junit.Test;
 import testutils.TransformerTest;
 
@@ -23,6 +21,7 @@ public class InstanceIdentifierTest extends TransformerTest {
      * @author Marcin Szymczak <mpszymczak@gmail.com>
      */
     public static class MickeyMaus {
+
         private int field;
 
         public MickeyMaus(int field) {
@@ -268,7 +267,6 @@ public class InstanceIdentifierTest extends TransformerTest {
                 return Boolean.valueOf(true);
             }
         });
-
         Assert.assertEquals("Object id remains consistent when obtained multiple times: ",
                 true , isConsistent.booleanValue());
     }

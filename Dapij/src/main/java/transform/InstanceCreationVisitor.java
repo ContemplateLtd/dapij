@@ -20,8 +20,8 @@ public class InstanceCreationVisitor extends InstructionOffsetReader {
 
     /**
      * A {@link Stack} for handling nested NEW-INVOKEVIRTUAL instruction
-     * patterns met while visiting methods. Needed for inserting bytecode for
-     * recording info about created objects.
+     * patterns during method visiting. Used for loading correct data on stack
+     * when object creations are detected (immediately after INVOKESPECIAL).
      */
     private Stack<StackElement> objectCreationStack;
 
@@ -95,7 +95,7 @@ public class InstanceCreationVisitor extends InstructionOffsetReader {
         mv.visitMethodInsn(opcode, owner, name, desc);
 
         /* Inject code to detect object creations here. */
-        /* Don't transform if not a constructor or objectCreationStack empty */
+        /* Do not transform if not a constructor call or objectCreationStack empty. */
         if (!name.equals("<init>") || objectCreationStack.empty()) {
             return;
         }
