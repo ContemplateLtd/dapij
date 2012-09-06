@@ -1,7 +1,7 @@
 package testutils;
 
 import agent.Agent;
-import comms.CommsTest;
+import comms.AgentServerTest;
 import java.util.ArrayList;
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +21,7 @@ import static transform.Transformer.transformClass;
 public class TestClassLoader extends ClassLoader {
 
     private static File mainClsRt = classpathRoot(Agent.class);     /* Main classes root */
-    private static File tstClsRt = classpathRoot(CommsTest.class);  /* Test classes root */
+    private static File tstClsRt = classpathRoot(AgentServerTest.class);  /* Test classes root */
 
     /**
      * A flag that allows to force class loading without instrumentation

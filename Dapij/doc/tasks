@@ -64,11 +64,11 @@ NP			2.1. [r] Fix testing framework
 					- improve package load policies
 			
 			2.2	[r] Test communication architecture & protocol
-			~V	- test agent production server - tested indirectly
+			~V	- test agent production server - currently only tested indirectly
 			X	- test production client
-MS			~V	* Performance test - fast send of a huge amount of messages.
+MS			~V	* Performance test - rapid sending of a huge amount of messages.
 NP			~V 	* Test message order (no concurrent tests yet)
-			X	* Test protocol methods & classes
+NP			V	* Test protocol methods & classes
 
 MS/NP	~V	2.3 [r] Fully test instrumentation code.
 

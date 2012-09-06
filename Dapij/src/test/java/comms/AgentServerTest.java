@@ -16,7 +16,7 @@ import transform.InstanceCreationData;
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class CommsTest extends TransformerTest {
+public class AgentServerTest extends TransformerTest {
 
     /**
      * Test event client for detecting corrupt messages.
