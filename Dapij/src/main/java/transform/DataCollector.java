@@ -7,6 +7,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import agent.InstanceIdentifier;
+
 /**
  * A {@link ClassVisitor} for instrumenting client programs that allows the
  * agent to collect various data during execution of these programs for the
@@ -16,7 +18,6 @@ import org.objectweb.asm.Type;
  */
 public class DataCollector extends ClassVisitor {
 
-    private static final String ID_NAME = "__DAPIJ_ID";
     private int access;
     private boolean hasIdField = false;
 
@@ -81,7 +82,7 @@ public class DataCollector extends ClassVisitor {
 
     public FieldVisitor visitField(int access, String name, String desc,
             String signature, Object value) {
-        if (name.equals(ID_NAME)) {
+        if (name.equals(InstanceIdentifier.ID_NAME)) {
             hasIdField = true;
         }
 
@@ -90,11 +91,11 @@ public class DataCollector extends ClassVisitor {
 
     @Override
     public void visitEnd() {
-        /* TODO: can injected field be made final? */
 
         /* Add ID field if not present and class is not abstract. */
         if (!hasIdField && (access & Opcodes.ACC_ABSTRACT) == 0) {
-            cv.visitField(Opcodes.ACC_PRIVATE, ID_NAME, Type.LONG_TYPE.getDescriptor(), null, null);
+            cv.visitField(Opcodes.ACC_PRIVATE + Opcodes.ACC_VOLATILE, InstanceIdentifier.ID_NAME,
+                    Type.LONG_TYPE.getDescriptor(), null, null);
         }
         cv.visitEnd();
     }

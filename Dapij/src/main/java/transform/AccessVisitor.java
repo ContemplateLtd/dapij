@@ -9,7 +9,7 @@ import agent.RuntimeEventSource;
 
 /**
  * Provides common functionality to visitors that generate events on instance
- * accesses.
+ * accesses in instrumented code.
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
@@ -30,10 +30,10 @@ public abstract class AccessVisitor extends MethodVisitor {
                 Type.getMethodDescriptor(Type.getType(AccessEventSource.class)));
 
         /* Get Obj unique id & push. */
-        mv.visitInsn(Opcodes.SWAP); /* Swap to keep obj ref on top. */
+        mv.visitInsn(Opcodes.SWAP); /* Swap to keep object reference on top of stack. */
         mv.visitFieldInsn(Opcodes.GETSTATIC, Type.getInternalName(InstanceIdentifier.class),
                 "INSTANCE", Type.getDescriptor(InstanceIdentifier.class));
-        mv.visitInsn(Opcodes.SWAP); /* Swap to keep obj ref on top. */
+        mv.visitInsn(Opcodes.SWAP); /* Swap to keep object reference on top of stack. */
 
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(InstanceIdentifier.class),
                 "getId", Type.getMethodDescriptor(Type.LONG_TYPE, Type.getType(Object.class)));
