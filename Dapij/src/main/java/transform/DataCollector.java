@@ -20,6 +20,7 @@ public class DataCollector extends ClassVisitor {
 
     private int access;
     private boolean hasIdField = false;
+    private String className;
 
     public DataCollector(ClassVisitor cv) {
         super(Opcodes.ASM4, cv);
@@ -52,6 +53,7 @@ public class DataCollector extends ClassVisitor {
         javaVersions.add(Integer.valueOf(Opcodes.V1_3));
         javaVersions.add(Integer.valueOf(Opcodes.V1_4));
         this.access = access;
+        this.className = name;
         cv.visit((javaVersions.contains(version)) ? Opcodes.V1_5 : version, access, name,
                 signature, superName, interfaces);
     }
@@ -76,8 +78,7 @@ public class DataCollector extends ClassVisitor {
          */
         InstanceCreationVisitor icv = new InstanceCreationVisitor(mv, name);    /* needs provider */
         InstructionOffsetVisitor iov = new InstructionOffsetVisitor(icv);       /* the provider */
-        FieldAccessVisitor fav = new FieldAccessVisitor(iov, name);
-        return new MethodAccessVisitor(fav);
+        return new InstanceAccessVisitor(iov, name, className);
     }
 
     public FieldVisitor visitField(int access, String name, String desc,

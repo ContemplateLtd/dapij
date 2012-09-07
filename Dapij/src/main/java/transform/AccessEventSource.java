@@ -2,6 +2,8 @@ package transform;
 
 import java.util.ArrayList;
 
+import agent.InstanceIdentifier;
+
 /**
  * An class that provides registering service for instance access event
  * listeners.
@@ -24,6 +26,11 @@ public class AccessEventSource {
     }
 
     public void fireEvent(long objId, long threadId) {
+
+        /* If object was null, do not generate event. */
+        if (objId == InstanceIdentifier.NO_ID) {
+            return; /* TODO: might be useful to log this case */
+        }
 
         /* Create event. */
         AccessEvent e = new AccessEvent(this, new InstanceAccessData(objId, threadId));

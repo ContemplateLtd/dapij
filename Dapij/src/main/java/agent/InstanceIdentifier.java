@@ -54,6 +54,10 @@ public final class InstanceIdentifier implements Identifier {
 
     @Override
     public <T> long getId(T ref) {
+        if (ref == null) {
+            return NO_ID;
+        }
+
         Field f = null;
             try {
                 f = ref.getClass().getDeclaredField(ID_NAME);
