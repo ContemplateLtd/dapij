@@ -20,10 +20,10 @@ public final class InstanceIdentifier implements Identifier {
     public static final InstanceIdentifier INSTANCE = new InstanceIdentifier();
     public static final String ID_NAME = "__DAPIJ_ID";
 
-    /** A void identifier value. */
+    /** A void identifier value. Initilised to {@cide (long) 0}. */
     public static final long NO_ID = 0;
 
-    /* Use these to make atomically update injected ID_NAME fields in instrumented classes. */
+    /* For atomic access to the injected ID_NAME field in instances of instrumented classes. */
     private static final Object UNSAFE;             /* An instance of sun.misc.Unsafe */
     private static final Method COMPARE_AND_SET;    /* Unsafe.compareAndSwapLong() */
     private static final Method GET_FIELD_OFFSET;   /* Unsafe.objectFieldOffset() */
@@ -52,9 +52,19 @@ public final class InstanceIdentifier implements Identifier {
         nextObjectID = new AtomicLong(1);
     }
 
+    /**
+     * Gets (and sets if not set) the unique identifier of the object referenced
+     * by ref.
+     *
+     * @param ref
+     *            the reference for which an id is returned.
+     * @return a {@code long} representing the identifier or
+     *         {@link InstanceIdentifier}{@code .NO_ID} if ref {@code == null}.
+     */
     @Override
     public <T> long getId(T ref) {
         if (ref == null) {
+
             return NO_ID;
         }
 

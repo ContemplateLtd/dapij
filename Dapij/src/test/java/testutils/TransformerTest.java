@@ -95,7 +95,6 @@ public class TransformerTest {
             /* Create new instance passing null for the outer object arg. */
             @SuppressWarnings("unchecked")
             Callable<T> newClbl = (Callable<T>) cnstr.newInstance(new Object[] {null});
-
             return newClbl.call(); /* Execute test setup. */
         } catch (Exception e) {
             throw new RuntimeException(e);

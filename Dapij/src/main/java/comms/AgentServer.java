@@ -163,11 +163,13 @@ public class AgentServer extends NetworkNode {
      *            The host address to bind to.
      * @param port
      *            The host port to bind to.
-     * @param attempts
-     *            Number of times to wait for a client with timeout
-     *            {@code soTimeout}.
      * @param soTimeout
      *            The timeout to wait for a client.
+     * @param attemptInterval
+     *            The time between attempts.
+     * @param attempts
+     *            Number of attempts to wait for a client with timeout
+     *            {@code soTimeout} and {@code attemptInterval}.
      * @return An initialised (bounded, with one client connection) and not yet
      *         started {@link AgentServer} server object.
      */
@@ -193,9 +195,7 @@ public class AgentServer extends NetworkNode {
                 Settings.INSTANCE.println("Could not bind, attempting again ...");
                 try {
                     Thread.sleep(attemptInterval);  /* Wait before next bind attempt */
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                } catch (InterruptedException e) {} /* Ignore. */
                 continue;
             }
             while (i <= attempts) {
@@ -219,9 +219,7 @@ public class AgentServer extends NetworkNode {
                             return new AgentServer(srvChnl, cliChnl, selector);
                         }
                     }
-                } catch (Exception e) {
-                    e.printStackTrace(); /* TODO: remove after debugging. */
-                } finally {
+                } catch (Exception e) {} finally { /* Ignore. */
                     i++;
                 }
             }

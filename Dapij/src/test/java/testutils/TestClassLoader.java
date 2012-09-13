@@ -1,6 +1,7 @@
 package testutils;
 
 import agent.Agent;
+import agent.Settings;
 import comms.AgentServerTest;
 import java.util.ArrayList;
 import java.io.File;
@@ -24,9 +25,8 @@ public class TestClassLoader extends ClassLoader {
     private static File tstClsRt = classpathRoot(AgentServerTest.class);  /* Test classes root */
 
     /**
-     * A flag that allows to force class loading without instrumentation
-     * regardless of the package loading/transformation policy for that
-     * class.
+     * A list for storing binary class names of classes that won't be
+     * instrumented regardless of their package loading/transformation policy.
      */
     private ArrayList<String> forceNoInstr;
 
@@ -47,9 +47,7 @@ public class TestClassLoader extends ClassLoader {
         if (c == null) {
             try {
                 c = findClass(clsBinName);
-            } catch (ClassNotFoundException e) {
-                /* Ignore. */
-            }
+            } catch (ClassNotFoundException e) {} /* Ignore. */
         }
 
         /*
@@ -59,9 +57,9 @@ public class TestClassLoader extends ClassLoader {
         if (c == null) {
             ClassLoader cl = (getParent() != null) ? getParent() : getSystemClassLoader();
             c = cl.loadClass(clsBinName);
+            Settings.INSTANCE.println("Loaded [PRNT]     " + clsBinName);
         }
 
-        /* NOTE: resolveClass() call is never reached, so it has been removed. */
         return c;
     }
 
@@ -78,34 +76,36 @@ public class TestClassLoader extends ClassLoader {
             throws ClassNotFoundException {
 
         /*
-         * Get pkg for class (if pkg exists) and return its load policy if such
-         * exists.
+         * Get package for class (if package exists) and return its load policy
+         * if one exists.
          */
         PackageLoadPolicy p = getLdPolicy(getPkg(clsBinName));
 
         String clsRelPath = binNmToPth(clsBinName);
-        File clsFullPath = new File(mainClsRt, clsRelPath);
+        File classFullPath = new File(mainClsRt, clsRelPath);   /* Check if a main class first. */
 
         /*
-         * If no load policy, a parent-fst main class or class not found - try
-         * system cls ldr.
+         * If no load policy, a parent-first main class, or class not found - try
+         * loading with system class loader.
          */
-        if (p == null || (clsFullPath.exists() && !p.isMainChldFst())) {
+        if (p == null || (classFullPath.exists() && !p.isMainChldFst())) {
             return null; /* This handles cases when class does not exist. */
         }
-        boolean instr;
-        if (clsFullPath.exists()) {
-            instr = false; /* Do not instrument a child-fst main class. */
-        } else {
-            clsFullPath = new File(tstClsRt, clsRelPath);
-            if (clsFullPath.exists() && !p.isTstChldFst()) {
+        boolean instr = false; /* Do not instrument a child-fst main class. */
+        if (!classFullPath.exists()) {
+            classFullPath = new File(tstClsRt, clsRelPath);     /* A test class if not main. */
+            if (classFullPath.exists() && !p.isTstChldFst()) {
                 return null; /* Delegate to parent/system if test class parent-fst. */
             }
             instr = p.isTstInstr();
         }
-        byte[] clsBytes = readClass(clsBinName, clsFullPath);
-        return defineClass(clsBinName, (instr && !forceNoInstr.contains(clsBinName)) ?
-                transformClass(clsBytes) : clsBytes);
+        boolean shouldTransform = instr && !forceNoInstr.contains(clsBinName);
+        byte[] clsBytes = readClass(clsBinName, classFullPath);
+        Class<?> loadedClass = defineClass(clsBinName,
+                (shouldTransform) ? transformClass(clsBytes) : clsBytes);
+        Settings.INSTANCE.println("Loaded [CHLD] " + (shouldTransform ? "[i]" : "   ")
+                + " " + clsBinName);
+        return loadedClass;
     }
 
     private Class<?> defineClass(String clsBinName, byte[] bytecode) {
@@ -153,7 +153,7 @@ public class TestClassLoader extends ClassLoader {
      * needs to be changed by hand in the future.
      *
      * NOTE: Main classes are never instrumented, test classes are always child
-     * first. TODO: improvement - load from a config file.
+     * first. TODO: load package policy settings from the config file?
      *
      * @return A {@link HashMap}{@code <}{@link Package}{@code , }
      *         {@link PackageLoadPolicy}{@code >} containing the load/instrument
@@ -162,16 +162,16 @@ public class TestClassLoader extends ClassLoader {
     public static HashMap<Package, PackageLoadPolicy> getPkgLoadPolicy() {
         HashMap<Package, PackageLoadPolicy> policies = new HashMap<Package, PackageLoadPolicy>();
 
-        /* main-chld-fst (contains state, refreshed in tst), tst-chld-fst, tst-instr */
+        /* main-chld-fst (contains state, refreshed in test), test-chld-fst, test-instr */
         policies.put(Package.getPackage("agent"), new PackageLoadPolicy(true, true, true));
 
-        /* main-parent-fst, tst-chld-fst, tst-instr */
+        /* main-parent-fst, test-chld-fst, test-instr */
         policies.put(Package.getPackage("comms"), new PackageLoadPolicy(false, true, true));
 
-        /* main-parent-fst, tst-chld-fst, tst-instr */
+        /* main-parent-fst, test-chld-fst, test-instr */
         policies.put(Package.getPackage("transform"), new PackageLoadPolicy(false, true, true));
 
-        /* main-parent-fst, tst-parent-fst, tst-no-instr */
+        /* main-parent-fst, test-parent-fst, test-no-instr */
         policies.put(Package.getPackage("testutils"), new PackageLoadPolicy(false, false, false));
 
         return policies;

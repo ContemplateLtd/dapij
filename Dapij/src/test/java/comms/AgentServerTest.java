@@ -13,6 +13,7 @@ import transform.InstanceAccessData;
 import transform.InstanceCreationData;
 
 /**
+ * A class contianing tests for the {@link AgentServer} class.
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
@@ -28,7 +29,8 @@ public class AgentServerTest extends TransformerTest {
     public void agentEventServerTest() throws InterruptedException {
 
         /* Start client first, as srv blocking start. */
-        LoggingTestClient client = new LoggingTestClient(CommsProtocol.HOST, CommsProtocol.PORT);
+        LoggingTestClient client = new LoggingTestClient(CommsProtocol.HOST, CommsProtocol.PORT,
+                100, 2000, 5);
         client.setDaemon(true);
         client.start();
         AgentServer server = AgentServer.blockingConnect(CommsProtocol.HOST, CommsProtocol.PORT,
@@ -64,7 +66,8 @@ public class AgentServerTest extends TransformerTest {
     public void eventOrderTest() throws InterruptedException {
 
         /* Start client first, as srv blocking start. */
-        LoggingTestClient client = new LoggingTestClient(CommsProtocol.HOST, CommsProtocol.PORT);
+        LoggingTestClient client = new LoggingTestClient(CommsProtocol.HOST, CommsProtocol.PORT,
+                100, 2000, 5);
         client.setDaemon(true);
         client.start();
         AgentServer server = AgentServer.blockingConnect(CommsProtocol.HOST, CommsProtocol.PORT,

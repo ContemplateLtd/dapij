@@ -21,8 +21,8 @@ public abstract class EventClient extends NetworkNode {
     private Selector selector;
     private SocketChannel sockChnl;
 
-    public EventClient(String host, int port) {
-        super(host, port, 100, 2000, 5);
+    public EventClient(String host, int port, long soTimeout, long attemptInterval, int attempts) {
+        super(host, port, soTimeout, attemptInterval, attempts);
         setName("test-client");
     }
 

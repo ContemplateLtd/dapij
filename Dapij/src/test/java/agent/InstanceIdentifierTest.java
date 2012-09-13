@@ -33,6 +33,13 @@ public class InstanceIdentifierTest extends TransformerTest {
         }
     }
 
+    /** Turns off all instrumentation for access detection for each test. */
+    @org.junit.Before
+    public void turnOffAllAccessDetection() {
+        Settings.INSTANCE.set(Settings.SETT_MTD_ACCS, "false"); /* Not tested here. */
+        Settings.INSTANCE.set(Settings.SETT_FLD_ACCS, "false"); /* Not tested here. */
+    }
+
     /**
      * Check if generated id values are all different from each other and
      * {@code >} 0.
@@ -210,7 +217,7 @@ public class InstanceIdentifierTest extends TransformerTest {
 
             /**
              * A {@link Callable} worker that generates accesses to an object
-             * regularly fetching its id to check it for consistency.
+             * regularly fetching its id to check if it changes.
              *
              * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
              */
@@ -238,8 +245,10 @@ public class InstanceIdentifierTest extends TransformerTest {
                     ref.equals(ref);
                     long id3 = InstanceIdentifier.INSTANCE.getId(ref);
                     if (!(id0 == id1 && id1 == id2 && id2 == id3)) {
+
                         return (long) -1;
                     }
+
                     return Long.valueOf(id0);
                 }
             }
@@ -267,7 +276,7 @@ public class InstanceIdentifierTest extends TransformerTest {
                 return Boolean.valueOf(true);
             }
         });
-        Assert.assertEquals("Object id remains consistent when obtained multiple times: ",
+        Assert.assertEquals("InstanceIdentifier.getId() provides consistent ids for references: ",
                 true , isConsistent.booleanValue());
     }
 }

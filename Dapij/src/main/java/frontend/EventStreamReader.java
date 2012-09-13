@@ -17,7 +17,7 @@ public abstract class EventStreamReader extends EventClient {
     private EventListener ev;
 
     public EventStreamReader(String host, int port) {
-        super(host, port);
+        super(host, port, 100, 2000, 5);
     }
 
     public void setListener(EventListener ev) {

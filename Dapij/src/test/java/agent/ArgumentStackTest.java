@@ -10,9 +10,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import junit.framework.Assert;
 import org.junit.Test;
-
 import utils.Helpers;
 
+/**
+ * A class containing tests for the {@link ArgumentStack} class.
+ *
+ * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
+ */
 public class ArgumentStackTest {
 
     /**
@@ -75,8 +79,8 @@ public class ArgumentStackTest {
         private Stack<Class<?>> referenceEntryTypes;
 
         /**
-         * A random {@code long} providing a bit pattern to pseudo randomise
-         * popping & pushing.
+         * A random {@code long} providing a bit pattern used to pseudo
+         * randomise popping & pushing.
          */
         private long bitPattern;
 
@@ -111,7 +115,7 @@ public class ArgumentStackTest {
                     || poppedType == byte.class && popByte() == ArgumentStack.popByte()
                     || poppedType == float.class && popFloat() == ArgumentStack.popFloat()
                     || poppedType == boolean.class && popBoolean() == ArgumentStack.popBoolean()
-                    || popObj().equals(ArgumentStack.pop()));
+                    || pop().equals(ArgumentStack.pop()));
         }
 
         public boolean popBoolean() {
@@ -146,7 +150,7 @@ public class ArgumentStackTest {
             return ((Short) reference.pop()).shortValue();
         }
 
-        public Object popObj() {
+        public Object pop() {
             return reference.pop();
         }
 

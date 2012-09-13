@@ -1,0 +1,26 @@
+# DAPIJ CONFIG FILE #
+
+# Settings can be added and default values can be overridden by adding entries
+# in this config file. For a list of possible entries for overriding, please
+# see the javadoc for dapij.agent.Settings.
+#
+# A settings can be entered more than once in this value. The final entry has
+# precedence over all other previous entries.
+#
+# Command line arguments that change the values of some of these settings have
+# precedence over both default presets and values provided in the config file.
+
+# Operation port of communications protocol.
+#agentNetPort=7836
+
+# Operation host of communications protocol.
+#agentNetHost=localhost
+
+# Server socket timeout when waiting on accept() (milliseconds).
+serverSoTimeout=5000
+
+# The interval between accept() attempts (in milliseconds).
+serverAttemptInterval=3000
+
+# The number of attempts to wait on accept() before terminating.
+serverWaitAttempts=3

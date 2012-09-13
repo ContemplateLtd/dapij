@@ -24,8 +24,8 @@ import agent.Settings;
 public final class CommsProtocol {
 
     /* Network configuration */
-    public static final int PORT = Integer.valueOf(Settings.INSTANCE.get(Settings.SETT_EVS_PORT));
-    public static final String HOST = Settings.INSTANCE.get(Settings.SETT_CLI_HOST);
+    public static final int PORT = Integer.valueOf(Settings.INSTANCE.get(Settings.SETT_NET_PORT));
+    public static final String HOST = Settings.INSTANCE.get(Settings.SETT_NET_HOST);
 
     private CommsProtocol() {}
 

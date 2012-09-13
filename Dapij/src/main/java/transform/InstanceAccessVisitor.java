@@ -7,6 +7,7 @@ import org.objectweb.asm.Type;
 import agent.ArgumentStack;
 import agent.InstanceIdentifier;
 import agent.RuntimeEventSource;
+import agent.Settings;
 
 /**
  * Provides common functionality to visitors that generate events on instance
@@ -25,7 +26,7 @@ public class InstanceAccessVisitor extends MethodVisitor {
         this.className = className;
     }
 
-    /** Registers field accesses. */
+    /** Injects bytecode for registering field accesses. */
     @Override
     public void visitFieldInsn(int opcode, String owner, String name, String desc) {
 
@@ -34,11 +35,12 @@ public class InstanceAccessVisitor extends MethodVisitor {
          * object is accessed from within its own constructor, as they cause
          * errors/inconsistencies. See the doc folder for details.
          *
-         * TODO: does info exist in doc folder?
+         * TODO: Does info exist in doc folder?
          * TODO: review if statement. Constructors not instrumented. Is this desirable?
          * TODO: what is "this$"?
          */
-        if (!(methodName.equals("<init>") && (owner.equals(className)))) {
+        if (!(methodName.equals("<init>") && owner.equals(className))
+                && Settings.INSTANCE.get(Settings.SETT_FLD_ACCS).equals("true")) {
             if (opcode == Opcodes.GETFIELD) {
                 mv.visitInsn(Opcodes.DUP); /* If argument is a reference, duplicate it. */
                 injectFireAccsEvent();
@@ -63,6 +65,7 @@ public class InstanceAccessVisitor extends MethodVisitor {
         mv.visitFieldInsn(opcode, owner, name, desc);
     }
 
+    /** Injects bytecode for registering method accesses. */
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String desc) {
 
@@ -70,8 +73,9 @@ public class InstanceAccessVisitor extends MethodVisitor {
         /* TODO: Does not instrument constructors? */
 
         /* Inject code to detect object accesses here. */
-        if (opcode == Opcodes.INVOKEVIRTUAL || opcode == Opcodes.INVOKEINTERFACE
-                || (opcode == Opcodes.INVOKESPECIAL && !name.equals("<init>"))) {
+        if ((opcode == Opcodes.INVOKEVIRTUAL || opcode == Opcodes.INVOKEINTERFACE
+                || (opcode == Opcodes.INVOKESPECIAL && !name.equals("<init>")))
+                && Settings.INSTANCE.get(Settings.SETT_MTD_ACCS).equals("true")) {
             Type[] argTypes = Type.getArgumentTypes(desc); /* Get types of method arguments. */
 
             /* Pop args (from rightmost to leftmost) & push them temporarily in external stack. */

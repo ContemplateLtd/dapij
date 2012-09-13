@@ -10,8 +10,9 @@ public class LoggingTestClient extends EventClient {
 
     private ArrayList<byte[]> msgLog;
 
-    public LoggingTestClient(String host, int port) {
-        super(host, port);
+    public LoggingTestClient(String host, int port, long soTimeout, long attemptInterval,
+            int attempts) {
+        super(host, port, soTimeout, attemptInterval, attempts);
         msgLog = new ArrayList<byte[]>();
     }
 

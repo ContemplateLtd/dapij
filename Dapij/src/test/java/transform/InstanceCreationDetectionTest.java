@@ -2,6 +2,7 @@ package transform;
 
 import agent.InstanceIdentifier;
 import agent.RuntimeEventSource;
+import agent.Settings;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import static org.junit.Assert.assertEquals;
@@ -11,11 +12,19 @@ import testutils.TransformerTest;
 /* TODO: Test InstructionOffsetVisitor. */
 
 /**
- * A class containing tests for the {@code dapij.transform} package.
+ * A class containing tests for {@link InstanceCreationVisitor} and
+ * {@link InstructionOffsetVisitor}.
  *
  * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
  */
-public class TransformationTest extends TransformerTest {
+public class InstanceCreationDetectionTest extends TransformerTest {
+
+    /** Turns off all instrumentation for access detection for each test. */
+    @org.junit.Before
+    public void turnOffAllAccessDetection() {
+        Settings.INSTANCE.set(Settings.SETT_MTD_ACCS, "false"); /* Not tested here. */
+        Settings.INSTANCE.set(Settings.SETT_FLD_ACCS, "false"); /* Not tested here. */
+    }
 
     /**
      * Tests whether object creations are detected and information about the
@@ -25,7 +34,7 @@ public class TransformationTest extends TransformerTest {
      * @throws Exception
      */
     @Test
-    public void constructorIsInstumented() throws Exception {
+    public void creationInstumentationTest() throws Exception {
 
         /* Get map with ids for created instances. */
         HashMap<Long, InstanceCreationData> map = noInstrSetup(
@@ -34,6 +43,10 @@ public class TransformationTest extends TransformerTest {
             @SuppressWarnings("unchecked")
             @Override
             public HashMap<Long, InstanceCreationData> call() throws Exception {
+
+                /* Turn on creation detection only. */
+                //Settings.INSTANCE.set(Settings.SETT_FLD_ACCS, "false");
+                //Settings.INSTANCE.set(Settings.SETT_MTD_ACCS, "false");
 
                 /* Create a listener to register instance creations. */
                 CreationEventListener l = new CreationEventListener() {
@@ -103,7 +116,7 @@ public class TransformationTest extends TransformerTest {
 
         /* Check if info obj fields correct (one by one). */
         InstanceCreationData icsRnbl = (InstanceCreationData) map.get(r);
-        assertEquals("Class corretly read & set", "transform.TransformationTest$2$1",
+        assertEquals("Class corretly read & set", this.getClass().getName() + "$2$1",
                 icsRnbl.getClassName());
         assertEquals("Method name correctly read & set", "anotherMethod", icsRnbl.getMethod());
         assertEquals("Offset correctly read & set", 2, icsRnbl.getOffset());
