@@ -33,6 +33,14 @@ public class Transformer implements ClassFileTransformer {
 
                 /* Takes care of stack overflows when getting & storing IDs, null pointer exs. */
                 || className.startsWith("com/google/common/collect/") /* TODO: To be removed. */
+                
+                /*
+                 * The following two classes are needed for creating the messages to send, and so their 
+                 * static fields must be fully initialised before the first event is sent. Therefore
+                 * the agent cannot instrument the methods initialising their static fields
+                 */
+                || className.equals("java/lang/Long$LongCache")
+                || className.equals("java/lang/reflect/Proxy")
 
                 /* 
                  * These classes are used for sending messages over the network. Instrumenting them

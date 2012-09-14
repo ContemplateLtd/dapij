@@ -7,7 +7,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
-import agent.Settings;
+import utils.Message;
 import comms.CommsProtocol.MsgBody;
 import comms.CommsProtocol.MsgHeader;
 
@@ -37,7 +37,7 @@ public abstract class EventClient extends NetworkNode {
                     sockChnl.configureBlocking(false);
                 }
                 if (!sockChnl.isConnected()) {
-                    Settings.INSTANCE.println("Connecting to server [" + getHost() + ":"
+                    Message.println("Connecting to server [" + getHost() + ":"
                             + getPort() + "] ...");
                     sockChnl.connect(new InetSocketAddress(getHost(), getPort()));
                 }
@@ -58,9 +58,9 @@ public abstract class EventClient extends NetworkNode {
                 } catch (Exception ex) {
                     e.printStackTrace(); /* Ignore. */
                 }
-                Settings.INSTANCE.println("Could not connect to [" + getHost() + ":" + getPort()
+                Message.println("Could not connect to [" + getHost() + ":" + getPort()
                         + "] ...");
-                Settings.INSTANCE.println("Attempting again ...");
+                Message.println("Attempting again ...");
                 continue;
             }
             try {
@@ -71,7 +71,7 @@ public abstract class EventClient extends NetworkNode {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            Settings.INSTANCE.println("Done.");
+            Message.println("Done.");
             break;
         }
     }
@@ -84,8 +84,8 @@ public abstract class EventClient extends NetworkNode {
         }
 
         /* Shutdown gracefully. */
-        Settings.INSTANCE.println("Shutting down ...");
-        Settings.INSTANCE.println("Fetching remaining messages ...");
+        Message.println("Shutting down ...");
+        Message.println("Fetching remaining messages ...");
         listenAndProcess(); /* Fetch events remaining after shutdown(). */
         try {
             selector.close();
@@ -93,7 +93,7 @@ public abstract class EventClient extends NetworkNode {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Settings.INSTANCE.println("Done.");
+        Message.println("Done.");
     }
 
     private void listenAndProcess() {
@@ -108,7 +108,7 @@ public abstract class EventClient extends NetworkNode {
         if (!i.hasNext()) {
             if (isRunning() && (sockChnl == null || !sockChnl.isOpen() || !sockChnl.isConnected()
                     || !sockChnl.isRegistered())) {
-                Settings.INSTANCE.println("Server terminated...");
+                Message.println("Server terminated...");
                 shutdown();
             }
 
