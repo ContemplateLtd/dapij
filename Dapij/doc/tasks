@@ -31,7 +31,7 @@ V	- implemented
 TASKS:
 
 	[0]. Issues
-MS		~	0.1 Problem with missing static classes at runtime in production (issue 002-NoClassDefFoundError).
+MS		~V	0.1 Problem with missing static classes at runtime in production (issue 002-NoClassDefFoundError).
 
 	[1]. Architecture
 NP			1.1	Implement a agent server that streams *events to a network port
@@ -47,7 +47,7 @@ NP			1.1	Implement a agent server that streams *events to a network port
 
 NP		V	1.2	[r] Establish a protocol (network message format) for the events
 
-		V	1.3 [g] Implement a production test client (perhaps based on the testing client).
+MS/NP	V	1.3 [g] Implement a production test client (perhaps based on the testing client).
 
 		~V	1.4	[g] Implement a consumer API (e.g. using the Visitor pattern) - currently a miniature implementation
 		V		* A client that accepts events from the agent event server (an event reader).
@@ -57,48 +57,53 @@ NP		V	1.2	[r] Establish a protocol (network message format) for the events
 
 	[2]. Testing
 NP			2.1. [r] Fix testing framework
-			V	* Provide support for loading & instrumenting policies per package.
-			V	* Add functionality to override instrumentation policy regardless of class pkg policy.
+			V	* Provide support for loading & instrumenting policies per package
+			V	* Add functionality to override instrumentation policy regardless of class pkg policy
 					- should be loaded from config file (not yet implemented)
 			V	* Review TestClassLoader implementation and verify that it works
 					- improve package load policies
 			
 			2.2	[r] Test communication architecture & protocol
-			~V	- test agent production server - currently only tested indirectly
-			~V	- test production client - currently only tested indirectly
+			~V	* test agent production server - currently only tested indirectly
+			~V	* test production client - currently only tested indirectly
 MS			~V	* Performance test - rapid sending of a huge amount of messages.
 NP			~V 	* Test message order & whether all messages received (no concurrent tests yet)
 NP			V	* Test protocol methods & classes
 
 MS/NP	~V	2.3 [r] Fully test instrumentation code.
+NP			V	* Test instance creation detection.
+			X	* Test instance field access detection.
+			X	* Test omstance method access detection.
 
-NP		~V	2.4 [r] Fully test event generation code - indirectly tested.
+NP		~V	2.4 [r] Fully test event generation code - indirectly tested
 
 			2.5 [r]	Fully test agent code.
 			~V	* ArgumentStack, test needs review to check for completeness
-MS			~V	* InstanceIdentifier (issue with incrementing atomic counter more than needed)
-NP			~V	* Settings (not yet tested for concurrency & thread safety).
+NP			V	* InstanceIdentifier
+NP			~V	* Settings (not yet tested for concurrency & thread safety)
 
 	[3]. Agent features
 MS		V	3.1	[r] Implement object identification (either in map or in inserted field)
 MS		~V	3.2	Research the approach of adding a field to java.lang.Object
-				- this is better as it is centralised, but might introduce other problems
+				- this is better because it is distributed, but might introduce other problems
 		X	3.3	[g] Cover the rest of the (currently not handled) cases for object creation
 				which include (but may not be limited to):
 				- create instances using reflection
 				- create instances using deserialisation
-				- deal with unknown instances (i.e. without known origin) - this is not a problem of data collection.
+				- deal with unknown instances (i.e. without known origin)
+		X	3.4 [y] Register accesses to static method calls.
 
 	[4]. [y] Settings Singleton
-		~V	4.1 [y] make it thread safe, e.g.:
+		~V	4.1 [y] make it thread safe, e.g.: (not tested)
 				- use a concurrent HashMap
-				- use synchronised setters?
+NP		V	4.2 [g] Load settings from config file.
 
 	[5]. Documentation.
 			5.1 [y] Documenting issues
 			~V	* TODOs
-			~V	* Extensive comments in codr
-			~V	* Textual explanations in doc folder / Contemplate wiki.
+			~V	* Extensive doc comments
+			~V	* Textual explanations in doc folder / Contemplate wiki. - need more of these
 					- Created issues/ & bugs/ directories
+MS/NP		X	* Overal explanations of ineer workings
 
 	[6]. [g] Use a Logger for logging instead of prints to stdout.

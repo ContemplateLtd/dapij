@@ -24,7 +24,7 @@ public class AgentServer extends NetworkNode {
     private Selector selector;
 
     public AgentServer(String host, int port, long soTimeout, long attemptInerval, int attempts) {
-        super(host, port, 1000, 5000, 3);
+        super(host, port, soTimeout, attemptInerval, attempts);
         setName("agnt-server");
     }
 
@@ -219,7 +219,7 @@ public class AgentServer extends NetworkNode {
                             return new AgentServer(srvChnl, cliChnl, selector);
                         }
                     }
-                } catch (Exception e) {} finally { /* Ignore. */
+                } catch (Exception e) {} finally { /* Ignore & retry. */
                     i++;
                 }
             }

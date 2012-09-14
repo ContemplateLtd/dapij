@@ -141,17 +141,10 @@ public class InstanceCreationVisitor extends InstructionOffsetReader {
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(Thread.class), "getId",
                 Type.getMethodDescriptor(Type.getType(long.class)));
 
-        /*
-         * Put an entry into the concurrent map to record this creation.
-         *
-         * TODO: Could the following be a problem - what if the constructor
-         * passes a reference to the created object to another thread and that
-         * thread deletes the object (leaked reference)?
-         */
+        /* Generate an event to record creation. */
         String descriptor = Type.getMethodDescriptor(Type.getType(void.class),
                 Type.getType(long.class), Type.getType(String.class), Type.getType(String.class),
                 Type.getType(int.class), Type.getType(long.class));
-
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(CreationEventSource.class),
                 "fireEvent", descriptor);
     }

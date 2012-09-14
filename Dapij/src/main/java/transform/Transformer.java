@@ -22,16 +22,22 @@ public class Transformer implements ClassFileTransformer {
             ProtectionDomain protectionDomain, byte[] classfileBuffer)
             throws IllegalClassFormatException {
 
-        /* Do not instrument project's classes at runtime. */
+        /* Do not instrument project's classes. */
         boolean shouldInstrument = !(className.startsWith("agent/") || className.startsWith("comms")
                 || className.startsWith("transform/")
 
-                /* The two boolean expressions below are related to issue 004. */
-                /* These prevent stack overflows when trying to notify event subscribers. */
+                /*
+                 * The two boolean expressions below are related to issue 004.
+                 * They prevent stack overflows when trying to notify event
+                 * subscribers.
+                 */
                 || className.startsWith("java/util/")   /* TODO: To be removed. */
                 || className.startsWith("sun/reflect")  /* TODO: To be removed. */
 
-                /* Takes care of stack overflows when getting & storing IDs, null pointer exs. */
+                /*
+                 * Prevents stack overflows when getting & storing IDs, null
+                 * pointer exceptions.
+                 */
                 || className.startsWith("com/google/common/collect/") /* TODO: To be removed. */
                 
                 /*
@@ -42,19 +48,17 @@ public class Transformer implements ClassFileTransformer {
                 || className.equals("java/lang/Long$LongCache")
                 || className.equals("java/lang/reflect/Proxy")
 
-                /* 
-                 * These classes are used for sending messages over the network. Instrumenting them
-                 * prevents the network from working correctly
+                /*
+                 * Instrumenting these causes errors when sending messages over
+                 * the network.
                  */
                 || className.startsWith("sun/nio/")
                 || className.startsWith("java/nio/")
                 || className.startsWith("java/io/")
                 || className.equals("sun/misc/Cleaner"));
+        Settings.INSTANCE.println("Loaded " + (shouldInstrument ? "[i]" : "   ") + " " + className);
 
-        Settings.INSTANCE.println("Loaded " + ((shouldInstrument) ? "[i]" : "   ")
-                + " " + className);
-
-        return (shouldInstrument) ? transformClass(classfileBuffer) : classfileBuffer;
+        return (shouldInstrument ? transformClass(classfileBuffer) : classfileBuffer);
     }
 
     /** Instruments classes' bytecode using an ASM {@link ClassVisitor}. */

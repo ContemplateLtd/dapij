@@ -10,7 +10,7 @@ import java.util.EventObject;
  */
 public class CreationEvent extends EventObject {
 
-    private static final long serialVersionUID = 1L; /* default value */
+    private static final long serialVersionUID = 4207129732142980282L;
     private InstanceCreationData data;
 
     public CreationEvent(Object eventSrc, InstanceCreationData data) {

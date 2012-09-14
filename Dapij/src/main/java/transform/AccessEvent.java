@@ -10,7 +10,7 @@ import java.util.EventObject;
  */
 public class AccessEvent extends EventObject {
 
-    private static final long serialVersionUID = 1L; /* default value */
+    private static final long serialVersionUID = -8427249131514728600L;
     private InstanceAccessData data;
 
     public AccessEvent(Object src, InstanceAccessData data) {
