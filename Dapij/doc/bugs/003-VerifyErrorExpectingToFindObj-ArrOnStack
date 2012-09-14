@@ -1,0 +1,11 @@
+[STATUS]
+OPEN
+
+[BUG]
+When class constructors are instrumented for field access detection, sometimes
+the exception: java.lang.VerifyError: Expecting to find object/array on stack
+is being thrown at runtime.
+
+[SOLUTION]
+Temporary solution: avoid instrumenting class constructors for field accesses
+when the type of the reference being accessed is the class being instrumented.

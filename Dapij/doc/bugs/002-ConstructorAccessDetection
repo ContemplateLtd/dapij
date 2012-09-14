@@ -1,0 +1,10 @@
+[STATUS]
+CLOSED
+
+[BUG]
+Instrumenting constructor calls for access detection causes an error because
+the reference being accessed (the object being constructed) is not initialised.
+
+[SOLUTION]
+Do not instrument for access detection upon visiting INVOKEVIRTUAL instructions
+when the method name equals "<init>".

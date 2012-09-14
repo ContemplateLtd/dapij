@@ -68,14 +68,15 @@ public class DataCollector extends ClassVisitor {
         }
 
         /*
-         * The following two classes are needed for creating the messages to send, and so their 
-         * static fields must be fully initialised before the first event is sent. Therefore
-         * the agent cannot instrument the methods initialising their static fields
+         * The following two classes are needed for creating the messages to
+         * send, and so their static fields must be fully initialised before the
+         * first event is sent. Therefore the agent cannot instrument the
+         * methods initialising their static fields.
          */
         if (className.equals("java/lang/Long$LongCache") && name.equals("<clinit>")) {
             return mv;
         }
-        if(className.equals("java/lang/reflect/Proxy") && name.equals("<clinit>")) {
+        if (className.equals("java/lang/reflect/Proxy") && name.equals("<clinit>")) {
             return mv;
         }
 

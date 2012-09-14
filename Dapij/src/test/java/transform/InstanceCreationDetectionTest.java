@@ -85,7 +85,7 @@ public class InstanceCreationDetectionTest extends TransformerTest {
 
             @Override
             public Object[] call() {
-                String.valueOf(5);          /* Insert instruction to change offset. */
+                String.valueOf(5);          /* Insert instruction to increase offset. */
                 Integer i = new Integer(5); /* Create an Integer object. */
 
                 return new Object[] { i, anotherMethod() }; /* Return refs of created objects. */

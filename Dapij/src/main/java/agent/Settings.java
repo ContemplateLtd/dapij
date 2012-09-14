@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.ConcurrentHashMap;
@@ -117,10 +116,7 @@ public final class Settings {
         set(Settings.SETT_VERBOSE, "false");
 
         /* load the rest of the settings from config file. */
-        if (!loadSettings()) {
-            System.out.println("Exitting ...");
-            System.exit(1);
-        }
+        loadSettings();
     }
 
     /**
@@ -163,27 +159,49 @@ public final class Settings {
     }
 
     /**
+     * A custom exception for invalid config file lines.
+     *
+     * @author Nikolay Pulev <N.Pulev@sms.ed.ac.uk>
+     */
+    public static class InvalidLineException extends Exception {
+
+        private static final long serialVersionUID = -559208009732124522L;
+        private String errMsg;
+
+        public InvalidLineException() {
+            super();
+            errMsg = "unknown";
+        }
+
+        public InvalidLineException(String errMsg) {
+            super(errMsg);     // call super class constructor
+            this.errMsg = errMsg;  // save message
+        }
+
+        public String getError() {
+            return errMsg;
+        }
+    }
+
+    /**
      * Loads settings from a config file line by line.
      *
      * @returns true if settings correctly loaded and false otherwise.
      */
-    private boolean loadSettings() {
+    private void loadSettings() {
         File config = new File(get(SETT_CWD), CFG_FNAME);
         FileInputStream fis = null;
+        DataInputStream dis = null;
+        BufferedReader br = null;
         try {
             fis = new FileInputStream(config);
-        } catch (FileNotFoundException e) {
-            println("Could not load settings. \"config\" file does not exist in the current "
-                    + "working directory.");
-        }
-        DataInputStream dis = new DataInputStream(fis);
-        BufferedReader br = new BufferedReader(new InputStreamReader(dis));
+            dis = new DataInputStream(fis);
+            br = new BufferedReader(new InputStreamReader(dis, "UTF8"));
+            Pattern settingPattern = Pattern.compile("([a-zA-Z][a-zA-Z0-9_]*)=(.*)");
 
-        /* Compile a regular expression. */
-        Pattern settingPattern = Pattern.compile("([a-zA-Z][a-zA-Z0-9_]*)=(.*)");
-        String line;
-        int lineCount = 1;
-        try {
+            /* Read conf file line by line. */
+            String line;
+            int lineCount = 1;
             while ((line = br.readLine()) != null) {
 
                 /* If a setting line. */
@@ -193,25 +211,25 @@ public final class Settings {
 
                 /* If not a comment or an empty line, consider invalid. */
                 } else if (!line.startsWith("#") && !line.equals("")) {
-                    System.out.println("Invalid line in config file: "
+                    throw new InvalidLineException("Invalid line in config file: "
                             + config.getPath() + ":" + lineCount);
-
-                    return false;
                 }
                 lineCount++;
             }
-
-            return true;
-        } catch (IOException e) {
-            System.out.println("Could not read settings file: '" + config.getPath() + "'.");
-
-            return false;
+        } catch (Exception e) {
+            System.out.println("Could not load settings from config file: '" + config.getPath()
+                    + "'.");
+            throw new RuntimeException(e);
         } finally {
             try {
                 fis.close();
+            } catch (Exception e) {} /* Ignore. */
+            try {
                 dis.close();
+            } catch (Exception e) {} /* Ignore. */
+            try {
                 br.close();
-            } catch (IOException e) {} /* Ignore. */
+            } catch (Exception e) {} /* Ignore. */
         }
     }
 

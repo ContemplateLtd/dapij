@@ -78,7 +78,7 @@ public final class InstanceIdentifier implements Identifier {
         if (f == null) {
             Long objId = idMap.get(ref);
             if (objId == null) {
-                Long newId = new Long(nextObjectID.getAndIncrement());
+                Long newId = new Long(nextObjectID.getAndIncrement()); /* A new object needed. */
                 objId = idMap.putIfAbsent(ref, newId);
                 if (objId == null) {
                    objId = newId;
@@ -96,12 +96,14 @@ public final class InstanceIdentifier implements Identifier {
         if (objId == NO_ID) {
             long newId = nextObjectID.getAndIncrement();
             try {
-                Long idFieldOffset = (Long) GET_FIELD_OFFSET.invoke(UNSAFE, f); /* Get offset. */
-                Boolean hasUpdateOccured = (Boolean) COMPARE_AND_SET.invoke(
-                        UNSAFE, ref, idFieldOffset.longValue() , NO_ID, newId); /* Compare & set. */
+                long idFieldOffset = (Long) GET_FIELD_OFFSET.invoke(UNSAFE, f); /* Get offset. */
+
+                /* Atomic compare & set -> if (id == NO_ID) { id = newId; }. */
+                boolean hasUpdateOccured = (Boolean) COMPARE_AND_SET.invoke(UNSAFE, ref,
+                        idFieldOffset, NO_ID, newId);
 
                 /* If no update, read again to get possible updates since last getLong() above. */
-                objId = (hasUpdateOccured.booleanValue()) ? newId : f.getLong(ref);
+                objId = (hasUpdateOccured ? newId : f.getLong(ref));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

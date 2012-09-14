@@ -3,7 +3,6 @@ package transform;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-
 import agent.ArgumentStack;
 import agent.InstanceIdentifier;
 import agent.RuntimeEventSource;
@@ -31,13 +30,9 @@ public class InstanceAccessVisitor extends MethodVisitor {
     public void visitFieldInsn(int opcode, String owner, String name, String desc) {
 
         /*
-         * This "if" statement is used to make the agent ignore cases when
-         * object is accessed from within its own constructor, as they cause
-         * errors/inconsistencies. See the doc folder for details.
-         *
-         * TODO: Does info exist in doc folder?
-         * TODO: review if statement. Constructors not instrumented. Is this desirable?
-         * TODO: what is "this$"?
+         * This if statement is used to avoid instrumenting object accesses
+         * within own constructor, because this cause errors. See bug '003'
+         * TODO: better explain bug '003'.
          */
         if (!(methodName.equals("<init>") && owner.equals(className))
                 && Settings.INSTANCE.get(Settings.SETT_FLD_ACCS).equals("true")) {
@@ -68,13 +63,11 @@ public class InstanceAccessVisitor extends MethodVisitor {
     /** Injects bytecode for registering method accesses. */
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String desc) {
-
         /* TODO: Handle INVOKESTATICs. */
-        /* TODO: Does not instrument constructors? */
 
         /* Inject code to detect object accesses here. */
-        if ((opcode == Opcodes.INVOKEVIRTUAL || opcode == Opcodes.INVOKEINTERFACE
-                || (opcode == Opcodes.INVOKESPECIAL && !name.equals("<init>")))
+        /* NOTE: Constructor calls generate both creation and access events. */
+        if ((opcode == Opcodes.INVOKEVIRTUAL || opcode == Opcodes.INVOKEINTERFACE)
                 && Settings.INSTANCE.get(Settings.SETT_MTD_ACCS).equals("true")) {
             Type[] argTypes = Type.getArgumentTypes(desc); /* Get types of method arguments. */
 
