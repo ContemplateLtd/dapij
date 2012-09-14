@@ -1,0 +1,10 @@
+[STATUS]
+CLOSED
+
+[BUG]
+Client's selector does not see sever's channel.
+
+[SOLUTION]
+This problem was caused by instrumenting io-related classes. Adding
+the packages sun.nio, java.nio and java.io to the list of not
+instrumented classes solved this issue.

@@ -1,0 +1,13 @@
+[STATUS]
+OPEN
+
+[BUG]
+The agent gets an InterruptedException and blocks the application when the instrumented
+program tries to use network.
+
+[SOLUTION]
+The reason for this behavior is yet unknown. It has, however, been
+checked that not instrumenting system classes does not solve the
+problem. It is possible that by using the network, the instrumented
+program somehow interferes with the communiation betwen the agent's
+server and the client

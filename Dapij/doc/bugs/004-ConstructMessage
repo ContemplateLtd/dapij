@@ -1,0 +1,19 @@
+[STATUS]
+CLOSED
+
+[BUG]
+When attempting to construct a creation message, the agent breaks with
+IllegalArgumentException when trying to update object identifier in
+getId.
+
+[SOLUTION]
+
+The problem was caused by instrumenting the <clinit> function in two
+system classes, java.lang.Long$LongCache and java.lang.reflect.Proxy.
+Both classes are used in creating the messages to send, and so they
+must be fully initialised before the first message is created.
+As the <clinit> function is called when the class is being initialized, it
+cannot be instrumented in this case.
+
+This problem was solved by not instrumenting java.lang.Long.LongCache
+and java.lang.reflect.Proxy.

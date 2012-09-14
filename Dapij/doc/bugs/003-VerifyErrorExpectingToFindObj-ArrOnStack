@@ -1,5 +1,5 @@
 [STATUS]
-OPEN
+CLOSED
 
 [BUG]
 When class constructors are instrumented for field access detection, sometimes
@@ -7,5 +7,12 @@ the exception: java.lang.VerifyError: Expecting to find object/array on stack
 is being thrown at runtime.
 
 [SOLUTION]
-Temporary solution: avoid instrumenting class constructors for field accesses
-when the type of the reference being accessed is the class being instrumented.
+ALthough the first operation in a constructor is usually a call to a
+constructor of the superclass, in some cases, most notably in
+anonymous inner classes, some of the object's fields are assigned
+values before the superclass constructor is called. In this case the
+object whose field is being accessed is not fully initialised yet, and
+so passing a reference to it to the getId method causes a VerifyError.
+
+This problem was solved by simply avoiding instrumenting accesses to
+object's own fields in its constructor.
