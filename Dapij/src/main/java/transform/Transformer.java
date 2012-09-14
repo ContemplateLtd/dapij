@@ -32,7 +32,16 @@ public class Transformer implements ClassFileTransformer {
                 || className.startsWith("sun/reflect")  /* TODO: To be removed. */
 
                 /* Takes care of stack overflows when getting & storing IDs, null pointer exs. */
-                || className.startsWith("com/google/common/collect/")); /* TODO: To be removed. */
+                || className.startsWith("com/google/common/collect/") /* TODO: To be removed. */
+
+                /* 
+                 * These classes are used for sending messages over the network. Instrumenting them
+                 * prevents the network from working correctly
+                 */
+                || className.startsWith("sun/nio/")
+                || className.startsWith("java/nio/")
+                || className.startsWith("java/io/")
+                || className.equals("sun/misc/Cleaner"));
 
         Settings.INSTANCE.println("Loaded " + ((shouldInstrument) ? "[i]" : "   ")
                 + " " + className);
